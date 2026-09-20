@@ -7,7 +7,7 @@ export interface ArchiveAsset {
   category: string;
   mode: PortfolioMode;
   url: string;
-  type?: 'image' | 'graphic' | 'poster' | 'badge' | 'map' | 'template';
+  type?: 'image' | 'graphic' | 'poster' | 'badge' | 'map' | 'template' | 'video';
 }
 
 export interface ProjectGroup {
@@ -285,15 +285,24 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
     category: '[HVOC] Bưu điện HVOC',
     mode: 'employer-club',
     type: 'poster',
-    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/Qu%E1%BA%A3ng%20b%C3%A1.webp',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/Qu%E1%BA%A3ng%20b%C3%A1.png',
   },
   {
     id: 'emp-hvoc-buudien-biafb',
-    title: 'Bưu điện HVOC - Ảnh bìa Facebook',
+    title: 'Bưu điện HVOC - Ảnh bìa Facebook / Ảnh bìa Google Form',
     project: 'Bưu điện HVOC',
     category: '[HVOC] Bưu điện HVOC',
     mode: 'employer-club',
     type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/%E1%BA%A2nh%20b%C3%ACa%20Facebook.webp',
+  },
+  {
+    id: 'emp-hvoc-buudien-video',
+    title: 'Bưu điện HVOC - Video giới thiệu',
+    project: 'Bưu điện HVOC',
+    category: '[HVOC] Bưu điện HVOC',
+    mode: 'employer-club',
+    type: 'video',
     url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/%E1%BA%A2nh%20b%C3%ACa%20Facebook.webp',
   },
 

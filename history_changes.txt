@@ -2347,7 +2347,7 @@ Dự án: Boulevard1st Portfolio & BLVD Archive
 
 ---
 ## LẦN 5
-- Thời điểm: Turn hiện tại (Dọn dẹp mã nguồn, tối ưu hóa toàn diện và loại bỏ hoàn toàn hệ thống grid cũ)
+- Thời điểm: Turn trước (Dọn dẹp mã nguồn, tối ưu hóa toàn diện và loại bỏ hoàn toàn hệ thống grid cũ)
 - Nội dung thay đổi chi tiết:
   1. Loại bỏ triệt để hệ thống Grid cũ (Safezone Grid & Canva Template Exporter):
      - Xóa bỏ hoàn toàn tệp `src/components/BlvdSafezoneGrid.tsx`.
@@ -2359,10 +2359,343 @@ Dự án: Boulevard1st Portfolio & BLVD Archive
        * `src/components/blvd-grid/index.tsx`
      - Giải phóng hơn 1,000 dòng mã nguồn thừa không còn sử dụng sau khi chuyển đổi sang không gian triển lãm 4 Zone Z-Fold Booklet & Carousels.
   2. Rà soát & tối ưu hóa mã nguồn:
-     - Kiểm tra toàn bộ các import và phụ thuộc chéo trong `src/App.tsx`, `src/components/ZFoldBooklet.tsx`, `src/components/VespertineBackground.tsx`, `src/components/ModeSelector.tsx`, `src/components/IntroClock.tsx`.
+     - Kiểm tra toàn bộ các import và phụ thuộc chéo trong `src/App.tsx`, `src/components/ZFoldBooklet.tsx`, `src/components/VespertineBackground.tsx`, `src/components/IntroClock.tsx`.
      - Đảm bảo 100% không còn code rác, không còn biến/type mồ côi.
      - Kiểm tra nghiêm ngặt quy tắc thiết kế Boulevard1st: không bo góc (`rounded-none` 100%, 0px border-radius), không vi phạm layout trên cả giao diện ngang và dọc.
      - Linter (`tsc --noEmit`) và Build (`vite build`) đạt 100% thành công, không phát sinh bất kỳ lỗi hay cảnh báo nào.
+
+---
+## LẦN 6
+- Thời điểm: Turn trước (Tái cấu trúc chế độ Instagram cuộn tự do cho 16, 17, 18 và chuỗi 9 ảnh cho 17)
+- File ảnh hưởng: `/src/components/ZFoldBooklet.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Chuyển đổi Instagram sang dạng cuộn liên tục (free continuous scroll with snap):
+     - Thay thế cơ chế nhảy trang cứng (`currentIndex` + `translateX`) bằng CSS `overflow-x-auto`, `scroll-snap-type: x mandatory` và hỗ trợ kéo chuột / vuốt tay (drag-to-scroll).
+     - Cho phép người dùng vuốt và giữ ở khoảng giữa 2 bức ảnh để quan sát trọn vẹn sự liền mạch và liên kết đồ họa của thiết kế.
+  2. Cập nhật trình tự ảnh cho Instagram của Zone 17:
+     - Thiết lập hằng số `BLVD17_INSTAGRAM_PAGES` gồm đúng 9 ảnh theo thứ tự từ 1 đến 8 và logo (`1.webp` đến `8.webp` + `logo_blvd17.webp`).
+     - Áp dụng riêng cho Zone 17 khi chuyển sang chế độ Instagram.
+
+---
+## LẦN 7
+- Thời điểm: Turn hiện tại (Bỏ chọn mode mặc định employer, màn hình loading trắng đen pre-intro tải toàn bộ ảnh, và ẩn nút reset zoom trên mobile)
+- File ảnh hưởng: `/src/App.tsx`, xóa `/src/components/ModeSelector.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Loại bỏ giao diện chọn mode, mặc định là Employer:
+     - Khởi tạo giá trị mặc định cho `portfolioMode` là `'employer-club'`.
+     - Xóa hoàn toàn component `ModeSelector.tsx` và import liên quan.
+  2. Màn hình loading ban đầu dạng đảo màu của #blvd loading (trắng sang đen và ngược lại):
+     - Background màn hình chuyển thành nền trắng (`bg-white` `#ffffff`, `z-[100]`).
+     - Chữ `LOADING` dạng SVG stretched (`viewBox="0 0 1000 120"`, `fontSize="115"`) với viền nét đen (`stroke="rgba(0, 0, 0, 0.95)"`, `strokeWidth="3.2"`, `fill="none"`).
+     - Hiệu ứng hiện dần từ trái sang phải bằng `clipPath: inset(0 ${100 - initialLoadingProgress}% 0 0)`.
+     - Tích hợp preloader tải thực tế toàn bộ hình ảnh trước khi vào trang: tải và giải mã toàn bộ ảnh ở giao diện chính (`ultrayoung.jpg`, `young.jpg`, `vespertine` layers, các icon tools, avatar) cùng tất cả ảnh của Zone 18, 17, 16.
+     - Chỉ khi tất cả ảnh đã tải xong và tiến trình đạt 100%, sau 350ms hệ thống mới chuyển tiếp vào màn hình bắt đầu `intro-play` ("phát").
+  3. Ẩn nút "reset zoom" trên mobile, giữ nguyên trên desktop:
+     - Cập nhật lớp CSS của `#blvd-reset-zoom-desktop` từ `flex` thành `hidden md:flex`. Nút reset zoom hoàn toàn biến mất trên màn hình di động và giữ nguyên trải nghiệm căn phải ở góc dưới bên phải trên desktop.
+
+---
+## LẦN 8
+- Thời điểm: Turn trước (Bỏ badge thứ tự ảnh trong chế độ Instagram)
+- File ảnh hưởng: `/src/components/ZFoldBooklet.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Loại bỏ badge hiển thị số thứ tự trang (`currentIndex + 1 / images.length`) ở góc trên bên phải khung ảnh trong chế độ xem Instagram (`InstagramViewer`):
+     - Xóa khối thẻ `div` chứa badge số trang tối giản (`absolute top-2.5 right-2.5 z-20 bg-black/60 border border-white/20`).
+     - Giữ khung ảnh sạch sẽ, liền mạch tuyệt đối khi xem và vuốt ảnh ở cả 3 Zone 18, 17 và 16.
+
+---
+## LẦN 9
+- Thời điểm: Turn hiện tại (Tích hợp luồng HVOC: màn hình Loading như #blvd, trang Giới thiệu CLB Olympia Chuyên Hùng Vương theo phác thảo ảnh, danh mục dự án và màn hình đen xì khi bấm option)
+- File ảnh hưởng: `/src/types.ts`, `/src/components/HvocIntroScreen.tsx`, `/src/App.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Cập nhật `SceneState` trong `/src/types.ts`:
+     - Bổ sung `'hvoc-loading'` và `'hvoc-intro'`.
+  2. Tạo component `/src/components/HvocIntroScreen.tsx`:
+     - Nút "trở về" ở góc trên bên trái (`fixed top-6 left-6 md:top-8 md:left-10 lg:top-10 lg:left-14`) để quay lại trang chính / mục lục.
+     - Khung ảnh chứa logo kép: URL `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/logo%20HVOC%20v%C3%A0%20CHV.png`.
+     - Tiêu đề chính dạng chữ in hoa đậm: `CÂU LẠC BỘ OLYMPIA CHUYÊN HÙNG VƯƠNG`.
+     - Đoạn văn bản giới thiệu lịch sử, sứ mệnh và các sự kiện thường niên của HVOC.
+     - Cột bên phải theo phong cách Mục lục (Table of Contents):
+       * `01 bưu điện hvoc`
+       * `02 tar`
+       * `03 ddo`
+       * `04 “KHÁC”`
+       * Số thứ tự màu xanh chanh `#89CC04`, font Archivo, hiệu ứng `hover-force-italic`.
+     - Trạng thái màn hình đen xì (`activeBlankOption`): Khi người dùng bấm vào bất kỳ option nào (bưu điện hvoc, tar, ddo, "KHÁC"), màn hình hiển thị đen tuyền toàn diện, hỗ trợ nút "trở về" hoặc click vào màn hình để quay lại trang giới thiệu HVOC.
+     - Tuân thủ nghiêm ngặt nguyên tắc Boulevard1st: Tất cả các component đều có góc sắc nét (`rounded-none`, 0px border-radius).
+  3. Cập nhật `/src/App.tsx`:
+     - Gắn sự kiện `handleHvocClick` vào mục `03 Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương` trên Mục lục.
+     - Khi bấm vào mục 03, chuyển sang scene `'hvoc-loading'`: hiển thị chữ `LOADING` dạng vector kéo dãn toàn màn hình, thanh tiến trình đổ đầy từ 0% đến 100% bằng `clipPath` theo đúng phong cách của `#blvd`.
+     - Tự động tải trước tài nguyên logo HVOC và khi đạt 100% chuyển tiếp mượt mà sang `'hvoc-intro'`.
+
+---
+## LẦN 10
+- Thời điểm: Turn hiện tại (Chuẩn hóa Typography các Option HVOC & Căn chỉnh khung giới thiệu)
+- File ảnh hưởng: `/src/components/HvocIntroScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Viết hoa toàn bộ các option dự án trong danh mục HVOC:
+     - `01 BƯU ĐIỆN HVOC`
+     - `02 THE AMAZING RACE (TAR)` (viết đầy đủ tên rồi mở ngoặc viết tắt đóng ngoặc)
+     - `03 ĐƯỜNG ĐẾN OZONE 7 (DDO)` (viết đầy đủ tên kèm số thứ tự mùa 7 và mở ngoặc viết tắt đóng ngoặc)
+  2. Tách option "KHÁC" thành 2 mục riêng biệt:
+     - `04 CLUB DAY`
+     - `05 POST THÔNG THƯỜNG`
+  3. Căn chỉnh đoạn văn giới thiệu HVOC:
+     - Đoạn văn bản giới thiệu trên Desktop được thiết lập chiều rộng (`width` / `maxWidth`) bằng chính xác kích thước text box của tiêu đề `CÂU LẠC BỘ OLYMPIA CHUYÊN HÙNG VƯƠNG` thông qua cơ chế đo đạc thực tế của `ResizeObserver`.
+     - Áp dụng căn đều hai bên (`text-align: justify; text-justify: inter-word`) trên desktop theo đúng chỉ định. Trên mobile tự động co giãn full-width linh hoạt.
+
+---
+## LẦN 11
+- Thời điểm: Turn hiện tại (Hỗ trợ đa ngôn ngữ Anh - Việt cho trang HVOC, sửa nút Trở về không bị kẹt khi vuốt)
+- File ảnh hưởng: `/src/App.tsx`, `/src/components/HvocIntroScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Đồng bộ ngôn ngữ từ màn hình chính sang trang HVOC (`language={language}`):
+     - Khi chuyển đổi ngôn ngữ Việt / Anh ở màn hình chính, trang HVOC lập tức hiển thị nội dung theo ngôn ngữ tương ứng.
+  2. Cập nhật Tiêu đề câu lạc bộ:
+     - Tiếng Việt: `CÂU LẠC BỘ OLYMPIA` / `CHUYÊN HÙNG VƯƠNG`.
+     - Tiếng Anh: `HUNG VUONG` / `OLYMPIA CLUB`.
+  3. Cập nhật Đoạn văn bản giới thiệu:
+     - Tiếng Anh: Sử dụng bản dịch chính xác do người dùng cung cấp: *"Founded in 2016, the Olympia Club of Hung Vuong High School for the Gifted (HVOC) is an academic club dedicated to providing multidisciplinary knowledge to students through media publications such as posts and short videos. Furthermore, the club creates an intellectual playground to seek out the most outstanding individuals to participate in the "Đường lên đỉnh Olympia" competition, organized annually by Vietnam Television (VTV). Some of the club's notable annual events include The Amazing Race (TAR) featuring a cipher-solving format, Bưu điện HVOC (HVOC Post Office), and the core selection program "Đường đến Ozone" (DDO)."*
+     - Giữ nguyên cơ chế căn đều 2 bên (`text-justify`) và độ rộng khớp hoàn toàn với text box tiêu đề trên Desktop.
+  4. Cập nhật danh sách Option dự án:
+     - Option 01: `BƯU ĐIỆN HVOC` (giữ nguyên tên riêng ở cả 2 ngôn ngữ).
+     - Option 02: `THE AMAZING RACE (TAR)` (giữ nguyên tên riêng ở cả 2 ngôn ngữ).
+     - Option 03: `ĐƯỜNG ĐẾN OZONE 7 (DDO)` (giữ nguyên tên riêng ở cả 2 ngôn ngữ).
+     - Option 04: Tiếng Việt `NGÀY HỘI CLB - ĐỘI - NHÓM` / Tiếng Anh `CLUB DAY`.
+     - Option 05: Tiếng Việt `BÀI ĐĂNG THÔNG THƯỜNG` / Tiếng Anh `REGULAR POSTS`.
+  5. Sửa lỗi nút điều hướng bị kẹt khi vuốt/cuộn trên mobile:
+     - Thay đổi từ vị trí `fixed` cố định sang đặt tự nhiên ở đầu khối nội dung (`pt-6 md:pt-8`), cuộn mượt mà cùng nội dung trang, không đè hay kẹt chữ khi vuốt trên điện thoại.
+     - Hiển thị nhãn nút tương ứng theo ngôn ngữ: `trở về` ở tiếng Việt và `back` ở tiếng Anh (áp dụng cho cả trang giới thiệu HVOC và màn hình đen).
+
+---
+## LẦN 12
+- Thời điểm: Turn trước (Khôi phục vị trí nút Trở về chuẩn góc trên bên trái Desktop & Đồng bộ độ rộng đoạn giới thiệu tiếng Anh bằng tiếng Việt)
+- File ảnh hưởng: `/src/components/HvocIntroScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Khôi phục vị trí nút "trở về" / "back" trên Desktop:
+     - Tách riêng biệt 2 cơ chế hiển thị nút điều hướng:
+       * Desktop (`hidden md:block`): Đặt lại đúng vị trí cố định góc trên bên trái (`fixed md:top-8 md:left-10 lg:top-10 lg:left-14 z-50`), khôi phục tính thẩm mỹ và công thái học ban đầu.
+       * Mobile (`block md:hidden`): Giữ nút ở đầu trang (`px-6 pt-6 pb-2`), cuộn mượt mà tự nhiên theo thao tác vuốt của người dùng mà không bao giờ bị kẹt hay đè lên nội dung bài viết.
+  2. Đồng bộ độ rộng đoạn văn bản giới thiệu Tiếng Anh:
+     - Tạo cơ chế đo lường độ rộng tiêu chuẩn của tiêu đề Tiếng Việt `CÂU LẠC BỘ OLYMPIA` (thông qua `viTitleRef` ẩn và `ResizeObserver`).
+     - Áp dụng độ rộng chuẩn này cho cả chế độ Tiếng Anh trên Desktop (`desktopWidth`), giúp đoạn văn tiếng Anh không còn bị hẹp, co cụm hay quá dài dòng do tên tiếng Anh `HUNG VUONG` ngắn hơn, mà đạt được độ rộng thoáng, cân đối và căn đều 2 bên (`text-justify`) y hệt như bản Tiếng Việt.
+
+---
+## LẦN 13
+- Thời điểm: Turn trước (Đem bản dịch Tiếng Việt cho toàn bộ mục #BLVD: back, reset zoom, mô hình 3d, tuyến tính)
+- File ảnh hưởng: `/src/App.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Nút "back":
+     - Tiếng Việt: `trở về`
+     - Tiếng Anh: `back`
+     - Áp dụng đồng bộ cho cả nút tại zone `#BLVD` và nút dưới sublogo ở các zone `18`, `17`, `16`.
+  2. Nút "reset zoom" trên Desktop:
+     - Tiếng Việt: `đặt lại thu phóng`
+     - Tiếng Anh: `reset zoom`
+  3. Chế độ "3d model":
+     - Tiếng Việt: `mô hình 3d`
+     - Tiếng Anh: `3d model`
+  4. Chế độ "carousel":
+     - Tiếng Việt: `tuyến tính`
+     - Tiếng Anh: `carousel`
+  5. Các phần tử còn lại giữ nguyên theo đúng yêu cầu:
+     - Chế độ `Instagram`: Giữ nguyên `Instagram` ở cả hai ngôn ngữ.
+     - Các logo/sublogo `#BLVD`, `#BLVD18`, `#BLVD17`, `#blvd16`: Giữ nguyên nhận diện thương hiệu.
+
+---
+## LẦN 14
+- Thời điểm: Turn trước (Dàn toàn bộ hình ảnh trong mục Bưu điện HVOC & Đổi tấm Quảng bá sang đuôi .png)
+- File ảnh hưởng: `/src/data/multimediaArchive.ts`, `/src/components/HvocBuuDienScreen.tsx`, `/src/components/HvocIntroScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Cập nhật định dạng ảnh Quảng bá sang đuôi .png:
+     - URL ảnh `Quảng bá` của Bưu điện HVOC: `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/Qu%E1%BA%A3ng%20b%C3%A1.png` (thay vì .webp).
+     - Cập nhật cả trong database archive `/src/data/multimediaArchive.ts` và component hiển thị.
+  2. Xây dựng màn hình dự án Bưu điện HVOC (`HvocBuuDienScreen.tsx`):
+     - Khi người dùng click vào `01 BƯU ĐIỆN HVOC`, chuyển từ màn hình đen trước đó sang giao diện dàn toàn bộ 3 tài nguyên hình ảnh theo phong cách brutalist không bo góc (`rounded-none`):
+       * `01 / CHÍNH`: Ảnh poster chính dạng vuông 1:1 (`Chính.webp`), căn giữa với độ rộng tiêu chuẩn.
+       * `02 / QUẢNG BÁ`: Ảnh quảng bá dạng 16:9 widescreen (`Quảng bá.png`).
+       * `03 / ẢNH BÌA FACEBOOK`: Ảnh bìa banner Facebook dạng 4:1 panorama (`Ảnh bìa Facebook.webp`).
+     - Tích hợp tiêu đề dự án, số thứ tự, tỷ lệ khung hình.
+     - Nút "trở về" / "back" hỗ trợ song ngữ `vi`/`en`, cố định góc trên bên trái ở Desktop và đặt trong luồng tự nhiên ở Mobile, bấm vào sẽ quay trở lại màn hình giới thiệu HVOC.
+  3. Các option còn lại (`TAR`, `DDO`, `CLUB DAY`, `POST THÔNG THƯỜNG`):
+     - Vẫn duy trì cơ chế màn hình đen xì kèm nút quay về như đã quy định trước đó.
+
+---
+## LẦN 15
+- Thời điểm: Turn trước (Lược bỏ tag/subtitle thừa, bỏ chú thích tỉ lệ, bỏ đường viền trên desktop, bỏ hiệu ứng hover ảnh ở Bưu điện HVOC)
+- File ảnh hưởng: `/src/components/HvocBuuDienScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Bỏ 2 phần tử theo ảnh người dùng cung cấp:
+     - Xóa tag màu xanh lá phía trên tiêu đề: `01 / HVOC`.
+     - Xóa dòng phụ đề/chú thích phía dưới: `TÀI NGUYÊN ĐỒ HOẠ & HÌNH ẢNH DỰ ÁN` (`HVOC Post Office — Visual Archive`).
+     - Chỉ giữ lại tiêu đề thuần túy: `BƯU ĐIỆN HVOC`.
+  2. Bỏ chú thích tỉ lệ góc trên bên phải từng tấm ảnh:
+     - Xóa toàn bộ nhãn note hiển thị tỉ lệ (`1:1 Square Poster`, `16:9 Widescreen (.png)`, `4:1 Cover Banner`).
+  3. Bỏ đường viền ở giao diện desktop:
+     - Bỏ toàn bộ đường viền khung `border border-white/10` xung quanh ảnh và đường kẻ phân cách tiêu đề (`border-none`, `border-0`). Ảnh được hiển thị trực tiếp dạng phẳng, hòa vào nền đen.
+  4. Bỏ khả năng hover vào từng tấm hình:
+     - Bỏ hiệu ứng phóng to khi hover (`group-hover:scale-[1.01]`), bỏ hiệu ứng đổi màu viền khi hover (`hover:border-white/30`), bỏ hiệu ứng đổi màu chữ tiêu đề (`group-hover:text-white`).
+     - Đổi con trỏ thành `cursor-default` và loại bỏ hoàn toàn lightbox modal không cần thiết.
+
+---
+## LẦN 16
+- Thời điểm: Turn trước (Cập nhật tiêu đề mục 03 và thêm mục 04 Video giới thiệu cho Bưu điện HVOC)
+- File ảnh hưởng: `/src/data/multimediaArchive.ts`, `/src/components/HvocBuuDienScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Cập nhật tên mục 03 trong Bưu điện HVOC:
+     - Tiếng Việt: `ẢNH BÌA FACEBOOK / ẢNH BÌA GOOGLE FORM`
+     - Tiếng Anh: `FACEBOOK COVER / GOOGLE FORM COVER`
+  2. Thêm mục 04:
+     - Số thứ tự: `04`
+     - Tiêu đề: `VIDEO GIỚI THIỆU` (kèm chú thích đằng sau: `(bấm vào hình để tiếp tục)`)
+     - Tiếng Anh: `INTRODUCTORY VIDEO` (kèm chú thích: `(click on image to continue)`)
+     - Thumbnail: Sử dụng ảnh bìa Facebook, crop chính xác theo tỉ lệ 16:9 (`aspectRatio: '16 / 9'`, `object-cover object-center`).
+     - Hành vi tương tác: Bấm vào ảnh thumbnail sẽ mở đường link video Facebook trong tab mới: `https://www.facebook.com/share/v/19qxDLrBbK/`.
+     - Tuân thủ quy tắc Boulevard1st: Không bo góc (`rounded-none`), không viền khung trên desktop/mobile, không hiệu ứng phóng to hover.
+
+---
+## LẦN 17
+- Thời điểm: Turn trước (Dàn toàn bộ tài nguyên DDO 7 - Trừ thẻ đeo và dây đeo, dàn theo chuẩn Bưu điện HVOC)
+- File ảnh hưởng: `/src/components/HvocDdo7Screen.tsx`, `/src/components/HvocIntroScreen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Tạo component màn hình dự án `HvocDdo7Screen.tsx`:
+     - Tiêu đề dự án: `ĐƯỜNG ĐẾN OZONE 7 (DDO)`.
+     - Không có tag nhỏ phía trên và không có dòng phụ đề phía dưới.
+     - Lọc bỏ: Thẻ đeo (`Thẻ đeo.webp`) và dây đeo (`Dây đeo bản phụ.webp`, `Dây đeo chính thức.webp`).
+     - Dàn toàn bộ 5 tài nguyên hình ảnh còn lại theo chuẩn Boulevard1st:
+       * `01  POSTER`: Tỷ lệ portrait A-series (`1414 / 2000`), căn giữa với chiều rộng chuẩn cân đối (`maxWidth: 560px`).
+       * `02  KHUNG AVATAR`: Tỷ lệ vuông 1:1 (`Khung avatar.webp`), căn giữa với độ rộng chuẩn (`maxWidth: 640px`).
+       * `03  TEMPLATE MỞ ĐẦU`: Tỷ lệ 16:9 widescreen (`Template mở đầu.webp`).
+       * `04  TEMPLATE CHÍNH`: Tỷ lệ 16:9 widescreen (`Template chính.webp`).
+       * `05  TEMPLATE KẾT THÚC`: Tỷ lệ 16:9 widescreen (`Template kết thúc.webp`).
+     - Bỏ toàn bộ đường viền khung trên desktop/mobile (`border-none`).
+     - Bỏ toàn bộ chú thích tỉ lệ góc trên bên phải của từng ảnh.
+     - Bỏ toàn bộ hiệu ứng hover vào từng tấm hình (không scale, không đổi màu, `cursor-default`).
+     - Không bo góc component (`rounded-none`).
+  2. Nút điều hướng "trở về" / "back":
+     - Song ngữ `vi`/`en`: Desktop cố định góc trên bên trái, Mobile nằm trong luồng tự nhiên đầu trang.
+     - Bấm vào sẽ quay trở lại màn hình giới thiệu HVOC.
+  3. Kết nối màn hình:
+     - Tại `HvocIntroScreen.tsx`, khi click vào option `03  ĐƯỜNG ĐẾN OZONE 7 (DDO)`, chuyển sang màn hình `HvocDdo7Screen`.
+
+---
+## LẦN 18
+- Thời điểm: Turn trước (Thêm Thẻ đeo và Dây đeo Panoramic Strap giữa Khung avatar và Layouts, đổi Template thành Layout 1 2 3)
+- File ảnh hưởng: `/src/components/DdoPanoramicStrap.tsx`, `/src/components/HvocDdo7Screen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Thêm Dây đeo siêu dài Panoramic Strap (`DdoPanoramicStrap.tsx`).
+  2. Đổi các template thành Layout 1, Layout 2, Layout 3.
+
+---
+## LẦN 19
+- Thời điểm: Turn hiện tại (Tích hợp component <Lanyard /> chuẩn React Bits với mô phỏng vật lý Rapier)
+- File ảnh hưởng: 
+  * `/src/components/Lanyard.tsx`, `/src/components/Lanyard.css`
+  * `/src/assets/lanyard/card.glb`, `/src/assets/lanyard/lanyard.png`
+  * `/public/assets/lanyard/card.glb`, `/public/assets/lanyard/lanyard.png`
+  * `/src/global.d.ts`, `/vite.config.ts`, `/src/components/HvocDdo7Screen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Cài đặt các thư viện cần thiết theo yêu cầu React Bits:
+     - `meshline`, `@react-three/fiber`, `@react-three/drei`, `@react-three/rapier`.
+  2. Tải và cấu hình tài nguyên 3D:
+     - `card.glb` (model 3D thẻ đeo và kẹp kim loại).
+     - `lanyard.png` (texture dây đeo).
+     - Cấu hình `assetsInclude: ['**/*.glb']` trong `vite.config.ts`.
+  3. Tạo component chuẩn `Lanyard.tsx` và `Lanyard.css` từ React Bits:
+     - Tích hợp mô phỏng vật lý dây và thẻ thực tế qua Rapier (`RigidBody`, `useRopeJoint`, `useSphericalJoint`, `BallCollider`, `CuboidCollider`).
+     - Bọc `React.Suspense` bên trong `<Canvas>` để tải mượt mà.
+     - Dán texture thẻ đeo DDO 7 (`Thẻ đeo.webp`) sắc nét lên mặt trước với `imageFit="cover"`.
+     - Cho phép người dùng kéo thả, tương tác quán tính thực tế 100% chuẩn React Bits.
+  4. Cập nhật `HvocDdo7Screen.tsx`:
+     - Thay thế component cũ bằng `<Lanyard />` của React Bits tại mục `03  THẺ ĐEO`.
+     - Xóa bỏ file `DdoLanyard3D.tsx` cũ để giữ codebase sạch sẽ.
+  5. Đảm bảo triết lý thiết kế Boulevard1st:
+     - Hoàn toàn không bo góc (`rounded-none`).
+     - Tối ưu song ngữ và tương tác chuột/cảm ứng mượt mà.
+
+---
+## LẦN 20
+- Thời điểm: Turn trước (Tối ưu Dây đeo Panoramic Strap hiển thị cả 2 bản, toggle khi bấm vào dây; Nâng cấp khả năng Zoom và tăng zoom mặc định cho Thẻ đeo 3D)
+- File ảnh hưởng: 
+  * `/src/components/DdoPanoramicStrap.tsx`
+  * `/src/components/Lanyard.tsx`
+  * `/src/components/HvocDdo7Screen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Cập nhật Dây đeo (`DdoPanoramicStrap.tsx`):
+     - Hiển thị cả 2 dây đeo theo thứ tự dọc: CHÍNH THỨC (Official) ở trên, BẢN PHỤ (Alternative) ở dưới.
+     - Loại bỏ hoàn toàn 2 nút chuyển đổi tab cũ (Official / Alternative) và nút mở rộng (Expand/Collapse).
+     - Cho phép người dùng bấm trực tiếp vào bất kỳ dây nào để mở ra (chiều cao tăng từ 75-95px lên 135-175px, dừng tự trượt và chuyển sang chế độ cuộn tay / drag-to-scroll) hoặc bấm lại để thu vào (tiếp tục tự trượt chậm).
+     - Giãn cách chuyển động trượt ngang so le giữa 2 dây (`28s` và `25s` kèm `delay -6s`) tạo cảm giác chuyển động mượt mà, tự nhiên.
+  2. Nâng cấp Thẻ đeo 3D (`Lanyard.tsx`):
+     - Tăng tỷ lệ zoom mặc định: Đưa camera từ khoảng cách `z = 26` lại gần `z = 18` (~40% lớn hơn), hiển thị thẻ đeo to rõ, sắc nét và ấn tượng ngay khi mở trang.
+     - Bổ sung khả năng Zoom đa phương thức:
+       + Cuộn bánh xe chuột (Mouse wheel): cuộn lên để phóng to, cuộn xuống để thu nhỏ (ngăn chặn nhảy cuộn trang).
+       + Cảm ứng đa điểm (Touch pinch-to-zoom): chụm 2 ngón tay để phóng to / thu nhỏ linh hoạt trên màn hình cảm ứng.
+       + Bảng điều khiển zoom tối giản góc phải dưới: nút `−` (thu nhỏ), `%` (đặt lại mức mặc định), `+` (phóng to).
+       + CameraRig sử dụng `THREE.MathUtils.lerp` giúp chuyển động zoom mềm mại và mượt mà.
+  3. Cập nhật `HvocDdo7Screen.tsx`:
+     - Đồng bộ props `position={[0, 0, 18]}` cho `<Lanyard />`.
+     - Cập nhật nhãn phụ chú giải: `(kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom)` cho Thẻ đeo và `(bấm vào dây để mở ra & cuộn)` cho Dây đeo.
+  4. Đảm bảo triết lý thiết kế Boulevard1st:
+     - 100% không bo góc (`rounded-none`).
+     - Tương tác liền mạch, trực quan và chuẩn responsive trên cả Desktop và Mobile.
+
+---
+## LẦN 21
+- Thời điểm: Turn hiện tại (Bỏ bảng điều khiển zoom trên Thẻ đeo 3D, tinh giản toàn bộ chú thích ở phần Dây đeo)
+- File ảnh hưởng: 
+  * `/src/components/Lanyard.tsx`
+  * `/src/components/DdoPanoramicStrap.tsx`
+  * `/src/components/HvocDdo7Screen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Thẻ đeo 3D (`Lanyard.tsx`):
+     - Loại bỏ hoàn toàn khối bảng điều khiển zoom UI (`[ − ]`, `[ % ]`, `[ + ]`) ở góc dưới cùng các hàm và biến không còn sử dụng.
+     - Giữ nguyên cơ chế tương tác zoom tự nhiên bằng cuộn chuột (Mouse Wheel) và thao tác chụm ngón tay (Touch Pinch) trên Canvas.
+  2. Dây đeo (`DdoPanoramicStrap.tsx` & `HvocDdo7Screen.tsx`):
+     - Lược bỏ hoàn toàn các dòng micro-copy chú thích thừa (`(bấm vào dây để thu vào)` / `(bấm vào dây để mở ra)` và `(bấm vào dây để mở ra & cuộn)`).
+     - Giữ giao diện tinh giản, sạch sẽ tối đa đúng chuẩn Boulevard1st: chỉ giữ tiêu đề định danh `04  DÂY ĐEO` và tên bản `CHÍNH THỨC` / `BẢN PHỤ`.
+
+---
+## LẦN 22
+- Thời điểm: Turn hiện tại (Thêm liên kết xem Video giới thiệu vào phần Poster; Bổ sung ghi chú định nghĩa chuyên môn cho phần Layout giữa Dây đeo và Layout 1)
+- File ảnh hưởng: 
+  * `/src/components/HvocDdo7Screen.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Poster (Mục 01):
+     - Cập nhật tiêu đề định danh: `01  POSTER / VIDEO GIỚI THIỆU` (`POSTER / INTRO VIDEO`).
+     - Thêm ghi chú phụ: `(bấm vô poster để xem video)` / `(click poster to watch video)`.
+     - Bọc hình ảnh poster bằng thẻ liên kết `<a>` mở tab mới (`target="_blank" rel="noopener noreferrer"`) dẫn trực tiếp đến video Facebook: `https://www.facebook.com/share/v/18x5EhavfH/`.
+  2. Ghi chú chuyên môn Layout (nằm giữa Mục 04 DÂY ĐEO và Mục 05 LAYOUT 1):
+     - Thiết kế khối thông tin tối giản chuẩn Boulevard1st: `border border-white/10 bg-black/40 rounded-none`, chữ trắng sáng độ tương phản cao, dễ đọc.
+     - Nội dung trau chuốt theo ngôn ngữ phát sóng chuyên nghiệp (OBS Studio):
+       + Tiếng Việt: "Layout là dạng thiết kế có sẵn theo concept của sự kiện, được đưa vào OBS Studio để sử dụng như khung chuẩn chứa và phân bổ một hoặc nhiều khung hình (frames) thu từ nhiều máy quay hoặc máy tính khác nhau."
+       + Tiếng Anh: "Layouts are pre-designed broadcast templates created according to the event concept, imported into OBS Studio to serve as master frames holding and organizing feeds from multiple cameras or computers."
+
+---
+## LẦN 23
+- Thời điểm: Turn hiện tại (Bỏ ngoặc đơn các chú thích, căn lề 2 bên text-justify cho lời giải thích layout ở cả 2 giao diện desktop/mobile; Tăng tỷ lệ zoom mặc định của thẻ đeo 3D trên desktop khoảng 30%)
+- File ảnh hưởng: 
+  * `/src/components/HvocDdo7Screen.tsx`
+  * `/src/components/Lanyard.tsx`
+- Nội dung thay đổi chi tiết:
+  1. Loại bỏ ngoặc đơn (Parentheses Removal):
+     - Tại Mục 01 Poster: Đổi `(bấm vô poster để xem video)` -> `bấm vô poster để xem video` (tiếng Anh: `click poster to watch video`).
+     - Tại Mục 03 Thẻ đeo: Đổi `(kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom)` -> `kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom` (tiếng Anh: `drag card, scroll wheel or pinch to zoom`).
+     - Tại khối ghi chú Layout: Đổi `[ GHI CHÚ ]` / `[ CONCEPT NOTE ]` -> `GHI CHÚ:` / `CONCEPT NOTE:` và bỏ `(frames)` -> `khung hình`.
+  2. Căn lề hai bên (Justify Text):
+     - Áp dụng class `text-justify` (`text-align: justify`) cho toàn bộ đoạn văn giải thích khái niệm Layout ở cả hai giao diện (Desktop và Mobile) cũng như cả 2 ngôn ngữ (Việt / Anh), giúp các khối văn bản căn đều mép trái và phải sắc cạnh, chuẩn mực theo ngôn ngữ thiết kế Boulevard1st.
+  3. Tăng độ zoom mặc định trên Desktop khoảng 30% cho Thẻ đeo 3D:
+     - Trong `Lanyard.tsx`: Tối ưu hóa vị trí camera trục Z tương ứng với thiết bị.
+     - Trên Mobile: Giữ `baseZ = 18` để thẻ vừa vặn với chiều ngang màn hình nhỏ.
+     - Trên Desktop: Thu hẹp khoảng cách camera từ `18` xuống `13.85` (`baseZ / 1.3`), tăng kích thước hiển thị của thẻ đeo lên ~30% trực quan và ấn tượng hơn.
+     - Đồng thời mở rộng giới hạn zoom cận cảnh `minZoomZ = 7` giúp trải nghiệm phóng to trên desktop sâu và sắc nét hơn nữa.
+
+
+
+
+
+
+
+
 
 
 

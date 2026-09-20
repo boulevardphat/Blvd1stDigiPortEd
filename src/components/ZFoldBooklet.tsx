@@ -63,6 +63,19 @@ export const BLVD17_PAGES: BookletPage[] = [
   },
 ];
 
+// [#BLVD] #BLVD17 Instagram: 9 ảnh theo trình tự từ 1 đến 9 (1.webp đến 8.webp + logo #blvd17)
+export const BLVD17_INSTAGRAM_PAGES: string[] = [
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/1.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/2.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/3.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/4.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/5.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/6.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/7.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/8.webp',
+  'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/logo%20%23blvd17.webp',
+];
+
 // [#BLVD] #BLVD16: 10 tờ tỉ lệ 1:1, chỉ carousel
 export const BLVD16_PAGES: string[] = [
   'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD16/1.webp',
@@ -350,7 +363,7 @@ const ZoomableCarouselContainer: React.FC<ZoomableCarouselContainerProps> = ({
 };
 
 // ============================================================================
-// COMPONENT INSTAGRAM VIEWER (1 KHUNG TỈ LỆ CHUẨN, VUỐT TOUCH / TOUCHPAD HOẶC BẤM 2 NÚT TRÁI PHẢI)
+// COMPONENT INSTAGRAM VIEWER (VUỐT LIÊN TỤC & GIỮ Ở GIỮA 2 TẤM HÌNH ĐỂ QUAN SÁT SỰ LIÊN KẾT)
 // ============================================================================
 export interface InstagramViewerProps {
   id?: string;
@@ -364,26 +377,110 @@ export const InstagramViewer: React.FC<InstagramViewerProps> = ({
   aspectRatio = '1/1',
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isThrottledRef = useRef(false);
-  const touchStartXRef = useRef<number | null>(null);
-  const touchStartYRef = useRef<number | null>(null);
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
+  const isMouseDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     preloadBookletImages(images);
   }, [images]);
 
-  // Điều hướng tới slide trước
+  // Điều hướng tới slide cụ thể
+  const scrollToSlide = (idx: number) => {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+    const targetIdx = Math.max(0, Math.min(images.length - 1, idx));
+    const slideWidth = el.clientWidth;
+    el.scrollTo({
+      left: targetIdx * slideWidth,
+      behavior: 'smooth',
+    });
+    setCurrentIndex(targetIdx);
+  };
+
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    scrollToSlide(currentIndex - 1);
   };
 
-  // Điều hướng tới slide kế tiếp
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : prev));
+    scrollToSlide(currentIndex + 1);
   };
 
-  // Thao tác với bàn phím (Mũi tên trái/phải)
+  // Cập nhật currentIndex khi cuộn (cả vuốt touch, kéo chuột lẫn con lăn)
+  const handleScroll = () => {
+    const el = scrollTrackRef.current;
+    if (!el || el.clientWidth === 0) return;
+    const slideWidth = el.clientWidth;
+    const newIdx = Math.round(el.scrollLeft / slideWidth);
+    if (newIdx !== currentIndex && newIdx >= 0 && newIdx < images.length) {
+      setCurrentIndex(newIdx);
+    }
+  };
+
+  // Hỗ trợ kéo chuột trên Desktop (Mouse drag-to-scroll & hold)
+  useEffect(() => {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      isMouseDownRef.current = true;
+      startXRef.current = e.pageX - el.offsetLeft;
+      scrollLeftRef.current = el.scrollLeft;
+      isDraggingRef.current = false;
+      el.style.cursor = 'grabbing';
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isMouseDownRef.current) return;
+      const x = e.pageX - el.offsetLeft;
+      const walk = x - startXRef.current;
+      if (Math.abs(walk) > 4) {
+        isDraggingRef.current = true;
+        // Tắt scroll snap tạm thời khi đang giữ kéo để chuột tự do dừng ở giữa 2 ảnh
+        el.style.scrollSnapType = 'none';
+        el.style.scrollBehavior = 'auto';
+      }
+      if (isDraggingRef.current) {
+        e.preventDefault();
+        el.scrollLeft = scrollLeftRef.current - walk;
+        handleScroll();
+      }
+    };
+
+    const onMouseUp = () => {
+      if (!isMouseDownRef.current) return;
+      isMouseDownRef.current = false;
+      el.style.cursor = 'grab';
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+
+      if (isDraggingRef.current) {
+        // Khôi phục scroll snap và snap về ảnh gần nhất
+        el.style.scrollSnapType = 'x mandatory';
+        el.style.scrollBehavior = 'smooth';
+        const slideWidth = el.clientWidth;
+        const targetIdx = Math.round(el.scrollLeft / slideWidth);
+        scrollToSlide(targetIdx);
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 50);
+      }
+    };
+
+    el.addEventListener('mousedown', onMouseDown);
+    return () => {
+      el.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [images.length, currentIndex]);
+
+  // Phím mũi tên trái / phải
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') handlePrev();
@@ -391,96 +488,54 @@ export const InstagramViewer: React.FC<InstagramViewerProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [images.length]);
-
-  // Thao tác vuốt Touchpad / Trackpad bằng 2 ngón (vuốt ngang deltaX hoặc dọc deltaY)
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const onWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey) return;
-
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if (Math.abs(delta) > 18 && !isThrottledRef.current) {
-        if (delta > 0) {
-          handleNext();
-        } else {
-          handlePrev();
-        }
-        isThrottledRef.current = true;
-        setTimeout(() => {
-          isThrottledRef.current = false;
-        }, 320);
-        e.preventDefault();
-      }
-    };
-
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [images.length]);
-
-  // Thao tác vuốt màn hình cảm ứng (Touch swipe)
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      touchStartXRef.current = e.touches[0].clientX;
-      touchStartYRef.current = e.touches[0].clientY;
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    const diffX = touchStartXRef.current - touchEndX;
-    const diffY = (touchStartYRef.current || 0) - touchEndY;
-
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
-      if (diffX > 0) {
-        handleNext();
-      } else {
-        handlePrev();
-      }
-    }
-    touchStartXRef.current = null;
-    touchStartYRef.current = null;
-  };
+  }, [currentIndex, images.length]);
 
   const isSquare = aspectRatio === '1/1';
 
   return (
     <div
-      ref={containerRef}
       id={id}
       className="relative w-full flex flex-col items-center justify-center select-none py-4 px-2"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       {/* Khung ảnh chính duy nhất chuẩn tỉ lệ, không bo góc (sharp border brutalist) */}
       <div
-        className="relative overflow-hidden bg-[#111] border border-white/20 shadow-2xl flex items-center justify-center transition-all duration-300 rounded-none group"
+        className="relative overflow-hidden bg-black border border-white/20 shadow-2xl flex items-center justify-center transition-all duration-300 rounded-none group"
         style={{
           width: isSquare ? 'min(85vw, 440px)' : 'min(82vw, 380px)',
           aspectRatio: isSquare ? '1 / 1' : '4 / 5',
           maxHeight: 'calc(var(--vh, 1vh) * 66)',
         }}
       >
-        {/* Dải ảnh trượt mượt mà theo currentIndex */}
+        {/* Dải ảnh cuộn ngang liên tục: cho phép vuốt và giữ ở giữa 2 tấm ảnh để quan sát sự liên kết liền mạch */}
         <div
-          className="flex h-full w-full transition-transform duration-300 ease-out will-change-transform"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          ref={scrollTrackRef}
+          onScroll={handleScroll}
+          className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar select-none"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x',
+            cursor: 'grab',
+          }}
         >
           {images.map((src, idx) => (
             <div
               key={idx}
-              className="w-full h-full shrink-0 relative bg-black flex items-center justify-center overflow-hidden"
+              className="w-full h-full min-w-full shrink-0 snap-start snap-always relative bg-black flex items-center justify-center overflow-hidden"
+              style={{
+                width: '100%',
+                minWidth: '100%',
+                height: '100%',
+              }}
             >
               <img
                 src={src}
                 alt={`Slide ${idx + 1}`}
                 referrerPolicy="no-referrer"
-                loading={Math.abs(idx - currentIndex) <= 1 ? 'eager' : 'lazy'}
+                loading="eager"
                 decoding="async"
+                draggable={false}
                 className="w-full h-full object-cover select-none pointer-events-none"
               />
             </div>
@@ -526,16 +581,20 @@ export const InstagramViewer: React.FC<InstagramViewerProps> = ({
         </button>
       </div>
 
-      {/* Các thanh định vị vị trí ảnh nằm dưới khung ảnh */}
-      <div className="mt-4 flex items-center justify-center gap-1.5 pointer-events-none select-none">
+      {/* Các thanh định vị vị trí ảnh nằm dưới khung ảnh (có thể nhấp để nhảy tới ảnh) */}
+      <div className="mt-4 flex items-center justify-center gap-1.5 select-none">
         {images.map((_, idx) => (
-          <div
+          <button
             key={idx}
-            className={`h-[2px] transition-all duration-200 rounded-none ${
+            type="button"
+            onClick={() => scrollToSlide(idx)}
+            className={`h-[2px] transition-all duration-200 rounded-none cursor-pointer border-none p-0 outline-none ${
               idx === currentIndex
                 ? 'w-6 bg-white'
-                : 'w-2 bg-white/30'
+                : 'w-2 bg-white/30 hover:bg-white/60'
             }`}
+            title={`Slide ${idx + 1}`}
+            aria-label={`Go to slide ${idx + 1}`}
           />
         ))}
       </div>
@@ -963,18 +1022,11 @@ export const ZFoldBooklet: React.FC<ZFoldBookletProps> = ({
   // ==========================================================================
   if (mode === 'instagram') {
     if (showDualCarousel) {
-      // Zone 17: gồm 4 ảnh mặt trước [2, 4, 6, 8] và 4 ảnh mặt sau [1, 3, 5, 7]
-      const frontPages = pages.map((p) => p.front);
-      const backStoryPages = [
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/1.webp',
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/3.webp',
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/5.webp',
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/7.webp',
-      ];
+      // Zone 17: Hiện theo trình tự ảnh từ 1 đến 9 (1.webp -> 8.webp + logo #blvd17)
       return (
         <InstagramViewer
           id={`${id}-instagram`}
-          images={[...frontPages, ...backStoryPages]}
+          images={BLVD17_INSTAGRAM_PAGES}
           aspectRatio={aspectRatio}
         />
       );

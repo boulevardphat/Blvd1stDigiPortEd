@@ -16,4 +16,6 @@ export type SceneState =
   | 'blvd-color-2'
   | 'blvd-color-3'
   | 'blvd-color-4'
-  | 'blvd-black';
+  | 'blvd-black'
+  | 'hvoc-loading'
+  | 'hvoc-intro';

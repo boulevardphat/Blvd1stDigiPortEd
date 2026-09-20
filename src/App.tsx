@@ -10,15 +10,17 @@ import { motion } from 'motion/react';
 
 import { IntroClock } from './components/IntroClock';
 import { VespertineBackground } from './components/VespertineBackground';
-import { ModeSelector } from './components/ModeSelector';
-import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD16_PAGES, Zone16Carousel } from './components/ZFoldBooklet';
+import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD17_INSTAGRAM_PAGES, BLVD16_PAGES, Zone16Carousel } from './components/ZFoldBooklet';
+import { HvocIntroScreen, HVOC_LOGO_URL } from './components/HvocIntroScreen';
 import { AppLanguage, PortfolioMode, SceneState } from './types';
 
 export default function App() {
 
   const [scene, setScene] = useState<SceneState>('pre-intro');
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [initialLoadingProgress, setInitialLoadingProgress] = useState(0);
   const [blvdLoadingProgress, setBlvdLoadingProgress] = useState(0);
+  const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
   const [activeBlvdZone, setActiveBlvdZone] = useState<'zone-blvd' | 'zone-18' | 'zone-17' | 'zone-16'>('zone-blvd');
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
   const [bookletViewMode, setBookletViewMode] = useState<'3d' | 'carousel' | 'instagram'>('3d');
@@ -28,7 +30,7 @@ export default function App() {
       const saved = localStorage.getItem('blvd_portfolio_mode');
       if (saved === 'employer-club' || saved === 'individual') return saved;
     } catch (e) {}
-    return 'individual';
+    return 'employer-club';
   });
   const [language, setLanguage] = useState<AppLanguage>(() => {
     try {
@@ -37,7 +39,6 @@ export default function App() {
     } catch (e) {}
     return 'vi';
   });
-  const [isModeExiting, setIsModeExiting] = useState(false);
   const [isBasicInfoOpen, setIsBasicInfoOpen] = useState(false);
   const [phoneCopied, setPhoneCopied] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
@@ -60,17 +61,97 @@ export default function App() {
     } catch (err) {}
   };
 
-  const handleSelectMode = (mode: PortfolioMode) => {
-    setPortfolioMode(mode);
-    setIsModeExiting(true);
-    try {
-      localStorage.setItem('blvd_portfolio_mode', mode);
-    } catch (e) {}
+  // Preload toàn bộ hình ảnh đặc biệt là các ảnh ở giao diện chính và BLVD trước khi vào intro
+  useEffect(() => {
+    if (scene !== 'pre-intro') return;
 
-    setTimeout(() => {
-      setScene('intro-play');
-    }, 800);
-  };
+    setInitialLoadingProgress(0);
+
+    const mainAppImages = [
+      'https://i.ibb.co/tP3rK5bg/ultrayoung.jpg',
+      'https://i.ibb.co/Nd6BpwZ2/young.jpg',
+      'https://i.ibb.co/vy4ykmw/vespertine.png',
+      'https://i.ibb.co/JFvk9wzr/vespertine-bg.png',
+      'https://i.ibb.co/jPHPJSG7/vespertine-sj.png',
+      'https://i.ibb.co/ccfZG4Zk/n-n-blvd18.webp',
+      'https://i.ibb.co/RTw2phXD/canva.jpg',
+      'https://i.ibb.co/pBXrq6cf/affinity.jpg',
+      'https://i.ibb.co/Pv9VfwzX/edits.webp',
+      'https://i.ibb.co/N66hJX5h/ibispaint.png',
+      'https://i.ibb.co/7JyGd3tX/google-AIstudio.png',
+      'https://i.ibb.co/v4h21FLG/filmora.png',
+      'https://i.ibb.co/TD9mb1pB/avatar.jpg',
+      HVOC_LOGO_URL,
+    ];
+
+    const blvdImages = [
+      ...BLVD18_PAGES.map((p) => p.front),
+      ...BLVD18_PAGES.map((p) => p.back),
+      ...BLVD17_PAGES.map((p) => p.front),
+      ...BLVD17_PAGES.map((p) => p.back),
+      ...BLVD17_INSTAGRAM_PAGES,
+      ...BLVD16_PAGES,
+      '/logo_blvd17.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/logo%20%23blvd17.webp',
+    ];
+
+    const allInitialAssets = Array.from(new Set([...mainAppImages, ...blvdImages]));
+    const totalAssets = allInitialAssets.length;
+    let loadedCount = 0;
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    const progressInterval = setInterval(() => {
+      const realTarget = Math.round((loadedCount / totalAssets) * 100);
+      if (currentDisplayProgress < realTarget) {
+        currentDisplayProgress += 1;
+        setInitialLoadingProgress(currentDisplayProgress);
+      }
+      // Bắt buộc load hết toàn bộ ảnh, đặc biệt là ảnh ở giao diện chính, và tiến trình đạt 100%
+      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('intro-play');
+        }, 350);
+      }
+    }, 14);
+
+    // Safety fallback timer sau 10s đề phòng mạng người dùng chập chờn
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        setInitialLoadingProgress(100);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setScene('intro-play');
+        }, 350);
+      }
+    }, 10000);
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+    };
+
+    allInitialAssets.forEach((url) => {
+      const img = new Image();
+      img.onload = () => {
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(onAssetLoaded);
+        } else {
+          onAssetLoaded();
+        }
+      };
+      img.onerror = onAssetLoaded;
+      img.src = url;
+    });
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
 
   const handleBlvdClick = () => {
     // Bắt đầu chuỗi BLVD: hiện màn hình LOADING với tiến trình tải thật từ 0 đến 100%
@@ -81,6 +162,79 @@ export default function App() {
     setZone16ViewMode('carousel');
     setScene('blvd-loading');
   };
+
+  const handleHvocClick = () => {
+    // Bắt đầu chuỗi HVOC: hiện màn hình LOADING như #blvd trước khi mở trang giới thiệu
+    setHvocLoadingProgress(0);
+    setScene('hvoc-loading');
+  };
+
+  // Quản lý tiến trình tải tài nguyên của HVOC
+  useEffect(() => {
+    if (scene !== 'hvoc-loading') return;
+
+    setHvocLoadingProgress(0);
+
+    const hvocAssets = [
+      HVOC_LOGO_URL,
+    ];
+
+    const uniqueAssets = Array.from(new Set(hvocAssets));
+    const totalAssets = uniqueAssets.length;
+    let loadedCount = 0;
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    // Tween làm mượt tiến trình 0 -> 100%
+    const progressInterval = setInterval(() => {
+      const realTarget = loadedCount >= totalAssets ? 100 : Math.min(85, Math.round((loadedCount / totalAssets) * 85));
+      if (currentDisplayProgress < realTarget) {
+        currentDisplayProgress += 2;
+        setHvocLoadingProgress(Math.min(100, currentDisplayProgress));
+      }
+      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('hvoc-intro');
+        }, 350);
+      }
+    }, 14);
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+    };
+
+    uniqueAssets.forEach(url => {
+      const img = new Image();
+      img.onload = () => {
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(onAssetLoaded);
+        } else {
+          onAssetLoaded();
+        }
+      };
+      img.onerror = onAssetLoaded;
+      img.src = url;
+    });
+
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        setHvocLoadingProgress(100);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setScene('hvoc-intro');
+        }, 350);
+      }
+    }, 3500);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
 
   // Quản lý tiến trình tải toàn bộ hình ảnh & model của BLVD (Zone 18, 17, 16)
   useEffect(() => {
@@ -551,17 +705,36 @@ export default function App() {
         onEnded={handleBgAudioEnded}
       />
       
-      {/* Pre-intro overlay with Mode Selection */}
+      {/* Màn hình loading ban đầu: Nền trắng, chữ LOADING viền đen (đổi trắng sang đen và ngược lại so với #blvd-loading) */}
       {scene === 'pre-intro' && (
-        <motion.div
-          key="pre-intro"
-          initial={{ backgroundColor: '#ffffff' }}
-          animate={{ backgroundColor: isModeExiting ? '#000000' : '#ffffff' }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="absolute inset-0 z-[100] flex items-center justify-center bg-white"
+        <div 
+          id="scene-initial-loading"
+          className="absolute inset-0 flex items-center justify-center bg-white z-[100] overflow-hidden select-none w-full h-full px-2 md:px-8"
         >
-          <ModeSelector onSelect={handleSelectMode} isExiting={isModeExiting} />
-        </motion.div>
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(0, 0, 0, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                clipPath: `inset(0 ${Math.max(0, 100 - initialLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - initialLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
       )}
 
       {/* Preloaded Background Images (Always active at z-0, hidden behind black scenes 1-3, visible in scenes 4-6 and main app) */}
@@ -643,6 +816,47 @@ export default function App() {
         <IntroClock 
           mode="multiple" 
           onComplete={() => setScene('main-app')} 
+        />
+      )}
+
+      {/* --- SEPARATE HVOC SEQUENCE --- */}
+      {/* Màn hình loading HVOC: LOADING hiện dần từ trái sang phải từ 0% đến 100% như #blvd */}
+      {scene === 'hvoc-loading' && (
+        <div 
+          id="scene-hvoc-loading"
+          className="absolute inset-0 flex items-center justify-center bg-black z-50 overflow-hidden select-none w-full h-full px-2 md:px-8"
+        >
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                clipPath: `inset(0 ${Math.max(0, 100 - hvocLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - hvocLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
+      )}
+
+      {/* Trang giới thiệu HVOC */}
+      {scene === 'hvoc-intro' && (
+        <HvocIntroScreen 
+          onBack={() => setScene('main-app')} 
+          language={language}
         />
       )}
 
@@ -823,9 +1037,9 @@ export default function App() {
                 setScene('main-app');
               }}
               className="fixed top-6 left-6 md:top-8 md:left-8 z-50 font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/60 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none pointer-events-auto"
-              title="Quay về mục lục"
+              title={language === 'vi' ? 'Quay về mục lục' : 'Back to table of contents'}
             >
-              back
+              {language === 'vi' ? 'trở về' : 'back'}
             </button>
           ) : (
             <div 
@@ -856,7 +1070,7 @@ export default function App() {
                 )}
               </div>
 
-              {/* Nút chữ back font archivo thường, nằm ngay dưới logo ở các zone 18, 17, 16 */}
+              {/* Nút chữ back / trở về font archivo thường, nằm ngay dưới logo ở các zone 18, 17, 16 */}
               <button
                 type="button"
                 id="blvd-back-to-toc-button"
@@ -865,14 +1079,14 @@ export default function App() {
                   setScene('main-app');
                 }}
                 className="font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/60 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none"
-                title="Quay về mục lục"
+                title={language === 'vi' ? 'Quay về mục lục' : 'Back to table of contents'}
               >
-                back
+                {language === 'vi' ? 'trở về' : 'back'}
               </button>
             </div>
           )}
 
-          {/* Nút reset zoom nằm ở bên phải cạnh dưới: hiển thị khi ở Zone 18, 17, 16 (ngoại trừ khi xem Instagram) */}
+          {/* Nút reset zoom / đặt lại thu phóng nằm ở bên phải cạnh dưới: hiển thị khi ở Zone 18, 17, 16 trên desktop (ngoại trừ khi xem Instagram), ẩn trên mobile */}
           {(
             ((activeBlvdZone === 'zone-18' || activeBlvdZone === 'zone-17') && bookletViewMode !== 'instagram') ||
             (activeBlvdZone === 'zone-16' && zone16ViewMode === 'carousel')
@@ -884,14 +1098,14 @@ export default function App() {
                 e.stopPropagation();
                 window.dispatchEvent(new CustomEvent('blvd-reset-zoom'));
               }}
-              className="fixed bottom-6 md:bottom-8 right-6 md:right-8 z-[60] flex items-center font-archivo font-normal normal-case text-xs sm:text-sm md:text-base tracking-normal text-white/40 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none pointer-events-auto"
-              title="Reset zoom"
+              className="fixed bottom-6 md:bottom-8 right-6 md:right-8 z-[60] hidden md:flex items-center font-archivo font-normal normal-case text-xs sm:text-sm md:text-base tracking-normal text-white/40 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none pointer-events-auto"
+              title={language === 'vi' ? 'Đặt lại thu phóng' : 'Reset zoom'}
             >
-              reset zoom
+              {language === 'vi' ? 'đặt lại thu phóng' : 'reset zoom'}
             </button>
           )}
 
-          {/* Ở cạnh dưới màn hình: 18 & 17 có "3d model", "Carousel" và "Instagram". 16 có "Carousel" và "Instagram" */}
+          {/* Ở cạnh dưới màn hình: 18 & 17 có "mô hình 3d / 3d model", "tuyến tính / carousel" và "Instagram". 16 có "tuyến tính / carousel" và "Instagram" */}
           {(activeBlvdZone === 'zone-18' || activeBlvdZone === 'zone-17' || activeBlvdZone === 'zone-16') && (
             <div 
               id="blvd-bottom-mode-text"
@@ -906,7 +1120,7 @@ export default function App() {
                       bookletViewMode === '3d' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
                     }`}
                   >
-                    3d model
+                    {language === 'vi' ? 'mô hình 3d' : '3d model'}
                   </button>
                   <button
                     type="button"
@@ -915,7 +1129,7 @@ export default function App() {
                       bookletViewMode === 'carousel' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
                     }`}
                   >
-                    Carousel
+                    {language === 'vi' ? 'tuyến tính' : 'carousel'}
                   </button>
                   <button
                     type="button"
@@ -936,7 +1150,7 @@ export default function App() {
                       zone16ViewMode === 'carousel' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
                     }`}
                   >
-                    Carousel
+                    {language === 'vi' ? 'tuyến tính' : 'carousel'}
                   </button>
                   <button
                     type="button"
@@ -1303,7 +1517,10 @@ export default function App() {
                   </div>
 
                   {/* Item 03: Olympia */}
-                  <div className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5">
+                  <div 
+                    onClick={handleHvocClick}
+                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                  >
                     <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
                       03
                     </span>
