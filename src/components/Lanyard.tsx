@@ -35,6 +35,7 @@ export interface LanyardProps {
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
+  aspectRatio?: number;
   lanyardImage?: string | null;
   lanyardWidth?: number;
   className?: string;
@@ -59,6 +60,7 @@ export default function Lanyard({
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
+  aspectRatio,
   lanyardImage = null,
   lanyardWidth = 1,
   className = '',
@@ -173,6 +175,7 @@ export default function Lanyard({
               frontImage={frontImage}
               backImage={backImage}
               imageFit={imageFit}
+              aspectRatio={aspectRatio}
               lanyardImage={lanyardImage}
               lanyardWidth={lanyardWidth}
             />
@@ -220,6 +223,7 @@ interface BandProps {
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
+  aspectRatio?: number;
   lanyardImage?: string | null;
   lanyardWidth?: number;
 }
@@ -231,6 +235,7 @@ function Band({
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
+  aspectRatio,
   lanyardImage = null,
   lanyardWidth = 1,
 }: BandProps) {
@@ -251,6 +256,24 @@ function Band({
   // isn't supplied for a given face, then skip compositing it below.
   const frontTex = useTexture(frontImage || BLANK_PIXEL) as any;
   const backTex = useTexture(backImage || BLANK_PIXEL) as any;
+
+  // Aspect ratio of the original front face of card.glb mesh (measured deltaX / deltaY in 3D)
+  const BASE_MESH_ASPECT = 0.716366 / 0.9707; // ~0.737989
+
+  const targetAspect = useMemo(() => {
+    if (aspectRatio && aspectRatio > 0) return aspectRatio;
+    const imgW = frontTex?.image?.naturalWidth || frontTex?.image?.width;
+    const imgH = frontTex?.image?.naturalHeight || frontTex?.image?.height;
+    if (imgW && imgH) return imgW / imgH;
+    return null;
+  }, [aspectRatio, frontTex?.image]);
+
+  const cardScaleX = useMemo(() => {
+    if (targetAspect) {
+      return targetAspect / BASE_MESH_ASPECT;
+    }
+    return 1;
+  }, [targetAspect]);
 
   // Composite the front/back images into the card's texture atlas (front = left
   // half, back = right half). Each image is drawn aspect-preserving (no stretch).
@@ -277,6 +300,19 @@ function Band({
       const ry = rect.y * H;
       const rw = rect.w * W;
       const rh = rect.h * H;
+
+      if (targetAspect) {
+        // When the 3D card mesh is scaled in X by (targetAspect / BASE_MESH_ASPECT),
+        // mapping the entire image to the UV rect produces a 100% distortion-free, isotropic 1:1 render in 3D world space.
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+        ctx.drawImage(img, rx, ry, rw, rh);
+        ctx.restore();
+        return;
+      }
+
       const pick = imageFit === 'contain' ? Math.min : Math.max;
       const scale = pick(rw / img.width, rh / img.height);
       const dw = img.width * scale;
@@ -300,7 +336,7 @@ function Band({
     composite.anisotropy = 16;
     composite.needsUpdate = true;
     return composite;
-  }, [frontImage, backImage, imageFit, frontTex, backTex, materials?.base?.map]);
+  }, [frontImage, backImage, imageFit, targetAspect, frontTex, backTex, materials?.base?.map]);
 
   const [curve] = useState(
     () =>
@@ -373,7 +409,7 @@ function Band({
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
+          <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
           <group
             scale={2.25}
             position={[0, -1.2, -0.05]}
@@ -388,7 +424,7 @@ function Band({
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
             }}
           >
-            <mesh geometry={nodes.card.geometry}>
+            <mesh geometry={nodes.card.geometry} scale={[cardScaleX, 1, 1]}>
               <meshPhysicalMaterial
                 map={cardMap}
                 map-anisotropy={16}

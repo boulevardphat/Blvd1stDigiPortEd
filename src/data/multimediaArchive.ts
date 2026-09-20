@@ -422,7 +422,7 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
   // ==========================================
   {
     id: 'emp-hvoc-maudong',
-    title: 'HVOC - Máu đông',
+    title: 'HVOC - Máu đông - "Sát thủ" ẩn danh?',
     project: 'HVOC Máu đông',
     category: '[HVOC] Máu đông',
     mode: 'employer-club',

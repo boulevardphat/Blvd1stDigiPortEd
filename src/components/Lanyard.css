@@ -2,8 +2,8 @@
   position: relative;
   z-index: 0;
   width: 100%;
-  height: 540px;
-  max-height: 80vh;
+  height: 560px;
+  max-height: 85vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,6 +13,12 @@
 
 @media (min-width: 768px) {
   .lanyard-wrapper {
-    height: 600px;
+    height: 640px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lanyard-wrapper {
+    height: 700px;
   }
 }

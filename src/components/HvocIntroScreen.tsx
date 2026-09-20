@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { AppLanguage } from '../types';
 import { HvocBuuDienScreen } from './HvocBuuDienScreen';
 import { HvocDdo7Screen } from './HvocDdo7Screen';
+import { HvocTar8Screen } from './HvocTar8Screen';
+import { HvocClubDayScreen } from './HvocClubDayScreen';
+import { HvocRegularPostsScreen } from './HvocRegularPostsScreen';
 
 interface HvocIntroScreenProps {
   onBack: () => void;
@@ -11,7 +14,7 @@ interface HvocIntroScreenProps {
 export const HVOC_LOGO_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/logo%20HVOC%20v%C3%A0%20CHV.png';
 
 export const HvocIntroScreen: React.FC<HvocIntroScreenProps> = ({ onBack, language = 'vi' }) => {
-  const [activeProject, setActiveProject] = useState<'BUU_DIEN' | 'DDO_7' | null>(null);
+  const [activeProject, setActiveProject] = useState<'BUU_DIEN' | 'DDO_7' | 'TAR_8' | 'CLUB_DAY' | 'REGULAR_POSTS' | null>(null);
   const [activeBlankOption, setActiveBlankOption] = useState<string | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const viTitleRef = useRef<HTMLSpanElement>(null);
@@ -71,6 +74,33 @@ export const HvocIntroScreen: React.FC<HvocIntroScreenProps> = ({ onBack, langua
   if (activeProject === 'DDO_7') {
     return (
       <HvocDdo7Screen 
+        onBack={() => setActiveProject(null)} 
+        language={language} 
+      />
+    );
+  }
+
+  if (activeProject === 'TAR_8') {
+    return (
+      <HvocTar8Screen 
+        onBack={() => setActiveProject(null)} 
+        language={language} 
+      />
+    );
+  }
+
+  if (activeProject === 'CLUB_DAY') {
+    return (
+      <HvocClubDayScreen 
+        onBack={() => setActiveProject(null)} 
+        language={language} 
+      />
+    );
+  }
+
+  if (activeProject === 'REGULAR_POSTS') {
+    return (
+      <HvocRegularPostsScreen 
         onBack={() => setActiveProject(null)} 
         language={language} 
       />
@@ -178,7 +208,7 @@ export const HvocIntroScreen: React.FC<HvocIntroScreenProps> = ({ onBack, langua
         <div className="flex-1 flex flex-col justify-center lg:pl-8 xl:pl-12">
           <div className="flex flex-col space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-7 text-[clamp(1.1rem,2.5vw,1.95rem)] text-white/95 font-archivo font-medium tracking-tight leading-snug select-none uppercase">
             
-            {/* Option 01: BƯU ĐIỆN HVOC */}
+            {/* Option 01: BƯU ĐIỆN HVOC (2025) */}
             <div 
               id="hvoc-option-buu-dien"
               onClick={() => setActiveProject('BUU_DIEN')}
@@ -188,21 +218,21 @@ export const HvocIntroScreen: React.FC<HvocIntroScreenProps> = ({ onBack, langua
                 01
               </span>
               <span className="hover-force-italic hover:text-white cursor-pointer transition-colors">
-                BƯU ĐIỆN HVOC
+                BƯU ĐIỆN HVOC (2025)
               </span>
             </div>
 
-            {/* Option 02: THE AMAZING RACE (TAR) */}
+            {/* Option 02: THE AMAZING RACE 8 (TAR) */}
             <div 
               id="hvoc-option-tar"
-              onClick={() => setActiveBlankOption('THE AMAZING RACE (TAR)')}
+              onClick={() => setActiveProject('TAR_8')}
               className="w-fit flex items-baseline gap-3.5 sm:gap-4.5 cursor-pointer group"
             >
               <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.68em] shrink-0 select-none">
                 02
               </span>
               <span className="hover-force-italic hover:text-white cursor-pointer transition-colors">
-                THE AMAZING RACE (TAR)
+                THE AMAZING RACE 8 (TAR)
               </span>
             </div>
 
@@ -220,24 +250,24 @@ export const HvocIntroScreen: React.FC<HvocIntroScreenProps> = ({ onBack, langua
               </span>
             </div>
 
-            {/* Option 04: VI: NGÀY HỘI CLB - ĐỘI - NHÓM / EN: CLUB DAY */}
+            {/* Option 04: VI: NGÀY HỘI CLB - ĐỘI - NHÓM (2025) / EN: CLUB DAY (2025) */}
             <div 
               id="hvoc-option-club-day"
-              onClick={() => setActiveBlankOption(isEn ? 'CLUB DAY' : 'NGÀY HỘI CLB - ĐỘI - NHÓM')}
+              onClick={() => setActiveProject('CLUB_DAY')}
               className="w-fit flex items-baseline gap-3.5 sm:gap-4.5 cursor-pointer group"
             >
               <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.68em] shrink-0 select-none">
                 04
               </span>
               <span className="hover-force-italic hover:text-white cursor-pointer transition-colors">
-                {isEn ? 'CLUB DAY' : 'NGÀY HỘI CLB - ĐỘI - NHÓM'}
+                {isEn ? 'CLUB DAY (2025)' : 'NGÀY HỘI CLB - ĐỘI - NHÓM (2025)'}
               </span>
             </div>
 
             {/* Option 05: VI: BÀI ĐĂNG THÔNG THƯỜNG / EN: REGULAR POSTS */}
             <div 
               id="hvoc-option-post-thong-thuong"
-              onClick={() => setActiveBlankOption(isEn ? 'REGULAR POSTS' : 'BÀI ĐĂNG THÔNG THƯỜNG')}
+              onClick={() => setActiveProject('REGULAR_POSTS')}
               className="w-fit flex items-baseline gap-3.5 sm:gap-4.5 cursor-pointer group"
             >
               <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.68em] shrink-0 select-none">

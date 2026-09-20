@@ -12,6 +12,8 @@ import { IntroClock } from './components/IntroClock';
 import { VespertineBackground } from './components/VespertineBackground';
 import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD17_INSTAGRAM_PAGES, BLVD16_PAGES, Zone16Carousel } from './components/ZFoldBooklet';
 import { HvocIntroScreen, HVOC_LOGO_URL } from './components/HvocIntroScreen';
+import { TntnIntroScreen, TNTN_CHV_LOGO_URL, CDTTBP_VII_TNTN_LOGO_URL } from './components/TntnIntroScreen';
+import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
 import { AppLanguage, PortfolioMode, SceneState } from './types';
 
 export default function App() {
@@ -21,6 +23,7 @@ export default function App() {
   const [initialLoadingProgress, setInitialLoadingProgress] = useState(0);
   const [blvdLoadingProgress, setBlvdLoadingProgress] = useState(0);
   const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
+  const [tntnLoadingProgress, setTntnLoadingProgress] = useState(0);
   const [activeBlvdZone, setActiveBlvdZone] = useState<'zone-blvd' | 'zone-18' | 'zone-17' | 'zone-16'>('zone-blvd');
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
   const [bookletViewMode, setBookletViewMode] = useState<'3d' | 'carousel' | 'instagram'>('3d');
@@ -169,6 +172,12 @@ export default function App() {
     setScene('hvoc-loading');
   };
 
+  const handleTntnClick = () => {
+    // Bắt đầu chuỗi TNTN: hiện màn hình LOADING như HVOC và #blvd trước khi mở trang giới thiệu
+    setTntnLoadingProgress(0);
+    setScene('tntn-loading');
+  };
+
   // Quản lý tiến trình tải tài nguyên của HVOC
   useEffect(() => {
     if (scene !== 'hvoc-loading') return;
@@ -177,6 +186,13 @@ export default function App() {
 
     const hvocAssets = [
       HVOC_LOGO_URL,
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20TAR%208/Th%E1%BA%BB%20%C4%91eo.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20BONDING/%5BHVOC%5D%20BONDING.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20M%C3%A1u%20%C4%91%C3%B4ng/%5BHVOC%5D%20M%C3%A1u%20%C4%91%C3%B4ng.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20Club%20Day/Khung%20ptb%20bi%E1%BB%83n.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20Club%20Day/Khung%20ptb%20n%C3%BAi.webp',
     ];
 
     const uniqueAssets = Array.from(new Set(hvocAssets));
@@ -226,6 +242,75 @@ export default function App() {
         clearInterval(progressInterval);
         setTimeout(() => {
           setScene('hvoc-intro');
+        }, 350);
+      }
+    }, 3500);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
+
+  // Quản lý tiến trình tải tài nguyên của TNTN
+  useEffect(() => {
+    if (scene !== 'tntn-loading') return;
+
+    setTntnLoadingProgress(0);
+
+    const tntnAssets = [
+      TNTN_CHV_LOGO_URL,
+      CDTTBP_VII_TNTN_LOGO_URL,
+      ...SPOTIFLYER_PAGES,
+    ];
+
+    const uniqueAssets = Array.from(new Set(tntnAssets));
+    const totalAssets = uniqueAssets.length;
+    let loadedCount = 0;
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    // Tween làm mượt tiến trình 0 -> 100%
+    const progressInterval = setInterval(() => {
+      const realTarget = loadedCount >= totalAssets ? 100 : Math.min(85, Math.round((loadedCount / totalAssets) * 85));
+      if (currentDisplayProgress < realTarget) {
+        currentDisplayProgress += 2;
+        setTntnLoadingProgress(Math.min(100, currentDisplayProgress));
+      }
+      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('tntn-intro');
+        }, 350);
+      }
+    }, 14);
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+    };
+
+    uniqueAssets.forEach(url => {
+      const img = new Image();
+      img.onload = () => {
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(onAssetLoaded);
+        } else {
+          onAssetLoaded();
+        }
+      };
+      img.onerror = onAssetLoaded;
+      img.src = url;
+    });
+
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        setTntnLoadingProgress(100);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setScene('tntn-intro');
         }, 350);
       }
     }, 3500);
@@ -855,6 +940,47 @@ export default function App() {
       {/* Trang giới thiệu HVOC */}
       {scene === 'hvoc-intro' && (
         <HvocIntroScreen 
+          onBack={() => setScene('main-app')} 
+          language={language}
+        />
+      )}
+
+      {/* --- SEPARATE TNTN SEQUENCE --- */}
+      {/* Màn hình loading TNTN: LOADING hiện dần từ trái sang phải từ 0% đến 100% như HVOC và #blvd */}
+      {scene === 'tntn-loading' && (
+        <div 
+          id="scene-tntn-loading"
+          className="absolute inset-0 flex items-center justify-center bg-black z-50 overflow-hidden select-none w-full h-full px-2 md:px-8"
+        >
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                clipPath: `inset(0 ${Math.max(0, 100 - tntnLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - tntnLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
+      )}
+
+      {/* Trang giới thiệu Đội TNTN */}
+      {scene === 'tntn-intro' && (
+        <TntnIntroScreen 
           onBack={() => setScene('main-app')} 
           language={language}
         />
@@ -1507,7 +1633,10 @@ export default function App() {
                   </div>
 
                   {/* Item 02: TNTN */}
-                  <div className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5">
+                  <div 
+                    onClick={handleTntnClick}
+                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                  >
                     <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
                       02
                     </span>

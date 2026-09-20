@@ -16,6 +16,7 @@ interface GalleryItem {
   aspectRatio: string;
   crop?: boolean;
   linkUrl?: string;
+  isVideo?: boolean;
 }
 
 const BUU_DIEN_IMAGES: GalleryItem[] = [
@@ -54,6 +55,7 @@ const BUU_DIEN_IMAGES: GalleryItem[] = [
     aspectRatio: '16 / 9',
     crop: true,
     linkUrl: 'https://www.facebook.com/share/v/19qxDLrBbK/',
+    isVideo: true,
   },
 ];
 
@@ -97,7 +99,7 @@ export const HvocBuuDienScreen: React.FC<HvocBuuDienScreenProps> = ({ onBack, la
         {/* Tiêu đề dự án */}
         <div className="w-full mb-10 md:mb-14 flex flex-col items-start select-none">
           <h1 className="font-archivo font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase tracking-tight text-white">
-            BƯU ĐIỆN HVOC
+            BƯU ĐIỆN HVOC (2025)
           </h1>
         </div>
 
@@ -112,13 +114,32 @@ export const HvocBuuDienScreen: React.FC<HvocBuuDienScreenProps> = ({ onBack, la
             >
               {/* Nhãn thông tin từng hình (kèm subtext nếu có) */}
               <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
-                <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                   <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
                     {item.number}
                   </span>
                   <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                     {isEn ? item.titleEn : item.titleVi}
                   </span>
+                  {/* Tool icons: Canva bé và Filmora nếu có video */}
+                  <div className="flex items-center gap-1.5 shrink-0 select-none">
+                    <img 
+                      src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                      alt="Canva"
+                      title="Canva"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                      referrerPolicy="no-referrer"
+                    />
+                    {item.isVideo && (
+                      <img 
+                        src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp"
+                        alt="Filmora"
+                        title="Filmora"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                  </div>
                   {(item.subtextVi || item.subtextEn) && (
                     <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
                       {isEn ? item.subtextEn : item.subtextVi}

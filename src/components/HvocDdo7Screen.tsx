@@ -103,11 +103,28 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
           {/* 01. POSTER / VIDEO GIỚI THIỆU */}
           <div id="gallery-item-ddo7-poster" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
-              <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">01</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   POSTER / {isEn ? 'INTRO VIDEO' : 'VIDEO GIỚI THIỆU'}
                 </span>
+                {/* Tool icons: Canva bé và Filmora (vì có video) */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp"
+                    alt="Filmora"
+                    title="Filmora"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
                 <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
                   {isEn ? 'click poster to watch video' : 'bấm vô poster để xem video'}
                 </span>
@@ -136,11 +153,21 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
           {/* 02. KHUNG AVATAR */}
           <div id="gallery-item-ddo7-avatar" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
-              <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">02</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   {isEn ? 'AVATAR FRAME' : 'KHUNG AVATAR'}
                 </span>
+                {/* Tool icon: Canva bé */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
             </div>
             <div 
@@ -162,11 +189,21 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
           {/* 03. THẺ ĐEO (React Bits Lanyard tương tác vật lý rapier) */}
           <div id="gallery-item-ddo7-thedeo" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-1 text-white border-none">
-              <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">03</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   {isEn ? 'EVENT BADGE' : 'THẺ ĐEO'}
                 </span>
+                {/* Tool icon: Canva bé */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
                 <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
                   {isEn ? 'drag card, scroll wheel or pinch to zoom' : 'kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom'}
                 </span>
@@ -178,6 +215,7 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
                 gravity={[0, -40, 0]}
                 fov={20}
                 frontImage="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Th%E1%BA%BB%20%C4%91eo.webp"
+                aspectRatio={1650 / 2580}
                 imageFit="cover"
                 transparent={true}
                 lanyardWidth={1}
@@ -188,11 +226,21 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
           {/* 04. DÂY ĐEO (Panoramic Strap trượt ngang tự động & mở rộng cuộn tay) */}
           <div id="gallery-item-ddo7-daydeo" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-1 text-white border-none">
-              <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">04</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   {isEn ? 'LANYARD STRAP' : 'DÂY ĐEO'}
                 </span>
+                {/* Tool icon: Canva bé */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
             </div>
             <div className="w-full">
@@ -221,13 +269,23 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
             >
               {/* Nhãn thông tin từng hình */}
               <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
-                <div className="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                   <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
                     {item.number}
                   </span>
                   <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                     {isEn ? item.titleEn : item.titleVi}
                   </span>
+                  {/* Tool icon: Canva bé */}
+                  <div className="flex items-center gap-1.5 shrink-0 select-none">
+                    <img 
+                      src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                      alt="Canva"
+                      title="Canva"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
                   {(item.subtextVi || item.subtextEn) && (
                     <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
                       {isEn ? item.subtextEn : item.subtextVi}

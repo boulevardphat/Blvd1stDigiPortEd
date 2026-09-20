@@ -2689,6 +2689,228 @@ Dự án: Boulevard1st Portfolio & BLVD Archive
      - Trên Desktop: Thu hẹp khoảng cách camera từ `18` xuống `13.85` (`baseZ / 1.3`), tăng kích thước hiển thị của thẻ đeo lên ~30% trực quan và ấn tượng hơn.
      - Đồng thời mở rộng giới hạn zoom cận cảnh `minZoomZ = 7` giúp trải nghiệm phóng to trên desktop sâu và sắc nét hơn nữa.
 
+================================================================================
+LẦN 24: TRIỂN KHAI DỰ ÁN 02 THE AMAZING RACE 8 (TAR) VỚI THẺ ĐEO 3D (LANYARD)
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Tạo component mới HvocTar8Screen (`/src/components/HvocTar8Screen.tsx`):
+     - Kế thừa toàn bộ cấu trúc giao diện và layout chuẩn mực từ `HvocDdo7Screen.tsx`.
+     - Nút "trở về" / "back" chuẩn xác (Desktop: cố định góc trên bên trái `md:top-8 md:left-10 lg:top-10 lg:left-14`, Mobile: đầu trang).
+     - Tiêu đề dự án: `THE AMAZING RACE 8 (TAR)` viết hoa sắc cạnh bằng font Archivo bold.
+     - Duy nhất mục 01 Thẻ đeo:
+       * STT: `01` màu `#89CC04`.
+       * Nhãn: `THẺ ĐEO` (EN: `EVENT BADGE`).
+       * Hướng dẫn: `kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom` (EN: `drag card, scroll wheel or pinch to zoom`), không dùng ngoặc đơn.
+       * Component thẻ đeo 3D tương tác vật lý chân thực `<Lanyard />` tích hợp ảnh thẻ chính thức của TAR 8 (`https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20TAR%208/Th%E1%BA%BB%20%C4%91eo.webp`).
+     - Tuân thủ nghiêm ngặt nguyên tắc Boulevard1st: hoàn toàn không bo góc (`rounded-none`).
+  2. Tích hợp điều hướng tại HvocIntroScreen (`/src/components/HvocIntroScreen.tsx`):
+     - Cập nhật state `activeProject` hỗ trợ giá trị `'TAR_8'`.
+     - Gán sự kiện click tại mục `02  THE AMAZING RACE (TAR)` để chuyển ngay sang `HvocTar8Screen`.
+     - Render màn hình với nút trở về hoàn trả lại giao diện giới thiệu HVOC.
+  3. Tối ưu hóa tải trước (Preload) tại App.tsx (`/src/App.tsx`):
+     - Thêm ảnh thẻ đeo TAR 8 vào mảng `hvocAssets` trong tiến trình loading HVOC (`hvoc-loading`) nhằm bảo đảm hình ảnh sẵn sàng ngay khi người dùng truy cập.
+
+================================================================================
+LẦN 25: KHẮC PHỤC TRIỆT ĐỂ TỈ LỆ VÀ KÍCH THƯỚC THẺ ĐEO 3D (TAR 8 VÀ DDO 7)
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Phân tích & làm rõ vấn đề tỉ lệ (Aspect Ratio):
+     - Ảnh thẻ gốc của cả TAR 8 và DDO 7 đều có kích thước thực tế là 1650 x 2580 px (tỉ lệ chiều ngang / chiều cao = 0.639535, tức tỉ lệ 1 : 1.564).
+     - Mesh 3D trong `card.glb` có tỉ lệ hình học mặt trước mặc định là 0.716366 / 0.9707 = 0.737989 (tỉ lệ 1 : 1.355).
+     - Do đó, thẻ DDO 7 trước đó cũng bị biến dạng/co rút theo chiều dọc và bẹt ngang khoảng 15.4% y hệt như TAR 8 (ở TAR 8 dễ nhận thấy hơn vì chỉ có 1 thẻ duy nhất trên toàn màn hình).
+  2. Nâng cấp cốt lõi trong Lanyard.tsx (`/src/components/Lanyard.tsx`):
+     - Thêm prop `aspectRatio?: number` cho `LanyardProps` và `BandProps`. Tự động nhận diện từ ảnh hoặc sử dụng prop truyền vào.
+     - Tính toán hệ số tỉ lệ chuẩn xác: `cardScaleX = targetAspect / BASE_MESH_ASPECT` (~0.8666 với tỉ lệ 1650/2580).
+     - Áp dụng `scale={[cardScaleX, 1, 1]}` cho `mesh` của thẻ và tự động đồng bộ kích thước va chạm `CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]}`.
+     - Đồng bộ việc vẽ ảnh thẻ vào texture atlas UV (`FRONT_UV_RECT` và `BACK_UV_RECT`): ánh xạ trực tiếp 1:1 không còn bị crop mép hay co dãn phi tỷ lệ.
+  3. Áp dụng đồng bộ cho cả hai dự án:
+     - Tại `HvocTar8Screen.tsx`: Bổ sung `aspectRatio={1650 / 2580}`.
+     - Tại `HvocDdo7Screen.tsx`: Bổ sung `aspectRatio={1650 / 2580}`.
+  4. Nâng cấp kích thước khung hiển thị trong Lanyard.css (`/src/components/Lanyard.css`):
+     - Tăng chiều cao vùng tương tác thẻ đeo: Mobile đạt `560px` (max-height 85vh), Tablet (`md`) đạt `640px`, Desktop (`lg`) đạt `700px`, mang lại kích thước thẻ lớn, bề thế, chi tiết đồ họa sắc nét từng pixel.
+
+================================================================================
+LẦN 26: TRIỂN KHAI PHẦN BÀI ĐĂNG THÔNG THƯỜNG (REGULAR POSTS) CỦA HVOC
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Tạo component mới HvocRegularPostsScreen (`/src/components/HvocRegularPostsScreen.tsx`):
+     - Kế thừa toàn bộ cấu trúc giao diện chuẩn mực từ các dự án Bưu điện HVOC và DDO 7.
+     - Nút "trở về" / "back" song ngữ chuẩn xác: Desktop cố định góc trên bên trái `md:top-8 md:left-10 lg:top-10 lg:left-14`, Mobile đặt tự nhiên đầu trang. Bấm vào sẽ quay trở lại màn hình giới thiệu HVOC.
+     - Tiêu đề dự án: `BÀI ĐĂNG THÔNG THƯỜNG` (EN: `REGULAR POSTS`), viết hoa sắc cạnh bằng font Archivo bold.
+     - Dàn 2 ảnh vuông tỉ lệ 1:1, căn giữa với chiều rộng chuẩn cân đối `maxWidth: 640px`, không viền, không bo góc (`rounded-none`), không hiệu ứng hover phóng to méo hình:
+       * `01  HVOC BONDING`: Ảnh vuông 1:1 (`[HVOC] BONDING.webp`).
+       * `02  MÁU ĐÔNG`: Ảnh vuông 1:1 (`[HVOC] Máu đông.webp`).
+  2. Tích hợp điều hướng tại HvocIntroScreen (`/src/components/HvocIntroScreen.tsx`):
+     - Mở rộng state `activeProject` hỗ trợ giá trị `'REGULAR_POSTS'`.
+     - Chuyển đổi option `05  BÀI ĐĂNG THÔNG THƯỜNG` từ màn hình đen cũ sang render trực tiếp `HvocRegularPostsScreen`.
+  3. Bổ sung tải trước (Preload) tại App.tsx (`/src/App.tsx`):
+     - Thêm 2 ảnh `[HVOC] BONDING.webp` và `[HVOC] Máu đông.webp` vào mảng `hvocAssets` trong tiến trình loading HVOC để ảnh sẵn sàng ngay lập tức khi mở.
+
+================================================================================
+LẦN 27: CẬP NHẬT TIÊU ĐỀ BÀI ĐĂNG "MÁU ĐÔNG - \"SÁT THỦ\" ẨN DANH?"
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Cập nhật tiêu đề mục 02 tại HvocRegularPostsScreen (`/src/components/HvocRegularPostsScreen.tsx`):
+     - Đổi tiêu đề `titleVi` và `titleEn` của item `emp-hvoc-maudong` từ `MÁU ĐÔNG` thành `MÁU ĐÔNG - "SÁT THỦ" ẨN DANH?` theo đúng yêu cầu Focus Mode.
+  2. Đồng bộ danh mục tài nguyên tại multimediaArchive.ts (`/src/data/multimediaArchive.ts`):
+     - Cập nhật tiêu đề asset `emp-hvoc-maudong` thành `HVOC - Máu đông - "Sát thủ" ẩn danh?`.
+
+================================================================================
+LẦN 28: CẬP NHẬT TIÊU ĐỀ MENU DỰ ÁN HVOC (BƯU ĐIỆN, TAR 8, NGÀY HỘI CLB)
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Cập nhật danh sách menu tại HvocIntroScreen (`/src/components/HvocIntroScreen.tsx`):
+     - Mục 01: Thêm chú thích năm `(2025)` đằng sau: `BƯU ĐIỆN HVOC (2025)`.
+     - Mục 02: Thêm số `8` sau THE AMAZING RACE tương tự như DDO 7: `THE AMAZING RACE 8 (TAR)`.
+     - Mục 04: Thêm chú thích năm `(2025)` đằng sau: `NGÀY HỘI CLB - ĐỘI - NHÓM (2025)` (tiếng Anh: `CLUB DAY (2025)`).
+  2. Đồng bộ tiêu đề màn hình tại HvocBuuDienScreen (`/src/components/HvocBuuDienScreen.tsx`):
+     - Tiêu đề màn hình dự án được cập nhật thành `BƯU ĐIỆN HVOC (2025)`.
+
+================================================================================
+LẦN 29: TRIỂN KHAI PHẦN NGÀY HỘI CLB - ĐỘI - NHÓM (2025) / CLUB DAY CỦA HVOC
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Tạo component mới HvocClubDayScreen (`/src/components/HvocClubDayScreen.tsx`):
+     - Tiêu đề dự án: `NGÀY HỘI CLB - ĐỘI - NHÓM (2025)` (tiếng Anh: `CLUB DAY (2025)`).
+     - Nút "trở về" / "back" song ngữ chuẩn mực: cố định góc trên bên trái ở Desktop và đặt tự nhiên đầu trang ở Mobile.
+     - Dàn 2 khung photobooth (`01  KHUNG PTB BIỂN` và `02  KHUNG PTB NÚI`) với tỷ lệ dải photobooth 880 / 2650:
+       * Desktop (`md` trở lên): Dàn 2 khung đặt cạnh nhau (grid 2 cột `md:grid md:grid-cols-2 gap-10 lg:gap-16 xl:gap-20 max-w-4xl mx-auto`), căn giữa và cân đối tỷ lệ hiển thị.
+       * Mobile (< `md`): Dàn hàng ngang với cơ chế vuốt chạm trái phải mượt mà (`overflow-x-auto snap-x snap-mandatory flex-row gap-6`), mỗi khung card `snap-center`.
+     - Tuân thủ nghiêm ngặt nguyên tắc Boulevard1st: không viền, không bo góc (`rounded-none`), không hiệu ứng hover méo hình.
+  2. Tích hợp điều hướng tại HvocIntroScreen (`/src/components/HvocIntroScreen.tsx`):
+     - Thêm `'CLUB_DAY'` vào state `activeProject`.
+     - Bấm vào mục `04  NGÀY HỘI CLB - ĐỘI - NHÓM (2025)` mở trực tiếp màn hình `HvocClubDayScreen`.
+  3. Preload tài nguyên tại App.tsx (`/src/App.tsx`):
+     - Đưa 2 ảnh `Khung ptb biển.webp` và `Khung ptb núi.webp` vào mảng tải trước `hvocAssets` trong tiến trình loading HVOC.
+
+================================================================================
+LẦN 30: THÊM BIỂU TƯỢNG MŨI TÊN KHÔNG KHUNG RA HIỆU VUỐT TRÊN MOBILE (CLUB DAY)
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Thêm biểu tượng mũi tên tại HvocClubDayScreen (`/src/components/HvocClubDayScreen.tsx`):
+     - Tại giao diện mobile (< `md`), ở góc trên bên phải khung ảnh và ngang hàng với dòng tiêu đề `01  KHUNG PTB BIỂN`, bổ sung biểu tượng `ArrowRight` từ `lucide-react` để ra hiệu cho người dùng biết có thể vuốt xem tiếp khung tiếp theo.
+     - Thiết kế tinh giản, chuẩn Boulevard1st: hoàn toàn không viền, không nền, không bo góc (`rounded-none`).
+     - Hỗ trợ tương tác tiện lợi: bấm trực tiếp vào biểu tượng mũi tên sẽ tự động cuộn mượt mà sang khung photobooth tiếp theo (`handleScrollNext`).
+
+================================================================================
+LẦN 31: THÊM ICON CANVA VÀ FILMORA BÊN CẠNH TÊN CÁC PHẦN DỰ ÁN CỦA HVOC
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Thêm icon công cụ cạnh tên các phần thuộc mọi mục của HVOC:
+     - Biểu tượng Canva bé (`canva.webp`, kích thước 14x14px đến 16x16px, phẳng, không bo góc `rounded-none`) được thêm ngay bên cạnh tiêu đề của từng phần thuộc tất cả các mục của HVOC.
+     - Riêng các phần có video: thêm icon Filmora (`filmora.webp`) nằm ngay bên cạnh icon Canva:
+       + Mục 01 - Bưu điện HVOC (2025): Phần `04  VIDEO GIỚI THIỆU` hiển thị cả icon Canva và icon Filmora.
+       + Mục 03 - Đường đến Ozone 7 (DDO): Phần `01  POSTER / VIDEO GIỚI THIỆU` hiển thị cả icon Canva và icon Filmora.
+  2. Áp dụng đồng bộ cho toàn bộ màn hình dự án con của HVOC:
+     - `HvocBuuDienScreen.tsx`: Các mục 01 (Chính), 02 (Quảng bá), 03 (Ảnh bìa FB) có icon Canva; mục 04 (Video giới thiệu) có cả Canva & Filmora.
+     - `HvocTar8Screen.tsx`: Mục 01 (Thẻ đeo) có icon Canva.
+     - `HvocDdo7Screen.tsx`: Mục 01 (Poster / Video) có cả Canva & Filmora; các mục 02 (Khung avatar), 03 (Thẻ đeo), 04 (Dây đeo), 05-07 (Layouts) có icon Canva.
+     - `HvocClubDayScreen.tsx`: Cả trên Desktop và Mobile, các mục 01 (Khung PTB Biển), 02 (Khung PTB Núi) đều hiển thị icon Canva bên cạnh tên.
+     - `HvocRegularPostsScreen.tsx`: Các mục 01 (HVOC Bonding), 02 (Máu đông) đều hiển thị icon Canva.
+  3. Preload icon trong luồng tải HVOC tại `App.tsx`:
+     - Thêm `canva.webp` và `filmora.webp` vào danh sách preload `hvocAssets` để đảm bảo icon hiển thị tức thì không bị trễ.
+
+================================================================================
+LẦN 32: THÊM TRANG GIỚI THIỆU ĐỘI TNTN VÀ CHIẾN DỊCH TRÁI TIM BÊN PHẢI MÙA VII
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Tạo component `TntnIntroScreen` (`/src/components/TntnIntroScreen.tsx`):
+     - Xây dựng trang giới thiệu cho Đội TNTN theo phong cách bố cục tương đồng với HVOC:
+       + Nút "trở về" / "back" song ngữ hỗ trợ cả Desktop (cố định góc trên bên trái) và Mobile (đặt tự nhiên ở đầu trang để vuốt mượt mà).
+       + Cột bên trái:
+         * Phần trên: Logo ghép TNTN & Chuyên Hùng Vương (`https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/TNTN%20CHV.png`).
+         * Tiêu đề chính: `ĐỘI THANH NIÊN TÌNH NGUYỆN / CHUYÊN HÙNG VƯƠNG` (EN: `VOLUNTEER YOUTH TEAM / HUNG VUONG HIGH SCHOOL`).
+         * Đoạn văn giới thiệu về Đội TNTN Chuyên Hùng Vương được căn đều 2 bên chuẩn xác theo chiều rộng đo đạc thực tế của tiêu đề tiếng Việt.
+         * Phần ngay ở dưới: Logo ghép Chiến dịch Trái tim bên phải Mùa VII & Đội TNTN (`https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/CDTTBP%20VII%20TNTN.png`).
+         * Tên chiến dịch: `CHIẾN DỊCH TRÁI TIM BÊN PHẢI MÙA VII` (EN: `"HEART ON THE RIGHT" CAMPAIGN - SEASON VII`) kèm đoạn mô tả giới thiệu.
+       + Cột bên phải: Để trống hoàn toàn theo đúng yêu cầu ("nhưng để trống phần bên phải").
+       + Đảm bảo triệt để quy tắc Boulevard1st: hoàn toàn không bo góc (`rounded-none`).
+  2. Bổ sung `tntn-loading` và `tntn-intro` vào `SceneState` (`/src/types.ts`).
+  3. Tích hợp trong `App.tsx`:
+     - Thêm tương tác click mở chuỗi TNTN khi bấm vào Item `02  Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương` trong mục CONTENTS của Employer.
+     - Triển khai màn hình `LOADING` với tiến trình thực (0% - 100%) tải trước 2 logo `TNTN CHV.png` và `CDTTBP VII TNTN.png` trước khi chuyển sang `tntn-intro`.
+
+================================================================================
+LẦN 33: CẬP NHẬT TÊN TIẾNG ANH CHO ĐỘI TNTN (TNTN TEAM)
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Cập nhật phần tử mục tiêu `h1#tntn-main-title` trong `TntnIntroScreen.tsx`:
+     - Do Đội TNTN không có tên tiếng Anh chính thức, tiêu đề tiếng Anh được cập nhật trực tiếp thành:
+       `TNTN TEAM`
+       `CHUYEN HUNG VUONG`
+       (thay cho cách dịch tự động trước đó là `VOLUNTEER YOUTH TEAM / HUNG VUONG HIGH SCHOOL`).
+  2. Cập nhật các đoạn văn bản mô tả tiếng Anh liên quan:
+     - `p#tntn-description-text`: Thay "the Volunteer Youth Team (TNTN)" bằng "TNTN Team".
+     - `p#cdttbp-description-text`: Thay "the Volunteer Youth Team of Hung Vuong High School for the Gifted" bằng "TNTN Team - Hung Vuong High School for the Gifted".
+
+================================================================================
+LẦN 34: ĐỒNG BỘ TÊN "HUNG VUONG FOR THE GIFTED" CHO TRANG ĐỘI TNTN
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Cập nhật tiêu đề tiếng Anh trong `TntnIntroScreen.tsx`:
+     - Chuyển đổi dòng phụ trong `h1#tntn-main-title` thành chuẩn định danh trường:
+       `TNTN TEAM`
+       `HUNG VUONG FOR THE GIFTED`
+       (thay cho `CHUYEN HUNG VUONG`).
+  2. Đồng bộ các đoạn văn bản mô tả tiếng Anh:
+     - `p#tntn-description-text`: Cập nhật câu mở đầu thành "Established under the guidance of the Youth Union of Hung Vuong for the gifted, TNTN Team...".
+     - `p#cdttbp-description-text`: Cập nhật đơn vị tổ chức thành "TNTN Team - Hung Vuong for the gifted".
+
+================================================================================
+LẦN 35: CẬP NHẬT NỘI DUNG VĂN BẢN CHÍNH THỨC CHO TRANG ĐỘI TNTN VÀ CHIẾN DỊCH
+================================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Cập nhật đoạn văn bản giới thiệu Đội TNTN (`p#tntn-description-text`):
+     - Tiếng Việt: Bổ sung mốc thời gian thành lập năm 2012, phạm vi hoạt động tại Phường Thủ Dầu Một & các khu vực lân cận TP.HCM, vai trò kết nối Đoàn trường, mốc thời gian Thuận Phát gia nhập năm 2023 và dấu ấn sáng tạo ra Spotiflyer.
+     - Tiếng Anh: Áp dụng bản dịch chuẩn do người dùng cung cấp ("Established in 2012, the TNTN Team Hung Vuong for the Gifted is dedicated to organizing volunteer activities that support disadvantaged individuals in the Thu Dau Mot Ward and neighboring areas of Ho Chi Minh City...").
+  2. Cập nhật đoạn văn bản giới thiệu Chiến dịch Trái tim Bên Phải Mùa VII (`p#cdttbp-description-text`):
+     - Tiếng Việt: Giới thiệu Chiến dịch "Trái tim Bên Phải" là hoạt động thường niên của Đội, vai trò của Thuận Phát đồng hành cùng chiến dịch mùa VII với tư cách người viết bài cho Tiểu ban Nội dung, trực thuộc Ban Truyền thông.
+     - Tiếng Anh: Áp dụng bản dịch chuẩn do người dùng cung cấp ("The campaign is an annual initiative organized by the TNTN Team Hung Vuong for the Gifted. Thuan Phat participated in the "Heart on the Right" Campaign - Season VII as a content writer for the Content Sub-committee, under the campaign's Communications Department.").
+
+================================================================================
+LẦN 36: TÍCH HỢP MỤC GIỚI THIỆU SPOTIFLYER & MODEL 3D 4 TỜ GẤP ZICZAC DỌC
+===============================================================================
+Thời điểm: 2026-09-20
+Nội dung thay đổi chi tiết:
+  1. Xây dựng component `SpotiflyerVerticalZFold.tsx`:
+     - Tích hợp 4 ảnh Luật chơi thực tế trong kho lưu trữ `multimediaArchive.ts`:
+       * `Luật chơi.webp`
+       * `Luật chơi (2).webp`
+       * `Luật chơi (3).webp`
+       * `Luật chơi (4).webp`
+     - Tỉ lệ khung hình chính xác theo file gốc: 4704 x 3255 (aspect ratio ~1.4452:1).
+     - Mô hình 3D nếp gấp ziczac theo chiều từ trên xuống dưới (vertical accordion/z-fold) sử dụng CSS 3D Transforms (`perspective: 1800px`, `transformStyle: preserve-3d`, xoay quanh trục `rotateX` kết nối phân cấp giữa các tờ).
+     - Hỗ trợ tương tác kéo chuột/chạm xoay 3D 360 độ, nút bấm mở phẳng (UNFOLD VIEW) / gập lại (FOLD ZICZAC), và nút đặt lại góc (RESET 3D).
+     - Tuân thủ nghiêm ngặt nguyên tắc Boulevard1st: hoàn toàn không bo góc (`rounded-none`).
+  2. Bố cục hiển thị Spotiflyer trong `TntnIntroScreen.tsx`:
+     - Trên Desktop (`lg:` trở lên): Đặt ở cột bên phải màn hình (`div#tntn-right-column-desktop`).
+     - Trên Mobile: Đặt ngay bên dưới phần giới thiệu Đội TNTN (sau `p#tntn-description-text`, trước khối Chiến dịch Trái Tim Bên Phải Mùa VII).
+     - Trình bày 4 bước Luật chơi rõ ràng theo đúng nội dung và định dạng:
+       01. Dùng Spotify để quét mã.
+       02. Vừa nghe vừa dựa vào lời bài hát (Spotify premium hoặc Genius) tìm các từ khóa chỉ phương hướng/địa điểm. Nếu đó là trang nghệ sĩ thì tìm kiếm thông tin về xuất thân trên Google.
+       03. (Chỉ khi tìm được địa điểm/xuất thân nghệ sĩ) Sử dụng bản đồ thế giới để xác định hướng chim bay từ Việt Nam đến điểm đó trên bản đồ.
+       04. Sau khi xác định được phương hướng, sử dụng bản đồ khu vực để di chuyển.
+  3. Cập nhật `App.tsx`:
+     - Bổ sung 4 ảnh Spotiflyer vào mảng tài nguyên tải trước `tntnAssets` trong màn hình `tntn-loading` để đảm bảo model 3D hiển thị tức thì không bị giật hay trắng hình.
+
+
+
+
+
+
+
 
 
 
