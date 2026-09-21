@@ -2905,6 +2905,106 @@ Nội dung thay đổi chi tiết:
   3. Cập nhật `App.tsx`:
      - Bổ sung 4 ảnh Spotiflyer vào mảng tài nguyên tải trước `tntnAssets` trong màn hình `tntn-loading` để đảm bảo model 3D hiển thị tức thì không bị giật hay trắng hình.
 
+================================================================================
+LẦN 37: KHẮC PHỤC TRIỆT ĐỂ LỖI HOẠT ĐỘNG CỦA 2 MÔ HÌNH LANYARD TRÊN MOBILE & TOUCH
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Khắc phục xung đột Touch Event và Native Page Scroll trên Mobile:
+     - Thiết lập `touch-action: pan-y` cho canvas trong `Lanyard.css`.
+     - Tích hợp `CanvasTouchManager` bên trong R3F Canvas (`Lanyard.tsx`):
+       * Cử chỉ 2 ngón tay (Pinch Zoom): Ngăn chặn zoom/cuộn mặc định của trình duyệt (`preventDefault`), tính khoảng cách 2 ngón tay để zoom camera 3D mượt mà.
+       * Cử chỉ 1 ngón tay: Dùng Three.js Raycaster kiểm tra va chạm với mô hình thẻ 3D (`cardGroupRef`). Nếu chạm trúng thẻ -> gọi `preventDefault`, khóa cuộn trang để ngón tay kéo lắc thẻ tự do. Nếu chạm vào khoảng trống xung quanh -> cho phép trình duyệt cuộn trang bình thường (`pan-y`), người dùng không bị kẹt khi lướt web trên mobile.
+  2. Bổ sung Pointer Capture và Bộ lắng nghe huỷ bỏ toàn cục (Global Release):
+     - Gắn Pointer Capture chuẩn trên phần tử HTML Canvas thực tế (`e.nativeEvent.target`).
+     - Đăng ký bộ lắng nghe `pointerup`, `pointercancel`, `touchend`, `touchcancel` trên `window` khi đang kéo. Đảm bảo thẻ luôn được giải phóng về trạng thái rơi tự do (`dynamic`) ngay lập tức khi thả tay hoặc khi hệ điều hành phát sinh sự kiện ngắt cử chỉ.
+  3. Chuẩn hóa phép chiếu toạ độ không gian 3D (Plane Raycasting):
+     - Tính toán chuẩn xác toạ độ giao điểm tia nhìn từ camera tới mặt phẳng vật lý Z=0 (`dist = Math.abs(state.camera.position.z / (dir.z || 0.001))`). Thẻ bám chính xác 1:1 theo ngón tay trên mọi kích thước màn hình mà không bị lệch hay biến dạng.
+  4. Ổn định vật lý Rapier & Hitbox chạm trên Mobile:
+     - Đưa `timeStep` về chuẩn `1 / 60` ổn định trên cả mobile và desktop.
+     - Thêm invisible mesh hitbox (`1.6 * cardScaleX, 2.4`) giúp thao tác chạm ngón tay trên mobile nhạy bén, không bị trượt.
+     - Điều chỉnh chiều cao khung thẻ trên mobile thành `height: 480px; max-height: 72vh;` tạo không gian đệm cuộn trang thoáng đãng.
+
+================================================================================
+LẦN 38: KHẮC PHỤC TRIỆT ĐỂ LỖI TOUCH/DRAG TRÊN MOBILE, TÍCH HỢP HẤT THẺ & GIỚI HẠN ZOOM
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Khôi phục và nâng cấp cơ chế "HẤT THẺ" (Chạm & Vuốt gia tốc quán tính):
+     - Tính năng Chạm nhẹ để Hất thẻ (Tap to Swing): Khi người dùng chạm hoặc click nhẹ vào thẻ (<300ms, di chuyển <15px), tính toán toạ độ va chạm và áp dụng xung lực tức thì (`applyImpulse` và `applyTorqueImpulse`) vào thẻ. Thẻ lập tức bị hất lắc lư qua lại và xoay tự nhiên theo vật lý dây đeo thực tế.
+     - Tính năng Hất thẻ khi Vuốt/Kéo thả (Momentum Fling): Theo dõi vận tốc kéo thời gian thực (`dragVelocity`) trong `useFrame` bằng hàm nội suy chuyển động mượt mà. Khi thả tay (`onPointerUp` hoặc giải phóng toàn cục), vận tốc được truyền trực tiếp vào thẻ (`setLinvel`) cùng với xung xoắn (`applyTorqueImpulse`). Người dùng vuốt thẻ nhanh là thẻ sẽ văng bay theo đúng hướng và tốc độ vuốt.
+     - Khôi phục chuyển động 3D chiều sâu Z (`vec.z - dragged.z`), cho phép thẻ lắc lư cả chiều sâu không gian thay vì bị dẹt phẳng.
+  2. Sửa lỗi Touch trên Mobile:
+     - Đổi `touch-action: pan-y` thành `touch-action: none` trên canvas trong `Lanyard.css`. Loại bỏ việc trình duyệt ngắt cử chỉ (`pointercancel`) khi ngón tay di chuyển, đảm bảo 100% thao tác chạm/vuốt thẻ trên Mobile mượt mà, chính xác như Desktop.
+     - Gỡ bỏ `CanvasTouchManager` thừa gây xung đột sự kiện.
+     - Tối ưu chiều cao khung thẻ trên mobile thành `height: 440px; max-height: 65vh;` để người dùng vừa có không gian tương tác thẻ rộng rãi, vừa có vùng đệm trên/dưới để cuộn trang web mượt mà.
+  3. Khắc phục lỗi Zoom quá đà trên Desktop (Card thu nhỏ thành chấm bé xíu):
+     - Giới hạn khoảng cách camera `minZoomZ = 9` (cận cảnh thẻ sắc nét) và `maxZoomZ = 20` (toàn cảnh, thẻ không bao giờ bị thu nhỏ thành chấm vô cực).
+     - Giảm độ nhạy cuộn chuột `zoomSpeed` từ 0.02 xuống 0.005 để cuộn zoom êm ái, mượt mà và tinh tế.
+     - Hỗ trợ Double Click vào khung thẻ để tự động Reset góc zoom về mặc định (`defaultZ: 13.5` trên desktop, `16.5` trên mobile).
+
+================================================================================
+LẦN 39: LOẠI BỎ TOÀN BỘ ZOOM BẰNG TOUCH, GIỮ ZOOM TOUCHPAD, BỔ SUNG 2 NÚT + / - ZOOM THỦ CÔNG
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Loại bỏ toàn bộ dữ kiện và logic liên quan đến zoom bằng cảm ứng (touch zoom):
+     - Gỡ bỏ hoàn toàn cụm từ hướng dẫn "hoặc chụm tay để zoom" / "or pinch to zoom" trong phần chú thích thẻ đeo của cả 2 màn hình:
+       * `HvocTar8Screen.tsx`: Cập nhật thành "{isEn ? 'drag card, scroll wheel to zoom' : 'kéo lắc thẻ, cuộn chuột để zoom'}".
+       * `HvocDdo7Screen.tsx`: Cập nhật thành "{isEn ? 'drag card, scroll wheel to zoom' : 'kéo lắc thẻ, cuộn chuột để zoom'}".
+     - Xóa bỏ mọi logic và tham chiếu đến cử chỉ pinch/touch zoom trong component `Lanyard.tsx`.
+  2. Bổ sung 2 nút cộng/trừ (+ / -) ở góc dưới bên phải khung model 3D để zoom thủ công:
+     - Đặt tại góc dưới bên phải: `absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1`.
+     - Tuân thủ thiết kế "không đóng khung" (unbordered) và quy tắc Boulevard1st: hoàn toàn không bo góc (`rounded-none`), không bọc khung viền bên ngoài (borderless), sử dụng nền tối/sáng bán trong suốt tối giản (`bg-white/10 hover:bg-white/20 text-white`).
+     - Tích hợp 2 nút `+` (Zoom In, `lanyard-zoom-in-button`) và `−` (Zoom Out, `lanyard-zoom-out-button`) từ `lucide-react`:
+       * Nút `+`: Giảm khoảng cách camera về phía trước theo bước nhảy `1.2`, giới hạn tối thiểu `minZoomZ = 9` (tự động disable khi đạt cận cảnh tối đa).
+       * Nút `−`: Tăng khoảng cách camera ra xa theo bước nhảy `1.2`, giới hạn tối đa `maxZoomZ = 20` (tự động disable khi đạt toàn cảnh tối đa).
+       * Chuyển động zoom thông qua bộ điều khiển `CameraRig` nội suy mượt mà (damped lerp).
+  3. Giữ nguyên tính năng zoom bằng touchpad / cuộn chuột trên máy tính:
+     - Giữ bộ lắng nghe sự kiện `wheel` (`onWheel`) trên vùng container để người dùng dùng chuột cuộn hoặc touchpad lướt 2 ngón tay zoom mượt mà.
+
+================================================================================
+LẦN 40: ĐỒNG BỘ 2 MẶT THẺ ĐEO & TÙY BIẾN DÂY ĐEO CHO HVOC TAR 8 VÀ HVOC DDO 7
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Đồng bộ 2 mặt thẻ đeo giống nhau:
+     - `HvocTar8Screen.tsx`: Gán `backImage` trùng khớp với `frontImage` ("Thẻ đeo.webp" của HVOC TAR 8). Khi người dùng xoay/hất thẻ 3D, mặt sau hiển thị giống hệt mặt trước mà không bị trắng hay rơi vào texture mặc định.
+     - `HvocDdo7Screen.tsx`: Gán `backImage` trùng khớp với `frontImage` ("Thẻ đeo.webp" của HVOC DDO 7). Khi xoay thẻ đung đưa, mặt trước và sau đồng nhất 1:1.
+  2. Tùy biến chất liệu và hoa văn dây đeo:
+     - HVOC DDO 7: Sử dụng bản dây đeo chính thức từ kho lưu trữ:
+       `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/D%C3%A2y%20%C4%91eo%20ch%C3%ADnh%20th%E1%BB%A9c.webp`.
+     - HVOC TAR 8: Sử dụng họa tiết dây đeo màu trắng thanh lịch từ Unsplash:
+       `https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80`.
+  3. Tối ưu màu sắc hiển thị dải dây (sRGB colorSpace):
+     - Trong `Lanyard.tsx`, thiết lập `texture.colorSpace = THREE.SRGBColorSpace` cho dải dây vải để đảm bảo hoa văn màu sắc chân thực, sắc nét dưới ánh sáng môi trường 3D.
+
+================================================================================
+LẦN 41: KHẮC PHỤC HIỆN TƯỢNG DÂY ĐEO BỊ CO/NÉN (CROP ĐOẠN HOA VĂN CHUẨN THAY VÌ NÉN TOÀN BỘ DẢI PANORAMIC)
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Phân tích nguyên nhân hiện tượng dây đeo bị co lại (nén vô):
+     - File gốc "Dây đeo chính thức.webp" là một dải panoramic dài tới 9354x156 pixel (tỷ lệ 60:1).
+     - Trong khi đó, component `Lanyard.tsx` có thiết lập hardcode `repeat={[-4, 1]}` phân chia thành 4 ô vuông 1:1, khiến toàn bộ dải ảnh 9354px bị ép dồn vào dây, chữ "ĐƯỜNG ĐẾN OZONE 7" và các dải họa tiết bị co rúm, méo mó nghiêm trọng.
+  2. Cắt (crop) phân đoạn hoa văn chuẩn tỷ lệ thực tế của dây đeo HVOC DDO 7:
+     - Tạo asset `/src/assets/lanyard/ddo7-strap.png` (kích thước 900x156 pixel) cắt chính xác phân đoạn iconic của sự kiện:
+       * 16px lề trắng đầu vào
+       * 6 dải sọc chéo cam nhận diện
+       * Họa tiết lượn sóng
+       * Dòng chữ "ĐƯỜNG ĐẾN OZONE 7" nguyên bản, sắc nét
+       * Họa tiết lượn sóng kết thúc
+       * 16px lề trắng kết thúc
+  3. Cập nhật cơ chế map dải dây không biến dạng trong `Lanyard.tsx`:
+     - Bổ sung prop `lanyardRepeat?: [number, number]` trong `LanyardProps` và `BandProps`.
+     - Tính toán `strapRepeat` tự động: khi truyền ảnh dây đeo tùy chỉnh, mặc định chuyển sang `[-1, 1]` (thay vì lặp nén 4 lần `[-4, 1]`).
+     - Khi `repeat={[-1, 1]}`, phân đoạn hoa văn 900x156 trải dài tự nhiên dọc theo chiều dài của dây từ điểm móc trên trần xuống móc kim loại thẻ, bảo toàn 100% tỷ lệ hình học 1:1, chữ cao ráo, thanh mảnh, hoàn toàn không bị ép dẹt hay co ngắn.
+  4. Cập nhật `HvocDdo7Screen.tsx`:
+     - Import và sử dụng `ddo7Strap` từ `/src/assets/lanyard/ddo7-strap.png`.
+     - Cung cấp `lanyardRepeat={[-1, 1]}` cho `Lanyard`.
+
+
+
 
 
 

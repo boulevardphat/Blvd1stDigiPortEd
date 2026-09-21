@@ -1,11 +1,12 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, extend, useFrame } from '@react-three/fiber';
+import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
+import { Plus, Minus } from 'lucide-react';
 
 // @ts-ignore
 import cardGLB from '../assets/lanyard/card.glb';
@@ -38,6 +39,7 @@ export interface LanyardProps {
   aspectRatio?: number;
   lanyardImage?: string | null;
   lanyardWidth?: number;
+  lanyardRepeat?: [number, number];
   className?: string;
   enableZoom?: boolean;
   minZoomZ?: number;
@@ -53,7 +55,7 @@ function CameraRig({ targetZ }: { targetZ: number }) {
 }
 
 export default function Lanyard({
-  position = [0, 0, 18], // Increased default zoom scale (closer to card)
+  position = [0, 0, 18],
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
@@ -63,95 +65,56 @@ export default function Lanyard({
   aspectRatio,
   lanyardImage = null,
   lanyardWidth = 1,
+  lanyardRepeat,
   className = '',
   enableZoom = true,
-  minZoomZ = 7,
-  maxZoomZ = 30,
+  minZoomZ = 9,
+  maxZoomZ = 20,
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  const baseZ = position[2] || 18;
-  // Increase default zoom on desktop by ~30% (bringing camera closer: 18 / 1.30 = 13.85)
   const defaultZ = useMemo(() => {
-    return isMobile ? baseZ : Number((baseZ / 1.3).toFixed(2));
-  }, [baseZ, isMobile]);
+    return isMobile ? 16.5 : 13.5;
+  }, [isMobile]);
 
   const [targetZ, setTargetZ] = useState(() => {
     const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const base = position[2] || 18;
-    return mobile ? base : Number((base / 1.3).toFixed(2));
+    return mobile ? 16.5 : 13.5;
   });
   const hasUserZoomedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchDistanceRef = useRef<number | null>(null);
+  const cardGroupRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       if (!hasUserZoomedRef.current) {
-        setTargetZ(mobile ? baseZ : Number((baseZ / 1.3).toFixed(2)));
+        setTargetZ(mobile ? 16.5 : 13.5);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [baseZ]);
+  }, []);
 
-  // Native wheel listener for smooth zooming on canvas without unwanted page scrolling
+  // Native wheel listener for smooth zooming on canvas on desktop
   useEffect(() => {
     if (!enableZoom) return;
     const container = containerRef.current;
     if (!container) return;
 
     const onWheel = (e: WheelEvent) => {
-      // Zoom with wheel
       e.preventDefault();
       hasUserZoomedRef.current = true;
-      const zoomSpeed = 0.02;
+      const zoomSpeed = 0.005;
       setTargetZ((prev) => {
         const next = prev + e.deltaY * zoomSpeed;
         return Math.min(Math.max(next, minZoomZ), maxZoomZ);
       });
     };
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        touchDistanceRef.current = Math.hypot(dx, dy);
-      }
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2 && touchDistanceRef.current !== null) {
-        e.preventDefault();
-        hasUserZoomedRef.current = true;
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const currentDist = Math.hypot(dx, dy);
-        const diff = touchDistanceRef.current - currentDist;
-        touchDistanceRef.current = currentDist;
-
-        setTargetZ((prev) => {
-          const next = prev + diff * 0.05;
-          return Math.min(Math.max(next, minZoomZ), maxZoomZ);
-        });
-      }
-    };
-
-    const onTouchEnd = () => {
-      touchDistanceRef.current = null;
-    };
-
     container.addEventListener('wheel', onWheel, { passive: false });
-    container.addEventListener('touchstart', onTouchStart, { passive: true });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd, { passive: true });
-
     return () => {
       container.removeEventListener('wheel', onWheel);
-      container.removeEventListener('touchstart', onTouchStart);
-      container.removeEventListener('touchmove', onTouchMove);
-      container.removeEventListener('touchend', onTouchEnd);
     };
   }, [enableZoom, minZoomZ, maxZoomZ]);
 
@@ -159,6 +122,7 @@ export default function Lanyard({
     <div
       ref={containerRef}
       className={`lanyard-wrapper ${className}`.trim()}
+      onDoubleClick={() => setTargetZ(defaultZ)}
     >
       <Canvas
         camera={{ position: [position[0], position[1], targetZ], fov: fov }}
@@ -169,8 +133,9 @@ export default function Lanyard({
         <ambientLight intensity={Math.PI} />
         <CameraRig targetZ={targetZ} />
         <React.Suspense fallback={null}>
-          <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
+          <Physics gravity={gravity} timeStep={1 / 60}>
             <Band
+              cardGroupRef={cardGroupRef}
               isMobile={isMobile}
               frontImage={frontImage}
               backImage={backImage}
@@ -178,6 +143,7 @@ export default function Lanyard({
               aspectRatio={aspectRatio}
               lanyardImage={lanyardImage}
               lanyardWidth={lanyardWidth}
+              lanyardRepeat={lanyardRepeat}
             />
           </Physics>
           <Environment blur={0.75}>
@@ -212,11 +178,51 @@ export default function Lanyard({
           </Environment>
         </React.Suspense>
       </Canvas>
+
+      {/* 2 nút cộng trừ zoom thủ công ở góc dưới bên phải (không đóng khung, tuân thủ Boulevard1st rounded-none) */}
+      {enableZoom && (
+        <div
+          id="lanyard-zoom-manual-controls"
+          className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1 select-none pointer-events-auto"
+        >
+          <button
+            type="button"
+            id="lanyard-zoom-in-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              hasUserZoomedRef.current = true;
+              setTargetZ((prev) => Math.max(minZoomZ, Number((prev - 1.2).toFixed(2))));
+            }}
+            disabled={targetZ <= minZoomZ}
+            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed text-white/80 hover:text-white transition-colors duration-150 rounded-none border-none p-0 cursor-pointer"
+            aria-label="Zoom in"
+            title="Phóng to (+)"
+          >
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
+          </button>
+          <button
+            type="button"
+            id="lanyard-zoom-out-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              hasUserZoomedRef.current = true;
+              setTargetZ((prev) => Math.min(maxZoomZ, Number((prev + 1.2).toFixed(2))));
+            }}
+            disabled={targetZ >= maxZoomZ}
+            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed text-white/80 hover:text-white transition-colors duration-150 rounded-none border-none p-0 cursor-pointer"
+            aria-label="Zoom out"
+            title="Thu nhỏ (−)"
+          >
+            <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 interface BandProps {
+  cardGroupRef?: React.RefObject<THREE.Group | null>;
   maxSpeed?: number;
   minSpeed?: number;
   isMobile?: boolean;
@@ -226,9 +232,11 @@ interface BandProps {
   aspectRatio?: number;
   lanyardImage?: string | null;
   lanyardWidth?: number;
+  lanyardRepeat?: [number, number];
 }
 
 function Band({
+  cardGroupRef,
   maxSpeed = 50,
   minSpeed = 0,
   isMobile = false,
@@ -238,6 +246,7 @@ function Band({
   aspectRatio,
   lanyardImage = null,
   lanyardWidth = 1,
+  lanyardRepeat,
 }: BandProps) {
   const band = useRef<any>(null),
     fixed = useRef<any>(null),
@@ -345,6 +354,12 @@ function Band({
   const [dragged, drag] = useState<any>(false);
   const [hovered, hover] = useState(false);
 
+  // Velocity tracking & Tap impulse detection ("chạm để hất thẻ" & momentum fling)
+  const lastKinematicPos = useRef(new THREE.Vector3());
+  const dragVelocity = useRef(new THREE.Vector3());
+  const pointerDownTime = useRef(0);
+  const pointerDownPos = useRef({ x: 0, y: 0 });
+
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
@@ -360,16 +375,60 @@ function Band({
     }
   }, [hovered, dragged]);
 
+  // Global pointer release & cancel listener: guarantees drag always ends cleanly and transfers fling velocity
+  useEffect(() => {
+    if (!dragged) return;
+    const handleRelease = () => {
+      drag(false);
+      if (card.current) {
+        card.current.wakeUp();
+        const speed = dragVelocity.current.length();
+        if (speed > 1.2) {
+          const maxSpeed = 35;
+          const vx = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.x));
+          const vy = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.y));
+          const vz = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.z));
+          card.current.setLinvel({ x: vx, y: vy, z: vz }, true);
+          card.current.applyTorqueImpulse({
+            x: (Math.random() - 0.5) * 3,
+            y: -vx * 0.2,
+            z: -vx * 0.1,
+          }, true);
+        }
+        [j1, j2, j3].forEach((r) => r.current?.wakeUp());
+      }
+    };
+    window.addEventListener('pointerup', handleRelease);
+    window.addEventListener('pointercancel', handleRelease);
+    return () => {
+      window.removeEventListener('pointerup', handleRelease);
+      window.removeEventListener('pointercancel', handleRelease);
+    };
+  }, [dragged]);
+
   useFrame((state, delta) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
+      
+      const targetX = vec.x - dragged.x;
+      const targetY = vec.y - dragged.y;
+      const targetZ = vec.z - dragged.z;
+
+      if (delta > 0) {
+        const vx = (targetX - lastKinematicPos.current.x) / delta;
+        const vy = (targetY - lastKinematicPos.current.y) / delta;
+        const vz = (targetZ - lastKinematicPos.current.z) / delta;
+        dragVelocity.current.lerp(new THREE.Vector3(vx, vy, vz), 0.7);
+      }
+      lastKinematicPos.current.set(targetX, targetY, targetZ);
+
       [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
       card.current?.setNextKinematicTranslation({
-        x: vec.x - dragged.x,
-        y: vec.y - dragged.y,
-        z: vec.z - dragged.z,
+        x: targetX,
+        y: targetY,
+        z: targetZ,
       });
     }
     if (fixed.current) {
@@ -393,7 +452,16 @@ function Band({
   });
 
   curve.curveType = 'chordal';
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  if (texture) {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.colorSpace = THREE.SRGBColorSpace;
+  }
+
+  const strapRepeat = useMemo(() => {
+    if (lanyardRepeat) return lanyardRepeat;
+    if (lanyardImage) return [-1, 1];
+    return [-4, 1];
+  }, [lanyardRepeat, lanyardImage]);
 
   return (
     <>
@@ -411,19 +479,85 @@ function Band({
         <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
           <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
           <group
+            ref={cardGroupRef}
             scale={2.25}
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => {
-              (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+              try {
+                (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
+              } catch (err) {}
+              const wasDragged = Boolean(dragged);
               drag(false);
+
+              const dt = performance.now() - pointerDownTime.current;
+              const dist = Math.hypot(e.clientX - pointerDownPos.current.x, e.clientY - pointerDownPos.current.y);
+
+              if (card.current) {
+                card.current.wakeUp();
+
+                // 1. NHẸ NHÀNG CHẠM / CLICK VÀO THẺ: KÍCH HOẠT "HẤT THẺ" ĐUNG ĐƯA TỰ NHIÊN
+                if (dt < 300 && dist < 15) {
+                  const clickOffsetX = e.point.x - card.current.translation().x;
+                  const swingDir = clickOffsetX > 0 ? -1 : 1;
+                  const impulseX = swingDir * (14 + Math.random() * 6);
+                  const impulseY = 4 + Math.random() * 3;
+                  const impulseZ = (Math.random() - 0.5) * 8;
+
+                  card.current.applyImpulse({ x: impulseX, y: impulseY, z: impulseZ }, true);
+                  card.current.applyTorqueImpulse({
+                    x: (Math.random() - 0.5) * 4,
+                    y: -swingDir * (7 + Math.random() * 4),
+                    z: swingDir * 2,
+                  }, true);
+                  [j1, j2, j3].forEach((r) => r.current?.wakeUp());
+                  return;
+                }
+
+                // 2. KÉO & HẤT / FLICK THẺ KHI VUỐT NHANH
+                if (wasDragged) {
+                  const speed = dragVelocity.current.length();
+                  if (speed > 1.2) {
+                    const maxSpeed = 35;
+                    const vx = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.x));
+                    const vy = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.y));
+                    const vz = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.z));
+
+                    card.current.setLinvel({ x: vx, y: vy, z: vz }, true);
+                    card.current.applyTorqueImpulse({
+                      x: (Math.random() - 0.5) * 3,
+                      y: -vx * 0.2,
+                      z: -vx * 0.1,
+                    }, true);
+                  }
+                  [j1, j2, j3].forEach((r) => r.current?.wakeUp());
+                }
+              }
+            }}
+            onPointerCancel={() => {
+              drag(false);
+              card.current?.wakeUp();
             }}
             onPointerDown={(e) => {
-              (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
+              e.stopPropagation();
+              try {
+                (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
+              } catch (err) {}
+              pointerDownTime.current = performance.now();
+              pointerDownPos.current = { x: e.clientX, y: e.clientY };
+              dragVelocity.current.set(0, 0, 0);
+
+              const cardTrans = card.current.translation();
+              lastKinematicPos.current.copy(cardTrans);
+              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(cardTrans)));
             }}
           >
+            {/* Invisible expanded hit area for easy touch targeting on mobile */}
+            <mesh visible={false}>
+              <planeGeometry args={[1.6 * cardScaleX, 2.4]} />
+              <meshBasicMaterial transparent opacity={0} />
+            </mesh>
             <mesh geometry={nodes.card.geometry} scale={[cardScaleX, 1, 1]}>
               <meshPhysicalMaterial
                 map={cardMap}
@@ -449,7 +583,7 @@ function Band({
           resolution={isMobile ? [1000, 2000] : [1000, 1000]}
           useMap
           map={texture}
-          repeat={[-4, 1]}
+          repeat={strapRepeat}
           lineWidth={lanyardWidth}
         />
       </mesh>

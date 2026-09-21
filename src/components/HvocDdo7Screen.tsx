@@ -2,6 +2,7 @@ import React from 'react';
 import { AppLanguage } from '../types';
 import Lanyard from './Lanyard';
 import { DdoPanoramicStrap } from './DdoPanoramicStrap';
+import ddo7Strap from '../assets/lanyard/ddo7-strap.png';
 
 interface HvocDdo7ScreenProps {
   onBack: () => void;
@@ -205,7 +206,7 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
                   />
                 </div>
                 <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
-                  {isEn ? 'drag card, scroll wheel or pinch to zoom' : 'kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom'}
+                  {isEn ? 'drag card, scroll wheel to zoom' : 'kéo lắc thẻ, cuộn chuột để zoom'}
                 </span>
               </div>
             </div>
@@ -215,6 +216,9 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
                 gravity={[0, -40, 0]}
                 fov={20}
                 frontImage="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Th%E1%BA%BB%20%C4%91eo.webp"
+                backImage="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Th%E1%BA%BB%20%C4%91eo.webp"
+                lanyardImage={ddo7Strap}
+                lanyardRepeat={[-1, 1]}
                 aspectRatio={1650 / 2580}
                 imageFit="cover"
                 transparent={true}

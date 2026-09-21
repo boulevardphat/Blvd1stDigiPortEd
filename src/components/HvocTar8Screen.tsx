@@ -73,7 +73,7 @@ export const HvocTar8Screen: React.FC<HvocTar8ScreenProps> = ({ onBack, language
                   />
                 </div>
                 <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
-                  {isEn ? 'drag card, scroll wheel or pinch to zoom' : 'kéo lắc thẻ, cuộn chuột hoặc chụm tay để zoom'}
+                  {isEn ? 'drag card, scroll wheel to zoom' : 'kéo lắc thẻ, cuộn chuột để zoom'}
                 </span>
               </div>
             </div>
@@ -83,6 +83,8 @@ export const HvocTar8Screen: React.FC<HvocTar8ScreenProps> = ({ onBack, language
                 gravity={[0, -40, 0]}
                 fov={20}
                 frontImage="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20TAR%208/Th%E1%BA%BB%20%C4%91eo.webp"
+                backImage="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20TAR%208/Th%E1%BA%BB%20%C4%91eo.webp"
+                lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"
                 aspectRatio={1650 / 2580}
                 imageFit="cover"
                 transparent={true}
