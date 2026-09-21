@@ -3003,6 +3003,129 @@ Nội dung thay đổi chi tiết:
      - Import và sử dụng `ddo7Strap` từ `/src/assets/lanyard/ddo7-strap.png`.
      - Cung cấp `lanyardRepeat={[-1, 1]}` cho `Lanyard`.
 
+================================================================================
+LẦN 42: KHẮC PHỤC HIỆN TƯỢNG DÂY ĐEO BỊ KÉO DÃN QUÁ DÀI (CROP CHUẨN TỶ LỆ 16.4:1 THAY VÌ KÉO DÃN ẢNH NGẮN)
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Phân tích nguyên nhân hiện tượng dây đeo bị kéo dãn quá dài:
+     - Ở Lần 41, ảnh `ddo7-strap.png` bị cắt quá ngắn (900x156 px, tỷ lệ 5.77:1) nhưng lại áp dụng `repeat={[-1, 1]}` trên toàn bộ chiều dài sợi dây 3D (vốn có tỷ lệ hình học thực tế ~16.4:1).
+     - Kết quả: Ảnh 900px bị kéo dãn dọc theo sợi dây gấp ~2.84 lần, khiến các con chữ "ĐƯỜNG ĐẾN OZONE 7" bị phóng to và kéo dài ngoằng bất thường.
+  2. Cắt lại ảnh dây đeo chuẩn xác từ file gốc "Dây đeo chính thức.webp":
+     - Cắt đoạn dây có chiều rộng 2560px (2560x156 px, đạt đúng tỷ lệ vàng 16.41:1 tương thích hoàn hảo 1:1 với đường cong CatmullRom 3D của dây đeo).
+     - Đoạn crop bao gồm trọn vẹn một chu kỳ hoa văn thực tế của sự kiện:
+       * Dải hoa văn hình học chuyển tiếp từ điểm neo trên cao
+       * Các đường nét motif thương hiệu đặc trưng
+       * Dòng chữ "ĐƯỜNG ĐẾN OZONE 7" với phông chữ gốc, sắc nét và kích thước chuẩn xác
+       * Khối màu nhận diện cam nguyên bản ngay sát móc kim loại của thẻ đeo
+     - Cập nhật đồng bộ vào cả 2 vị trí: `/src/assets/lanyard/ddo7-strap.png` và `/public/assets/lanyard/ddo7-strap.png`.
+  3. Kết quả hình ảnh:
+     - Với tỷ lệ ảnh 2560x156 px đi cùng `lanyardRepeat={[-1, 1]}`, kết cấu dây được ánh xạ chuẩn 1:1, chấm dứt hoàn toàn hiện tượng méo mó hoặc kéo dãn ("bị kéo quá dài").
+     - Chữ và họa tiết hiển thị tự nhiên, sắc nét, đúng tỷ lệ nguyên bản của bộ nhận diện HVOC DDO 7.
+
+================================================================================
+LẦN 43: CẬP NHẬT TEXTURE DÂY ĐEO 3D BẰNG ẢNH DO NGƯỜI DÙNG CUNG CẤP (PREVIEW DÂY 3D.PNG)
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Tiếp nhận tệp ảnh dây đeo tùy chỉnh:
+     - Người dùng đã tải lên tệp `/public/image/preview dây 3d.png` (kích thước 2560x156 px, định dạng PNG sRGB 8-bit).
+  2. Áp dụng vào hệ thống:
+     - Sao chép và cập nhật đè tệp hình ảnh vào:
+       * `/src/assets/lanyard/ddo7-strap.png` (asset được bundle vào mã nguồn component `HvocDdo7Screen.tsx`)
+       * `/public/assets/lanyard/ddo7-strap.png` (bản tĩnh public dự phòng)
+     - Giữ nguyên tệp gốc `/public/image/preview dây 3d.png` để lưu trữ đối chiếu.
+  3. Kết quả:
+     - Thẻ đeo 3D của dự án HVOC DDO 7 sử dụng trực tiếp kết cấu dây mới theo đúng thiết kế và căn chỉnh của người dùng.
+
+================================================================================
+LẦN 46: BỎ CÁC NÚT MỞ PHẲNG / ĐẶT LẠI GÓC & CĂN GIỮA THANH MÃ 1 - MÃ 4 TRÊN KHUNG MODEL 3D
+================================================================================
+Thời điểm: 2026-09-21
+Nội dung thay đổi chi tiết:
+  1. Loại bỏ hoàn toàn các nút thao tác "MỞ PHẲNG" và "ĐẶT LẠI GÓC" theo yêu cầu của người dùng.
+  2. Tinh gọn thanh chọn mã đề thi Spotiflyer (/src/components/SpotiflyerVerticalZFold.tsx):
+     - Chuyển đổi nhãn hiển thị sang chữ thường: "mã 1", "mã 2", "mã 3", "mã 4" (tiếng Anh: "code 1", "code 2", "code 3", "code 4").
+     - Đặt font chữ Archivo thường (font-normal, normal-case, không in đậm).
+     - Định vị thanh chọn nằm ngay phía trên khung model 3D và căn giữa chính xác (w-full flex items-center justify-center gap-2 mb-3).
+  3. Duy trì góc vuông sắc cạnh (rounded-none), bảng màu tương phản tối giản đen/trắng đúng tiêu chuẩn Boulevard1st.
+
+================================================================================
+LẦN 47: ÁP DỤNG THAO TÁC 3D TỪ #BLVD, BỎ KHUNG 4 NÚT MÃ ĐỀ & THÊM CHẾ ĐỘ TRẢI PHẲNG (VERTICAL CAROUSEL)
+================================================================================
+Thời điểm: 2026-09-21
+File ảnh hưởng: /src/components/SpotiflyerVerticalZFold.tsx
+Nội dung thay đổi chi tiết:
+  1. Áp dụng 100% thao tác tương tác 3D từ #blvd (ZFoldBooklet):
+     - Xoay 360 độ tự do (1 con trỏ / 1 ngón tay chạm xoay mượt mà).
+     - Kéo di chuyển tự do (Pan X/Y) bằng chuột phải, chuột giữa, phím Shift + chuột trái, hoặc 2 ngón tay trên màn hình cảm ứng / touchpad.
+     - Phóng to / thu nhỏ (Pinch-to-zoom) bằng 2 ngón tay hoặc con lăn chuột (với ctrlKey cho precision touchpad).
+     - Chạm dứt khoát không kéo rê (< 6px) để đóng / mở nếp gấp ziczac dọc (toggle isOpen).
+     - Nhấp đúp chuột (Double click) để reset lại góc nhìn, zoom và vị trí pan.
+     - Hỗ trợ sự kiện đồng bộ `blvd-reset-zoom`.
+  2. Bỏ khung cho 4 nút mã đề (mã 1, mã 2, mã 3, mã 4):
+     - Loại bỏ border, background box, chuyển thành dạng typographic không viền (border-none, bg-transparent).
+     - Font Archivo thường (font-normal, normal-case, text-white/40 khi không chọn, text-white font-medium khi được chọn).
+  3. Thêm chế độ xem "trải phẳng" (Vertical Carousel từ trên xuống dưới):
+     - Thêm nút chuyển đổi chế độ xem: "mô hình 3d" | "trải phẳng" (tiếng Anh: "3d model" | "flat view") không khung cạnh các nút mã đề.
+     - Khi chọn "trải phẳng": 5 panel ảnh được trải phẳng liên tục theo chiều dọc từ trên xuống dưới (gap-0 liền mạch).
+     - Hỗ trợ kéo cuộn dọc (drag-to-scroll), con lăn chuột, cử chỉ chạm vuốt touch-pan-y, pinch-zoom và nút reset về đầu trang.
+  4. Tuân thủ nghiêm ngặt quy tắc Boulevard1st: không bo góc bất kỳ thành phần nào (rounded-none).
+
+================================================================================
+LẦN 49: ĐỒNG BỘ TIẾN TRÌNH TẢI TOÀN BỘ ẢNH 100% TRƯỚC KHI CHUYỂN CẢNH & BỎ HẾT CÁC NÚT THỪA TRÊN KHUNG 3D
+================================================================================
+Thời điểm: 2026-09-21
+File ảnh hưởng: /src/App.tsx, /src/components/SpotiflyerVerticalZFold.tsx, /src/components/VespertineBackground.tsx
+Nội dung thay đổi chi tiết:
+  1. Loại bỏ hoàn toàn thanh nút zoom/reset trôi nổi trên khung 3D và flat view:
+     - Bỏ toàn bộ các nút ZoomIn, ZoomOut, RotateCcw ở góc dưới phải của khung 3D và khung trải phẳng trong SpotiflyerVerticalZFold.tsx theo đúng lệnh "bỏ hết các nút này đi".
+     - Toàn bộ thao tác thu phóng, xoay 360 độ, kéo di chuyển (pan), click đóng/mở ziczac và nhấp đúp để reset đều được thực hiện trực tiếp trên mô hình mượt mà như #blvd.
+  2. Đảm bảo 100% hình ảnh phải tải xong trước khi tắt màn hình loading:
+     - Màn load chính (pre-intro): Bổ sung toàn bộ logo của Đội TNTN (TNTN_CHV_LOGO_URL, CDTTBP_VII_TNTN_LOGO_URL) vào danh sách tải. Thanh tiến trình chỉ lên 100% và chỉ chuyển sang intro khi TẤT CẢ hình ảnh giao diện chính đã được tải và decode thành công.
+     - Màn load HVOC (hvoc-loading): Mở rộng mảng tài nguyên hvocAssets lên đủ toàn bộ 19 ảnh của tất cả 5 dự án (Bưu điện HVOC 3 ảnh, HVOC DDO 7 8 ảnh, The Amazing Race 8 2 ảnh, HVOC Club Day 2 ảnh, bài đăng BONDING & Máu đông 2 ảnh, canva & filmora icon pack, logo HVOC). Bỏ việc chặn ở 85% và bỏ safetyTimer 3.5s ngắn hạn gây chuyển cảnh non; thanh tiến trình chạy thật 0% -> 100% theo số lượng ảnh thực tế tải về.
+     - Màn load TNTN (tntn-loading): Đảm bảo tải toàn bộ 13 tài nguyên (2 logo TNTN + 4 bộ mã đề Spotiflyer + 3 ảnh bản đồ & luật chơi chung). Chỉ chuyển cảnh sang tntn-intro khi đủ 100%.
+     - Màn load #BLVD (blvd-loading): Giữ vững cơ chế tải toàn bộ ảnh Zone 18, 17, 16 và tăng timeout dự phòng lên 30s.
+     - Loại bỏ useEffect trùng lặp cũ với timer 3.5s gây can thiệp sớm vào vòng đời tải ảnh.
+  3. Tối ưu VespertineBackground:
+     - Bổ sung kiểm tra `complete === true` ngay khi mount để các ảnh nền đã nạp trong bộ nhớ đệm hiển thị lập tức mà không bị chớp hay giật fallback.
+  4. Duy trì triệt để quy tắc Boulevard1st: không bo góc bất kỳ thành phần nào (rounded-none), font Archivo thường, căn giữa chính xác.
+
+================================================================================
+LẦN 50: ĐỒNG BỘ ĐỘ RỘNG TRẠNG THÁI TRẢI PHẲNG VỚI MÔ HÌNH 3D & KHỐNG CHẾ KHUNG VIEW
+================================================================================
+Thời điểm: 2026-09-21
+File ảnh hưởng: /src/components/SpotiflyerVerticalZFold.tsx, /src/components/TntnIntroScreen.tsx
+Nội dung thay đổi chi tiết:
+  1. Đồng bộ độ rộng dải tờ ảnh ở chế độ trải phẳng (flat view) bằng đúng mô hình 3D:
+     - Trước đây: Dải ảnh trải phẳng sử dụng `w-max` và `width: calc(clamp(280px, 46vw, 540px) * flatZoom)` khiến ảnh phình to ra 540px, choán hết khung nhìn và làm căng khung container ra ngoài.
+     - Đã cập nhật: Thay đổi width của dải 5 tờ nối tiếp thành `width: ${panelWidth * flatZoom}px` kết hợp `maxWidth: '100%'`. Độ rộng dải ảnh trải phẳng giờ đây hoàn toàn đồng nhất với độ rộng `panelWidth` của mô hình 3D, căn giữa ngay ngắn và vừa vặn bên trong khung nhìn.
+  2. Khống chế khung view không bị phình to khi chuyển sang chế độ trải phẳng:
+     - Thêm `min-w-0` vào cột phải `tntn-right-column-desktop` trong TntnIntroScreen.tsx để ngăn phần tử con flex làm dãn chiều rộng cột vượt quá `max-w-xl`.
+     - Thêm `ref={rootRef}`, `max-w-full`, `min-w-0` vào phần tử root và các container của SpotiflyerVerticalZFold.tsx.
+     - Đồng bộ hàm đo `updateSize()` đo trực tiếp trên `rootRef` và lắng nghe khi `viewMode` thay đổi, đảm bảo `panelWidth` không bao giờ bị lệch khi người dùng chuyển qua lại giữa 3D và Trải phẳng.
+  3. Tuân thủ nghiêm ngặt quy tắc Boulevard1st: góc vuông tuyệt đối (`rounded-none`).
+
+================================================================================
+LẦN 51: LOẠI BỎ THANH PHÂN CÁCH NÚT ĐỔI MÃ VÀ ĐỔI TRẠNG THÁI, DỌN DẸP & TỐI ƯU MÃ NGUỒN
+================================================================================
+Thời điểm: 2026-09-21
+File ảnh hưởng: /src/components/SpotiflyerVerticalZFold.tsx
+Nội dung thay đổi chi tiết:
+  1. Loại bỏ thanh phân cách (`|`):
+     - Xóa bỏ hoàn toàn thẻ `<span className="text-white/20 select-none hidden sm:inline">|</span>` nằm giữa cụm 4 nút đổi mã đề ("mã 1", "mã 2", "mã 3", "mã 4") và 2 nút đổi trạng thái ("mô hình 3d", "trải phẳng").
+     - Khoảng cách giữa 2 nhóm nút được phân tách tự nhiên qua thuộc tính flexbox `gap-x-6 gap-y-2`, bố cục tối giản và liền mạch đúng phong cách Boulevard1st.
+  2. Dọn dẹp & Tối ưu hóa mã nguồn (Cleanup & Technical Refactor):
+     - Rà soát toàn bộ vòng đời của các sự kiện tương tác (resize, wheel, pointer gestures, reset-zoom) đảm bảo gỡ bỏ sạch sẽ (clean-up) khi unmount nhằm triệt tiêu hoàn toàn nguy cơ memory leak.
+     - Kiểm tra toàn bộ mã nguồn đạt chuẩn TypeScript strict, không có biến rác hoặc CSS/JS thừa thãi.
+     - Đảm bảo 100% các thành phần tuân thủ nghiêm ngặt quy tắc góc vuông (`rounded-none`), kiểu chữ Archivo thường (`font-normal`), độ tương phản cao và hiệu năng mượt mà.
+
+
+
+
+
+
+
 
 
 

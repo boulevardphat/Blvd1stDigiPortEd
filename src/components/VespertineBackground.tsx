@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 
 interface VespertineBackgroundProps {
@@ -6,8 +6,15 @@ interface VespertineBackgroundProps {
 }
 
 export const VespertineBackground = ({ shiftLeft = false }: VespertineBackgroundProps) => {
+  const bgRef = useRef<HTMLImageElement>(null);
+  const sjRef = useRef<HTMLImageElement>(null);
   const [bgLoaded, setBgLoaded] = useState(false);
   const [sjLoaded, setSjLoaded] = useState(false);
+
+  useEffect(() => {
+    if (bgRef.current?.complete) setBgLoaded(true);
+    if (sjRef.current?.complete) setSjLoaded(true);
+  }, []);
   
   const isLoaded = bgLoaded && sjLoaded;
 
@@ -20,6 +27,7 @@ export const VespertineBackground = ({ shiftLeft = false }: VespertineBackground
     >
       {/* Background Layer */}
       <img
+        ref={bgRef}
         src="https://i.ibb.co/JFvk9wzr/vespertine-bg.png"
         alt="Background layer"
         referrerPolicy="no-referrer"
@@ -36,6 +44,7 @@ export const VespertineBackground = ({ shiftLeft = false }: VespertineBackground
 
       {/* Subject Layer */}
       <img
+        ref={sjRef}
         src="https://i.ibb.co/jPHPJSG7/vespertine-sj.png"
         alt="Subject layer"
         referrerPolicy="no-referrer"

@@ -19,7 +19,6 @@ import { AppLanguage, PortfolioMode, SceneState } from './types';
 export default function App() {
 
   const [scene, setScene] = useState<SceneState>('pre-intro');
-  const [imagesLoaded, setImagesLoaded] = useState(false);
   const [initialLoadingProgress, setInitialLoadingProgress] = useState(0);
   const [blvdLoadingProgress, setBlvdLoadingProgress] = useState(0);
   const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
@@ -85,6 +84,8 @@ export default function App() {
       'https://i.ibb.co/v4h21FLG/filmora.png',
       'https://i.ibb.co/TD9mb1pB/avatar.jpg',
       HVOC_LOGO_URL,
+      TNTN_CHV_LOGO_URL,
+      CDTTBP_VII_TNTN_LOGO_URL,
     ];
 
     const blvdImages = [
@@ -121,7 +122,7 @@ export default function App() {
       }
     }, 14);
 
-    // Safety fallback timer sau 10s đề phòng mạng người dùng chập chờn
+    // Safety fallback timer sau 30s đề phòng mạng người dùng chập chờn
     const safetyTimer = setTimeout(() => {
       if (!isFinished) {
         isFinished = true;
@@ -131,7 +132,7 @@ export default function App() {
           setScene('intro-play');
         }, 350);
       }
-    }, 10000);
+    }, 30000);
 
     const onAssetLoaded = () => {
       loadedCount++;
@@ -186,13 +187,31 @@ export default function App() {
 
     const hvocAssets = [
       HVOC_LOGO_URL,
+      // Icon pack Canva & Filmora
       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp',
       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp',
+      // Dự án 1: Bưu điện HVOC (3 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/Ch%C3%ADnh.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/Qu%E1%BA%A3ng%20b%C3%A1.png',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/%E1%BA%A2nh%20b%C3%ACa%20Facebook.webp',
+      // Dự án 2: HVOC Đường đến Olympia 7 (8 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Poster.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Khung%20avatar.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Th%E1%BA%BB%20%C4%91eo.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/D%C3%A2y%20%C4%91eo%20ch%C3%ADnh%20th%E1%BB%A9c.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/D%C3%A2y%20%C4%91eo%20b%E1%BA%A3n%20ph%E1%BB%A5.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Template%20m%E1%BB%9F%20%C4%91%E1%BA%A7u.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Template%20ch%C3%ADnh.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20DDO%207/Template%20k%E1%BA%BFt%20th%C3%BAc.webp',
+      // Dự án 3: HVOC The Amazing Race 8 (2 ảnh)
       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20TAR%208/Th%E1%BA%BB%20%C4%91eo.webp',
-      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20BONDING/%5BHVOC%5D%20BONDING.webp',
-      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20M%C3%A1u%20%C4%91%C3%B4ng/%5BHVOC%5D%20M%C3%A1u%20%C4%91%C3%B4ng.webp',
+      'https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80',
+      // Dự án 4: HVOC Club Day (2 ảnh)
       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20Club%20Day/Khung%20ptb%20bi%E1%BB%83n.webp',
       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20HVOC%20Club%20Day/Khung%20ptb%20n%C3%BAi.webp',
+      // Dự án 5: Bài đăng thường xuyên BONDING & Máu đông (2 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20BONDING/%5BHVOC%5D%20BONDING.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20M%C3%A1u%20%C4%91%C3%B4ng/%5BHVOC%5D%20M%C3%A1u%20%C4%91%C3%B4ng.webp',
     ];
 
     const uniqueAssets = Array.from(new Set(hvocAssets));
@@ -201,11 +220,11 @@ export default function App() {
     let currentDisplayProgress = 0;
     let isFinished = false;
 
-    // Tween làm mượt tiến trình 0 -> 100%
+    // Tween làm mượt tiến trình 0 -> 100% khi toàn bộ tài nguyên của tất cả dự án HVOC tải về
     const progressInterval = setInterval(() => {
-      const realTarget = loadedCount >= totalAssets ? 100 : Math.min(85, Math.round((loadedCount / totalAssets) * 85));
+      const realTarget = Math.round((loadedCount / totalAssets) * 100);
       if (currentDisplayProgress < realTarget) {
-        currentDisplayProgress += 2;
+        currentDisplayProgress += 1;
         setHvocLoadingProgress(Math.min(100, currentDisplayProgress));
       }
       if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
@@ -244,7 +263,7 @@ export default function App() {
           setScene('hvoc-intro');
         }, 350);
       }
-    }, 3500);
+    }, 30000);
 
     return () => {
       clearInterval(progressInterval);
@@ -270,11 +289,11 @@ export default function App() {
     let currentDisplayProgress = 0;
     let isFinished = false;
 
-    // Tween làm mượt tiến trình 0 -> 100%
+    // Tween làm mượt tiến trình 0 -> 100% khi toàn bộ tài nguyên TNTN tải về
     const progressInterval = setInterval(() => {
-      const realTarget = loadedCount >= totalAssets ? 100 : Math.min(85, Math.round((loadedCount / totalAssets) * 85));
+      const realTarget = Math.round((loadedCount / totalAssets) * 100);
       if (currentDisplayProgress < realTarget) {
-        currentDisplayProgress += 2;
+        currentDisplayProgress += 1;
         setTntnLoadingProgress(Math.min(100, currentDisplayProgress));
       }
       if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
@@ -313,7 +332,7 @@ export default function App() {
           setScene('tntn-intro');
         }, 350);
       }
-    }, 3500);
+    }, 30000);
 
     return () => {
       clearInterval(progressInterval);
@@ -383,7 +402,7 @@ export default function App() {
       img.src = url;
     });
 
-    // Safety timeout: tối đa 8 giây nếu kết nối mạng của user bị rớt gói tin trên 1 ảnh cụ thể
+    // Safety timeout: tối đa 30 giây nếu kết nối mạng của user bị rớt gói tin trên 1 ảnh cụ thể
     const safetyTimer = setTimeout(() => {
       loadedCount = totalAssets;
       currentDisplayProgress = 100;
@@ -391,52 +410,13 @@ export default function App() {
       setTimeout(() => {
         setScene('blvd-play');
       }, 400);
-    }, 8000);
+    }, 30000);
 
     return () => {
       clearInterval(progressInterval);
       clearTimeout(safetyTimer);
     };
   }, [scene]);
-
-  useEffect(() => {
-    const imageUrls = [
-      "https://i.ibb.co/tP3rK5bg/ultrayoung.jpg",
-      "https://i.ibb.co/Nd6BpwZ2/young.jpg",
-      "https://i.ibb.co/vy4ykmw/vespertine.png",
-      "https://i.ibb.co/JFvk9wzr/vespertine-bg.png",
-      "https://i.ibb.co/jPHPJSG7/vespertine-sj.png",
-      "https://i.ibb.co/ccfZG4Zk/n-n-blvd18.webp"
-    ];
-
-    let loadedCount = 0;
-    const handleImageLoad = () => {
-      loadedCount++;
-      if (loadedCount >= imageUrls.length) {
-        setImagesLoaded(true);
-      }
-    };
-
-    imageUrls.forEach(url => {
-      const img = new Image();
-      img.onload = () => {
-        if (img.decode) {
-          img.decode().catch(() => {}).finally(handleImageLoad);
-        } else {
-          handleImageLoad();
-        }
-      };
-      img.onerror = handleImageLoad;
-      img.src = url;
-    });
-
-    // Fallback safety timeout so experience never stalls
-    const safetyTimer = setTimeout(() => {
-      setImagesLoaded(true);
-    }, 3500);
-
-    return () => clearTimeout(safetyTimer);
-  }, []);
 
   // Preload secondary tool icons & avatar ONLY after arriving in main-app, freeing all bandwidth for intro & main backgrounds
   useEffect(() => {
@@ -777,7 +757,7 @@ export default function App() {
       }, 500); // 0.5s for #BLVD18 with blvd18 background image
       return () => clearTimeout(t);
     }
-  }, [scene, imagesLoaded]);
+  }, [scene]);
 
   return (
     <main 

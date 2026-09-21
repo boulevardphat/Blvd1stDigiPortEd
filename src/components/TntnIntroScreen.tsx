@@ -289,7 +289,7 @@ export const TntnIntroScreen: React.FC<TntnIntroScreenProps> = ({ onBack, langua
         {/* CỘT BÊN PHẢI (TRÊN DESKTOP): GIỚI THIỆU SPOTIFLYER (LUẬT CHƠI + MODEL 3D 4 TỜ GẤP ZICZAC DỌC) */}
         <div 
           id="tntn-right-column-desktop"
-          className="hidden lg:flex flex-1 max-w-xl flex-col items-start justify-start"
+          className="hidden lg:flex flex-1 max-w-xl min-w-0 flex-col items-start justify-start"
         >
           {renderSpotiflyerSection('desktop')}
         </div>
