@@ -20,4 +20,6 @@ export type SceneState =
   | 'hvoc-loading'
   | 'hvoc-intro'
   | 'tntn-loading'
-  | 'tntn-intro';
+  | 'tntn-intro'
+  | 'reimagined-loading'
+  | 'reimagined-intro';

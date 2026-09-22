@@ -37,6 +37,7 @@ export interface LanyardProps {
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
   aspectRatio?: number;
+  orientation?: 'portrait' | 'landscape';
   lanyardImage?: string | null;
   lanyardWidth?: number;
   lanyardRepeat?: [number, number];
@@ -63,6 +64,7 @@ export default function Lanyard({
   backImage = null,
   imageFit = 'cover',
   aspectRatio,
+  orientation = 'portrait',
   lanyardImage = null,
   lanyardWidth = 1,
   lanyardRepeat,
@@ -141,6 +143,7 @@ export default function Lanyard({
               backImage={backImage}
               imageFit={imageFit}
               aspectRatio={aspectRatio}
+              orientation={orientation}
               lanyardImage={lanyardImage}
               lanyardWidth={lanyardWidth}
               lanyardRepeat={lanyardRepeat}
@@ -230,6 +233,7 @@ interface BandProps {
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
   aspectRatio?: number;
+  orientation?: 'portrait' | 'landscape';
   lanyardImage?: string | null;
   lanyardWidth?: number;
   lanyardRepeat?: [number, number];
@@ -244,6 +248,7 @@ function Band({
   backImage = null,
   imageFit = 'cover',
   aspectRatio,
+  orientation = 'portrait',
   lanyardImage = null,
   lanyardWidth = 1,
   lanyardRepeat,
@@ -266,23 +271,93 @@ function Band({
   const frontTex = useTexture(frontImage || BLANK_PIXEL) as any;
   const backTex = useTexture(backImage || BLANK_PIXEL) as any;
 
+  const isLandscape = orientation === 'landscape';
+
   // Aspect ratio of the original front face of card.glb mesh (measured deltaX / deltaY in 3D)
-  const BASE_MESH_ASPECT = 0.716366 / 0.9707; // ~0.737989
+  const BASE_PORTRAIT_ASPECT = 0.716366 / 0.9707; // ~0.737989
+  const BASE_LANDSCAPE_ASPECT = 0.9707 / 0.716366; // ~1.35496
 
   const targetAspect = useMemo(() => {
     if (aspectRatio && aspectRatio > 0) return aspectRatio;
     const imgW = frontTex?.image?.naturalWidth || frontTex?.image?.width;
     const imgH = frontTex?.image?.naturalHeight || frontTex?.image?.height;
     if (imgW && imgH) return imgW / imgH;
-    return null;
-  }, [aspectRatio, frontTex?.image]);
+    return isLandscape ? 1.5874 : null;
+  }, [aspectRatio, frontTex?.image, isLandscape]);
 
   const cardScaleX = useMemo(() => {
+    if (isLandscape) return 1;
     if (targetAspect) {
-      return targetAspect / BASE_MESH_ASPECT;
+      return targetAspect / BASE_PORTRAIT_ASPECT;
     }
     return 1;
-  }, [targetAspect]);
+  }, [targetAspect, isLandscape]);
+
+  const cardScaleLandscape = useMemo(() => {
+    if (!isLandscape) return 1;
+    if (targetAspect) {
+      return targetAspect / BASE_LANDSCAPE_ASPECT;
+    }
+    return 1.5874 / BASE_LANDSCAPE_ASPECT;
+  }, [targetAspect, isLandscape]);
+
+  // Tỷ lệ khung trắng ở cạnh trên thẻ ngang để ô/lỗ xỏ và kẹp kim loại không đục vào ảnh thẻ
+  const LANDSCAPE_WHITE_RATIO = 0.14;
+
+  // Bắt buộc thay đổi kích thước phôi thẻ về chiều rộng (chiều cao thẻ ngang)
+  // Tăng kích thước phôi thẻ theo đúng tỷ lệ khung trắng để ảnh bình thường bên dưới giữ nguyên 100% tỷ lệ gốc không bị méo/bẹp
+  const cardHeightScaleLandscape = useMemo(() => {
+    if (!isLandscape) return 1;
+    return 1 / (1 - LANDSCAPE_WHITE_RATIO); // ~1.1628
+  }, [isLandscape]);
+
+  // Giữ cố định vị trí mép trên thẻ ở Y = 1.0229 để lỗ xỏ và kẹp dây nằm chính giữa dải trắng
+  const cardPosY = useMemo(() => {
+    if (!isLandscape) return 0;
+    return 1.0229 - 0.3582 * cardHeightScaleLandscape;
+  }, [isLandscape, cardHeightScaleLandscape]);
+
+  // Trám lỗ dọc cũ của thẻ ở chế độ ngang một cách phẳng mịn 100%:
+  // Giữ nguyên 100% hình học gốc nodes.card.geometry (không di dời/vo đỉnh làm biến dạng ảnh),
+  // và đặt 2 mặt phẳng che lỗ (Patch Plane) với ánh xạ UV khớp chính xác từng pixel lên vị trí lỗ cũ.
+  const frontHolePatch = useMemo(() => {
+    const w = 0.039;
+    const h = 0.039;
+    const centerY = 0.94187;
+    const geom = new THREE.PlaneGeometry(w, h, 1, 1);
+    const pos = geom.attributes.position;
+    const uvs = geom.attributes.uv;
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i) + centerY;
+      const u = 0.249914 + 0.695532 * x;
+      const v = 0.772265 - 0.750895 * y;
+      uvs.setXY(i, u, v);
+    }
+    uvs.needsUpdate = true;
+    return geom;
+  }, []);
+
+  const backHolePatch = useMemo(() => {
+    const w = 0.039;
+    const h = 0.039;
+    const centerY = 0.94187;
+    const geom = new THREE.PlaneGeometry(w, h, 1, 1);
+    geom.rotateY(Math.PI);
+    const pos = geom.attributes.position;
+    const uvs = geom.attributes.uv;
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i) + centerY;
+      const u = 0.750000 - 0.695532 * x;
+      const v = 0.772265 - 0.750895 * y;
+      uvs.setXY(i, u, v);
+    }
+    uvs.needsUpdate = true;
+    return geom;
+  }, []);
 
   // Composite the front/back images into the card's texture atlas (front = left
   // half, back = right half). Each image is drawn aspect-preserving (no stretch).
@@ -310,8 +385,68 @@ function Band({
       const rw = rect.w * W;
       const rh = rect.h * H;
 
+      if (isLandscape) {
+        // Landscape card rotation: xoay 90 độ CCW để khớp với hình học thẻ 3D xoay ngang.
+        // Tạo khung trắng ở cạnh trên thẻ: ô/lỗ xỏ nằm chính giữa khung trắng đó,
+        // ở dưới khung trắng đó là toàn bộ ảnh thẻ bình thường không bị cắt hay đục lỗ.
+        const whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO;
+        const contentH = rw - whiteHeaderH;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+        ctx.translate(rx + rw / 2, ry + rh / 2);
+        ctx.rotate(-Math.PI / 2);
+
+        // 1. Phủ toàn bộ thẻ bằng màu trắng phôi thẻ cao cấp
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(-rh / 2, -rw / 2, rh, rw);
+
+        // 2. Vẽ dải trắng khung trên (white header frame)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(-rh / 2, -rw / 2, rh, whiteHeaderH);
+
+        // 3. Vẽ ô / lỗ xỏ thẻ ("ô sẽ nằm chĩnh giữa khung trắng đó"):
+        // Lỗ xỏ dạng rãnh oval bo tròn (slot punch) nằm ngay chính giữa dải trắng
+        const holeW = rh * 0.082; // ~63px
+        const holeH = whiteHeaderH * 0.38; // ~27px
+        const holeX = -holeW / 2;
+        const holeY = -rw / 2 + (whiteHeaderH - holeH) / 2;
+        const holeRadius = holeH / 2;
+
+        ctx.save();
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(holeX, holeY, holeW, holeH, holeRadius);
+        } else {
+          ctx.moveTo(holeX + holeRadius, holeY);
+          ctx.lineTo(holeX + holeW - holeRadius, holeY);
+          ctx.quadraticCurveTo(holeX + holeW, holeY, holeX + holeW, holeY + holeRadius);
+          ctx.lineTo(holeX + holeW, holeY + holeH - holeRadius);
+          ctx.quadraticCurveTo(holeX + holeW, holeY + holeH, holeX + holeW - holeRadius, holeY + holeH);
+          ctx.lineTo(holeX + holeRadius, holeY + holeH);
+          ctx.quadraticCurveTo(holeX, holeY + holeH, holeX, holeY + holeH - holeRadius);
+          ctx.lineTo(holeX, holeY + holeRadius);
+          ctx.quadraticCurveTo(holeX, holeY, holeX + holeRadius, holeY);
+          ctx.closePath();
+        }
+        ctx.fillStyle = '#111317';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        // 4. Ở dưới khung trắng đó là phần ảnh thẻ bình thường trọn vẹn 100%
+        ctx.drawImage(img, -rh / 2, -rw / 2 + whiteHeaderH, rh, contentH);
+
+        ctx.restore();
+        return;
+      }
+
       if (targetAspect) {
-        // When the 3D card mesh is scaled in X by (targetAspect / BASE_MESH_ASPECT),
+        // When the 3D card mesh is scaled in X by (targetAspect / BASE_PORTRAIT_ASPECT),
         // mapping the entire image to the UV rect produces a 100% distortion-free, isotropic 1:1 render in 3D world space.
         ctx.save();
         ctx.beginPath();
@@ -345,7 +480,7 @@ function Band({
     composite.anisotropy = 16;
     composite.needsUpdate = true;
     return composite;
-  }, [frontImage, backImage, imageFit, targetAspect, frontTex, backTex, materials?.base?.map]);
+  }, [frontImage, backImage, imageFit, targetAspect, isLandscape, frontTex, backTex, materials?.base?.map]);
 
   const [curve] = useState(
     () =>
@@ -477,7 +612,14 @@ function Band({
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
-          <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
+          {isLandscape ? (
+            <CuboidCollider 
+              position={[0, 0.3 * cardHeightScaleLandscape, 0]} 
+              args={[1.28 * (targetAspect ? targetAspect / 1.5874 : 1), 0.81 * cardHeightScaleLandscape, 0.01]} 
+            />
+          ) : (
+            <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
+          )}
           <group
             ref={cardGroupRef}
             scale={2.25}
@@ -554,11 +696,16 @@ function Band({
             }}
           >
             {/* Invisible expanded hit area for easy touch targeting on mobile */}
-            <mesh visible={false}>
-              <planeGeometry args={[1.6 * cardScaleX, 2.4]} />
+            <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, 0, 0]}>
+              <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / 1.5874 : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4]} />
               <meshBasicMaterial transparent opacity={0} />
             </mesh>
-            <mesh geometry={nodes.card.geometry} scale={[cardScaleX, 1, 1]}>
+            <mesh 
+              geometry={nodes.card.geometry} 
+              scale={isLandscape ? [cardHeightScaleLandscape, cardScaleLandscape, 1] : [cardScaleX, 1, 1]}
+              rotation={isLandscape ? [0, 0, -Math.PI / 2] : [0, 0, 0]}
+              position={isLandscape ? [-0.5229 * cardScaleLandscape, cardPosY, 0] : [0, 0, 0]}
+            >
               <meshPhysicalMaterial
                 map={cardMap}
                 map-anisotropy={16}
@@ -567,6 +714,42 @@ function Band({
                 roughness={0.9}
                 metalness={0.8}
               />
+              {isLandscape && (
+                <>
+                  <mesh
+                    geometry={frontHolePatch}
+                    position={[0, 0.94187, 0.00542]}
+                  >
+                    <meshPhysicalMaterial
+                      map={cardMap}
+                      map-anisotropy={16}
+                      clearcoat={isMobile ? 0 : 1}
+                      clearcoatRoughness={0.15}
+                      roughness={0.9}
+                      metalness={0.8}
+                      polygonOffset
+                      polygonOffsetFactor={-1}
+                      polygonOffsetUnits={-1}
+                    />
+                  </mesh>
+                  <mesh
+                    geometry={backHolePatch}
+                    position={[0, 0.94187, 0.00135]}
+                  >
+                    <meshPhysicalMaterial
+                      map={cardMap}
+                      map-anisotropy={16}
+                      clearcoat={isMobile ? 0 : 1}
+                      clearcoatRoughness={0.15}
+                      roughness={0.9}
+                      metalness={0.8}
+                      polygonOffset
+                      polygonOffsetFactor={-1}
+                      polygonOffsetUnits={-1}
+                    />
+                  </mesh>
+                </>
+              )}
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />

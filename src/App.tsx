@@ -14,6 +14,8 @@ import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD17_INSTAGRAM_PAGES, BLVD1
 import { HvocIntroScreen, HVOC_LOGO_URL } from './components/HvocIntroScreen';
 import { TntnIntroScreen, TNTN_CHV_LOGO_URL, CDTTBP_VII_TNTN_LOGO_URL } from './components/TntnIntroScreen';
 import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
+import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
+import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS } from './data/chvBadges';
 import { AppLanguage, PortfolioMode, SceneState } from './types';
 
 export default function App() {
@@ -23,6 +25,7 @@ export default function App() {
   const [blvdLoadingProgress, setBlvdLoadingProgress] = useState(0);
   const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
   const [tntnLoadingProgress, setTntnLoadingProgress] = useState(0);
+  const [reimaginedLoadingProgress, setReimaginedLoadingProgress] = useState(0);
   const [activeBlvdZone, setActiveBlvdZone] = useState<'zone-blvd' | 'zone-18' | 'zone-17' | 'zone-16'>('zone-blvd');
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
   const [bookletViewMode, setBookletViewMode] = useState<'3d' | 'carousel' | 'instagram'>('3d');
@@ -179,6 +182,12 @@ export default function App() {
     setScene('tntn-loading');
   };
 
+  const handleReimaginedClick = () => {
+    // Bắt đầu chuỗi [REIMAGINED]: hiện màn hình LOADING trước khi mở trang giới thiệu
+    setReimaginedLoadingProgress(0);
+    setScene('reimagined-loading');
+  };
+
   // Quản lý tiến trình tải tài nguyên của HVOC
   useEffect(() => {
     if (scene !== 'hvoc-loading') return;
@@ -330,6 +339,76 @@ export default function App() {
         clearInterval(progressInterval);
         setTimeout(() => {
           setScene('tntn-intro');
+        }, 350);
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
+
+  // Quản lý tiến trình tải tài nguyên của [REIMAGINED] (Thẻ học sinh CHV & Thư chúc mừng HCMUSSH)
+  useEffect(() => {
+    if (scene !== 'reimagined-loading') return;
+
+    setReimaginedLoadingProgress(0);
+
+    const reimaginedAssets = [
+      ...CHV_BADGES_ALL_URLS,
+      REIMAGINED_PROJECTS.hcmusshLetter.frontUrl,
+      REIMAGINED_PROJECTS.hcmusshLetter.backUrl,
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp',
+      'https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80',
+    ];
+
+    const uniqueAssets = Array.from(new Set(reimaginedAssets));
+    const totalAssets = uniqueAssets.length;
+    let loadedCount = 0;
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    const progressInterval = setInterval(() => {
+      const realTarget = Math.round((loadedCount / totalAssets) * 100);
+      if (currentDisplayProgress < realTarget) {
+        currentDisplayProgress += 1;
+        setReimaginedLoadingProgress(Math.min(100, currentDisplayProgress));
+      }
+      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('reimagined-intro');
+        }, 350);
+      }
+    }, 14);
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+    };
+
+    uniqueAssets.forEach(url => {
+      const img = new Image();
+      img.onload = () => {
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(onAssetLoaded);
+        } else {
+          onAssetLoaded();
+        }
+      };
+      img.onerror = onAssetLoaded;
+      img.src = url;
+    });
+
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        setReimaginedLoadingProgress(100);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setScene('reimagined-intro');
         }, 350);
       }
     }, 30000);
@@ -961,6 +1040,47 @@ export default function App() {
       {/* Trang giới thiệu Đội TNTN */}
       {scene === 'tntn-intro' && (
         <TntnIntroScreen 
+          onBack={() => setScene('main-app')} 
+          language={language}
+        />
+      )}
+
+      {/* --- SEPARATE [REIMAGINED] SEQUENCE --- */}
+      {/* Màn hình loading [REIMAGINED]: LOADING hiện dần từ trái sang phải từ 0% đến 100% */}
+      {scene === 'reimagined-loading' && (
+        <div 
+          id="scene-reimagined-loading"
+          className="absolute inset-0 flex items-center justify-center bg-black z-50 overflow-hidden select-none w-full h-full px-2 md:px-8"
+        >
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                clipPath: `inset(0 ${Math.max(0, 100 - reimaginedLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - reimaginedLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
+      )}
+
+      {/* Trang giới thiệu [REIMAGINED] */}
+      {scene === 'reimagined-intro' && (
+        <ReimaginedIntroScreen 
           onBack={() => setScene('main-app')} 
           language={language}
         />
@@ -1652,7 +1772,10 @@ export default function App() {
                   </div>
 
                   {/* Item 05: [Reimagined] */}
-                  <div className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5">
+                  <div 
+                    onClick={handleReimaginedClick}
+                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                  >
                     <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
                       05
                     </span>

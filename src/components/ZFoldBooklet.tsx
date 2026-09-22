@@ -183,7 +183,7 @@ interface ZoomableCarouselContainerProps {
   initialZoom?: number;
 }
 
-const ZoomableCarouselContainer: React.FC<ZoomableCarouselContainerProps> = ({
+export const ZoomableCarouselContainer: React.FC<ZoomableCarouselContainerProps> = ({
   id,
   className = "",
   children,

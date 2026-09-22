@@ -3120,6 +3120,126 @@ Nội dung thay đổi chi tiết:
      - Kiểm tra toàn bộ mã nguồn đạt chuẩn TypeScript strict, không có biến rác hoặc CSS/JS thừa thãi.
      - Đảm bảo 100% các thành phần tuân thủ nghiêm ngặt quy tắc góc vuông (`rounded-none`), kiểu chữ Archivo thường (`font-normal`), độ tương phản cao và hiệu năng mượt mà.
 
+================================================================================
+LẦN 52: TÍCH HỢP TÀI NGUYÊN [REIMAGINED] THƯ CHÚC MỪNG HCMUSSH & ĐỒNG BỘ CHUẨN ĐỊNH DANH
+================================================================================
+Thời điểm: 2026-09-22
+File ảnh hưởng: /src/data/multimediaArchive.ts
+Nội dung thay đổi chi tiết:
+  1. Ghi nhận hiệu chỉnh chuẩn hóa danh từ của người dùng:
+     - Sửa lỗi chính tả từ `[REINMAGINED]` thành `[REIMAGINED]` ở toàn bộ 22 tài nguyên của dự án "Thẻ Học sinh CHV".
+  2. Bổ sung dự án mới `[REIMAGINED] Thư chúc mừng HCMUSSH` (2 tài nguyên) vào kho lưu trữ đồ họa `multimediaArchive.ts`:
+     - Mặt sau (`emp-hcmussh-sau`):
+       * URL: `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%C6%B0%20ch%C3%BAc%20m%E1%BB%ABng%20HCMUSSH/m%E1%BA%B7t%20sau%20th%C6%B0%20ch%C3%BAc%20m%E1%BB%ABng.webp`
+       * Project: `[REIMAGINED] Thư chúc mừng HCMUSSH`
+       * Category: `Thư chúc mừng HCMUSSH`
+       * Mode: `employer-club`
+       * Type: `graphic`
+     - Mặt trước (`emp-hcmussh-truoc`):
+       * URL: `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%C6%B0%20ch%C3%BAc%20m%E1%BB%ABng%20HCMUSSH/m%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20th%C6%B0%20ch%C3%BAc%20m%E1%BB%ABng.webp`
+       * Project: `[REIMAGINED] Thư chúc mừng HCMUSSH`
+       * Category: `Thư chúc mừng HCMUSSH`
+       * Mode: `employer-club`
+       * Type: `graphic`
+  3. Cập nhật tổng số tài nguyên trong kho lưu trữ từ 97 lên 99 assets.
+
+================================================================================
+LẦN 54: TỔ CHỨC 3 ZONE TRƯỢT DỌC CHO PHÂN KHU [REIMAGINED] (CHUẨN #BLVD)
+================================================================================
+Thời điểm: 2026-09-22
+File ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+Nội dung thay đổi chi tiết:
+  1. Cấu trúc lại toàn bộ màn hình [REIMAGINED] thành 3 Zone trượt dọc tương tự khu vực #BLVD:
+     - Cơ chế container trượt slider với `translate3d(0, -${activeZoneIndex * 100}%, 0)` và hiệu ứng bezier mượt mà (`cubic-bezier(0.2, 0.9, 0.3, 1)`).
+     - Bộ xử lý sự kiện cuộn chuột/trackpad (`wheel`) và cử chỉ vuốt cảm ứng mobile (`touchstart`, `touchend`) với debounce triệt tiêu momentum trượt lố: 1 lần cuộn/vuốt = sang đúng 1 zone.
+  2. Bố cục chi tiết từng Zone:
+     - Zone 1: Chữ `[REIMAGINED]` vector SVG kéo dãn to tràn màn hình y hệt Zone 1 của #BLVD, nhấp chuột hoặc cuộn xuống sẽ trượt ngay sang Zone 2.
+     - Zone 2: CHV - Tái thiết kế Thẻ học sinh CHV với mô hình 3D Lanyard xoay ngang, hỗ trợ tương tác vật lý (hất thẻ, thu phóng, nhấp đúp hoàn tác) và thanh chuyển đổi tức thì giữa 11 môn chuyên.
+     - Zone 3: USSH - Tái thiết kế Thư chúc mừng HCMUSSH với bố cục trưng bày ấn phẩm hai mặt trước và sau (Front & Back Cover), hỗ trợ các chế độ xem linh hoạt (cả 2 mặt, riêng mặt trước, riêng mặt sau).
+  3. Bổ sung các tiện ích điều hướng tinh tế:
+     - Nút `trở về` / `back` và sublogo linh hoạt cố định góc trên bên trái ở từng zone.
+     - Thanh chỉ báo vị trí 3 zone (`reimagined-zone-indicators`) ở cạnh phải màn hình cho phép người dùng click chuyển zone nhanh chóng.
+     - 100% tuân thủ nguyên tắc Boulevard1st: không bo góc (`rounded-none`), font Archivo chuẩn xác.
+
+================================================================================
+LẦN 55: TỐI GIẢN TOÀN BỘ PHÂN KHU [REIMAGINED], ĐƯA 3D VÀO TRUNG TÂM, THÊM DÀN PHẲNG HCMUSSH & KHẮC PHỤC LỖ DỌC THẺ CHV
+================================================================================
+Thời điểm: 2026-09-22
+File ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /src/components/ZFoldBooklet.tsx
+  - /src/components/UsshDocumentViewer.tsx (mới)
+  - /src/components/ReimaginedIntroScreen.tsx
+Nội dung thay đổi chi tiết:
+  1. Loại bỏ toàn bộ các element thừa và không cần thiết trong ảnh theo yêu cầu:
+     - Xóa bỏ chỉ báo cuộn "SCROLL DOWN" và vạch kẻ ở Zone 1 [REIMAGINED].
+     - Xóa bỏ hoàn toàn thanh chấm điều hướng cạnh phải `reimagined-zone-indicators`.
+     - Xóa bỏ tiêu đề nhận diện cố định góc trên bên trái `01 CHV STUDENT BADGE` và `02 HCMUSSH CONGRATULATION`, giữ lại duy nhất nút chữ `trở về` / `back` tối giản chuẩn xác #BLVD.
+     - Xóa bỏ toàn bộ cột trái thông tin giới thiệu, icon Canva, mô tả văn bản và hướng dẫn kéo thả `01 Drag to swing...` ở cả phân khu CHV và HCMUSSH.
+     - Xóa bỏ nhãn `TRACK` và thanh trạng thái trên switcher phân ban chuyên.
+  2. Đưa mô hình 3D vào CHÍNH GIỮA MÀN HÌNH:
+     - CHV: Khung mô hình 3D thẻ Lanyard được căn giữa tuyệt đối với kích thước lớn (`h-[74vh]` đến `h-[86vh]`). Thanh chuyển đổi 11 môn chuyên đặt gọn gàng ở sát đáy màn hình.
+     - HCMUSSH: Căn giữa mô hình thư chúc mừng trong toàn bộ khung nhìn, hỗ trợ chuyển đổi giữa 2 chế độ:
+       * `mô hình 3d` (`3d model`): Xoay 360 độ quanh trục X & Y, di chuyển tự do (Pan), thu phóng (Zoom), nhấp đúp hoàn tác.
+       * `dàn phẳng` (`flat layout`): Trưng bày mặt trước và mặt sau cạnh nhau không khoảng cách (`gap-0`), viền `border-y border-white/20` chuẩn phong cách #BLVD, hỗ trợ kéo cuộn ngang và thu phóng mượt mà.
+       * Nút `đặt lại thu phóng` (`reset zoom`) cố định góc dưới bên phải trên desktop khi ở chế độ dàn phẳng.
+  3. Khắc phục triệt để lỗi thẻ có 2 lỗ (loại bỏ lỗ dọc cũ):
+     - Tại `Lanyard.tsx`, tạo thuật toán vá hình học `patchedCardGeometry` trong chế độ ngang (`orientation="landscape"`):
+       * Gom cụm 183 đỉnh của lỗ xỏ cũ ở tọa độ `|x| < 0.024` và `y > 0.915 && y < 0.962` về tâm mặt trước và mặt sau, chuẩn hóa vector pháp tuyến (normal).
+       * Loại bỏ toàn bộ các tam giác thành lỗ cắt ngang mặt phẳng `z = 0.003`.
+       * Triệt tiêu hoàn toàn lỗ dọc cũ trên thẻ, chỉ còn duy nhất 1 lỗ xỏ ngang gắn kẹp kim loại lanyard.
+  4. Tuân thủ 100% nguyên tắc Boulevard1st: không bo góc (`rounded-none`), typography Archivo sắc nét.
+
+================================================================================
+LẦN 56: SỬA TRIỆT ĐỂ LỖI ẢNH BỊ "VO LẠI" TRÊN THẺ HỌC SINH 3D
+================================================================================
+Thời điểm: 2026-09-22
+File ảnh hưởng:
+  - /src/components/Lanyard.tsx
+Nguyên nhân gốc rễ:
+  - Thuật toán `patchedCardGeometry` ở lần trước đã gom cụm (collapse) các đỉnh xung quanh lỗ cũ về một điểm tọa độ, khiến các tam giác lưới bề mặt liên kết với phần còn lại của thẻ bị kéo dồn (pinched) về một điểm mà không cập nhật UV, dẫn đến việc bề mặt đồ họa ("THẺ HỌC SINH" và các chi tiết bên phải thẻ) bị nhăn nhúm / "vo lại".
+Nội dung khắc phục chi tiết:
+  1. Loại bỏ hoàn toàn phương pháp di dời/vo cụm đỉnh (vertex-collapsing).
+  2. Khôi phục 100% hình học nguyên bản phẳng mịn của `nodes.card.geometry` giúp toàn bộ ảnh mặt trước và mặt sau thẻ hiển thị sắc nét, phẳng tuyệt đối, không còn bất kỳ hiện tượng biến dạng hay "vo lại" nào.
+  3. Che lấp lỗ xỏ dọc cũ ở chế độ ngang bằng kỹ thuật `Patch Planes`:
+     - Tạo 2 mặt phẳng che lỗ (`frontHolePatch` & `backHolePatch`) đặt vừa khít vào khoảng trống của lỗ cũ ở mặt trước (`z = 0.00542`) và mặt sau (`z = 0.00135`).
+     - Tọa độ UV của 2 patch này được tính toán theo đúng phương trình chiếu phẳng tuyến tính chuẩn xác từng pixel của `card.glb`:
+       * Mặt trước: `u = 0.249914 + 0.695532 * x`, `v = 0.772265 - 0.750895 * y`
+       * Mặt sau: `u = 0.750000 - 0.695532 * x`, `v = 0.772265 - 0.750895 * y`
+     - Bật `polygonOffset` để triệt tiêu hiện tượng z-fighting, giúp mặt thẻ liền khối, mịn màng và che hoàn toàn lỗ cũ một cách tự nhiên.
+
+================================================================================
+LẦN 57: TẠO KHUNG TRẮNG CẠNH TRÊN THẺ 3D, CĂN GIỮA Ô XỎ VÀ MỞ RỘNG PHÔI THẺ
+================================================================================
+Thời điểm: 2026-09-22
+File ảnh hưởng:
+  - /src/components/Lanyard.tsx
+Yêu cầu người dùng:
+  - Khắc phục tình trạng lỗ xỏ/kẹp kim loại đục vào phần chữ tiêu đề quan trọng ("Sở Giáo dục và Đào tạo TP Hồ Chí Minh" / "TRƯỜNG THPT CHUYÊN HÙNG VƯƠNG").
+  - Tạo 1 phần khung màu trắng ở phía trên của thẻ, ô/lỗ xỏ nằm chính giữa khung trắng đó.
+  - Vị trí thực tế của lỗ xỏ/kẹp giữ nguyên.
+  - Phía dưới khung trắng là toàn bộ phần ảnh thẻ bình thường trọn vẹn 100%.
+  - Bắt buộc thay đổi kích thước phôi thẻ về chiều rộng (tăng chiều cao của thẻ ngang) để chứa vừa khung trắng mà không làm co ép ảnh bên dưới.
+Nội dung thực hiện chi tiết:
+  1. Cấu hình tỷ lệ khung trắng cạnh trên:
+     - `LANDSCAPE_WHITE_RATIO = 0.14`: Dành 14% chiều cao thẻ ngang làm dải khung trắng (white header frame).
+  2. Mở rộng kích thước phôi thẻ theo chiều rộng (chiều cao thẻ ngang):
+     - `cardHeightScaleLandscape = 1 / (1 - LANDSCAPE_WHITE_RATIO) = 1.1628`.
+     - Nhờ tỷ lệ này, vùng hiển thị ảnh bên dưới giữ nguyên 100% kích thước và tỷ lệ gốc (`aspectRatio = 1000/630`), hoàn toàn không bị méo, không bị nén hay co cụm.
+  3. Cố định vị trí mép trên thẻ:
+     - Tính toán `cardPosY = 1.0229 - 0.3582 * cardHeightScaleLandscape = 0.6063`.
+     - Giữ mép trên của thẻ luôn neo ở `Y = 1.0229` trong không gian 3D, kẹp kim loại và dây đeo tiếp xúc chuẩn xác vào dải trắng.
+  4. Vẽ dải trắng và ô xỏ thẻ trên Texture Canvas (`drawFitted`):
+     - Phủ nền phôi thẻ màu trắng tinh khiết `#FFFFFF`.
+     - Tạo dải khung trắng ở đỉnh thẻ với chiều cao `whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO`.
+     - Vẽ rãnh khoét lỗ xỏ thẻ chuẩn dạng oval bo góc (slot punch) nằm chính giữa dải trắng: `holeW = rh * 0.082`, `holeH = whiteHeaderH * 0.38`, bo cong bán kính `holeH / 2`, màu khoét tối sẫm `#111317` với viền đổ bóng sắc nét.
+     - Vẽ toàn bộ ảnh thẻ bình thường ở phía dưới khung trắng (`-rw/2 + whiteHeaderH` đến `contentH`), toàn bộ logo trường, tên trường và thông tin học sinh hiển thị 100% nguyên vẹn, không bị che khuất.
+  5. Đồng bộ vùng tương tác vật lý:
+     - Cập nhật `CuboidCollider` và vùng click vô hình khớp hoàn hảo với kích thước mới của phôi thẻ.
+
+
+
 
 
 
