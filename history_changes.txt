@@ -3238,37 +3238,222 @@ Nội dung thực hiện chi tiết:
   5. Đồng bộ vùng tương tác vật lý:
      - Cập nhật `CuboidCollider` và vùng click vô hình khớp hoàn hảo với kích thước mới của phôi thẻ.
 
+================================================================================
+LẦN 58: NÂNG CẤP MÔ HÌNH 3D THƯ CHÚC MỪNG HCMUSSH: GẬP MỞ 3 CHẾ ĐỘ VÀ CĂN GIỮA
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/components/UsshDocumentViewer.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+Yêu cầu người dùng:
+  - "model 3d thư chúc mừng nhìn hơi chán, cho gập vào mở ra và giữa giữa đi"
+Nội dung thực hiện chi tiết:
+  1. Xây dựng cơ chế mô hình 3D gập mở chân thực (Bi-fold Card) thay thế mặt phẳng xoay đơn điệu:
+     - Tách thư chúc mừng thành 2 cánh độc lập: Cánh Trái (Left Wing) và Cánh Phải (Right Wing) gắn vào trục gáy thẳng đứng ở chính giữa (X = 0).
+     - Mặt trong (Ruột thư - backUrl):
+       * Cánh Trái: Hiển thị nửa bên trái của backUrl (Trang 2: Lời ngỏ, thông điệp giới thiệu).
+       * Cánh Phải: Hiển thị nửa bên phải của backUrl (Trang 3: Nội dung Thư chúc mừng HCMUSSH).
+     - Mặt ngoài (Bìa thư - frontUrl):
+       * Cánh Trái: Hiển thị nửa bên phải của frontUrl (Bìa trước - Front cover).
+       * Cánh Phải: Hiển thị nửa bên trái của frontUrl (Bìa sau - Back cover).
+  2. Triển khai 3 trạng thái gập mở chuẩn xác với hoạt ảnh mượt mà:
+     - 'closed' (gập vào):
+       * Cánh Trái gập góc 180° phủ lên Cánh Phải, phô diễn trọn vẹn Bìa trước (Front cover) ở mặt trước và Bìa sau ở mặt sau.
+       * Dịch tâm tự động `rootOffsetX = -wingW / 2` để lá thư đã gập luôn nằm chính xác ở trung tâm màn hình ("giữa giữa").
+     - 'half' (giữa giữa):
+       * Cánh Trái xoay +36°, Cánh Phải xoay -36°, tạo hình chữ V mở 72° đứng vững vàng trong không gian 3D như thiệp chúc mừng đặt trên bàn.
+       * Dịch trục Z cân bằng trọng tâm hình học (`rootOffsetZ = -(wingW * sin(36°)) / 2`), xoay 360° không bị đảo trục, nằm ngay giữa màn hình.
+       * Hiệu ứng bóng đổ nếp gấp gáy thư tăng chiều sâu thị giác (ambient occlusion).
+     - 'open' (mở ra):
+       * Cả 2 cánh mở phẳng hoàn toàn 180° (góc xoay 0°), hiển thị trọn vẹn bề mặt ruột thư liền mạch.
+  3. Tích hợp thanh điều khiển và cử chỉ tương tác trực quan:
+     - Thêm thanh chuyển đổi 3 trạng thái `gập vào` | `giữa giữa` | `mở ra` (tiếng Anh: `folded` | `half-open` | `open`) ở cạnh dưới màn hình, typography font Archivo chuẩn phong cách tối giản Boulevard1st, không bo góc (rounded-none).
+     - Hỗ trợ nhấp/chạm trực tiếp vào lá thư 3D để chuyển đổi tuần tự: giữa giữa -> mở ra -> gập vào -> giữa giữa (với ngưỡng phân biệt thao tác rê xoay 360°).
+     - Kết nối sự kiện `blvd-reset-zoom` để nút "đặt lại thu phóng" hoạt động cho cả chế độ 3D.
 
+================================================================================
+LẦN 59: KHẮC PHỤC TRIỆT ĐỂ LỖI 3D CẮT CHÉO MẶT THƯ (GẬP VÀO BỊ LỘ NỘI DUNG TRẮNG)
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/components/UsshDocumentViewer.tsx
+Yêu cầu người dùng:
+  - Khắc phục lỗi "bị lỗi" khi chuyển trạng thái 3D thư chúc mừng (hình ảnh screenshot cho thấy cánh bìa tím và ruột thư trắng bị cắt đôi dọc theo thân và đè chéo lên nhau 35% / 65%).
+Nguyên nhân gốc rễ:
+  1. Trong trạng thái `closed`, cánh trái được gán `leftAngle = 178.5` (thay vì 180°) và áp dụng thứ tự biến đổi `rotateY(178.5deg) translateZ(2px)`:
+     - `translateZ(2px)` cục bộ khi quay 178.5° quanh trục gáy bị lật dấu vector pháp tuyến theo trục Z thế giới, khiến mép gáy bị đẩy lùi vào trong màn hình (Z = -2px, nằm sau cánh phải Z = 0), trong khi mép ngoài vươn ra trước (Z = +4.5px, nằm trước cánh phải).
+     - Mặt phẳng cánh trái cắt chéo (intersect) xuyên qua mặt phẳng cánh phải ở vị trí ~32-35% chiều rộng, làm lộ nửa bên trái của ruột thư màu trắng bên dưới và che nửa bên phải bằng bìa tím.
+  2. Viền cạnh (`border`) ở gáy thư: Cả hai cánh đều có `border` bốn phía khiến đường gáy khi mở phẳng bị vạch đôi viền trắng.
+  3. Kích thước thẻ chưa tính đến chiều cao khung nhìn (`clientHeight`), gây thu nhỏ quá mức trên màn hình lớn.
+Nội dung khắc phục chi tiết:
+  1. Đảo ngược thứ tự và chuẩn hóa góc biến đổi 3D của Cánh Trái:
+     - `leftAngle`: Thay đổi từ `178.5°` thành `180°` phẳng tuyệt đối.
+     - Cú pháp biến đổi: `transform: translateZ(${leftZOffset}px) rotateY(${leftAngle}deg)` với `leftZOffset = 2.5px`.
+     - Phép tịnh tiến Z được thực hiện trước theo hệ tọa độ cha, đảm bảo toàn bộ bề mặt bìa trước (Front Cover) luôn nổi đồng đều phẳng mịn +2.5px phía trên cánh phải (Z = 0) từ mép gáy đến mép ngoài, triệt tiêu 100% hiện tượng cắt chéo mặt phẳng (plane intersection) và z-fighting.
+  2. Đồng bộ thứ tự xếp lớp hiển thị (DOM Stacking Order):
+     - Bổ sung `zIndex: currentFoldState === 'closed' ? 10 : 2` cho Cánh Trái và `zIndex: 1` cho Cánh Phải, đảm bảo bìa trước luôn bao bọc và che kín 100% ruột thư khi gập vào trên mọi trình duyệt (Safari, Chrome, Firefox).
+     - Thiết lập bóng đổ `boxShadow: '0 20px 45px -15px rgba(0, 0, 0, 0.85)'` cho bìa trước khi gập để tạo chiều sâu chân thực.
+  3. Liền mạch đường gáy thư (Seamless Spine Fold):
+     - Bỏ viền ở gáy: Cánh Trái dùng `border-y border-l border-white/20`, Cánh Phải dùng `border-y border-r border-white/20`.
+     - Trục gáy ở chính giữa khi mở phẳng hoàn toàn liền mạch, không còn bất kỳ đường kẻ viền đứt đoạn nào.
+  4. Tối ưu kích thước tự thích ứng linh hoạt:
+     - Tính toán `targetW = Math.max(300, Math.min(680, w - 48, (h - 96) * 1.6))`, tối ưu cho cả màn hình Desktop lớn và Mobile dọc, tỷ lệ 1.6:1 hiển thị sắc nét, vừa vặn không gian.
 
+================================================================================
+LẦN 60: CẬP NHẬT TOÀN BỘ 20 LINK VÀ TỶ LỆ CHUẨN THẺ HỌC SINH CHV (3193:2012)
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/data/chvBadges.ts
+  - /src/data/multimediaArchive.ts
+  - /src/components/Lanyard.tsx
+Yêu cầu người dùng:
+  - "cập nhật lại toàn bộ link và tỉ lệ thẻ đeo, vẫn giữ khung trắng ở trên"
+  - Cung cấp danh sách 20 link ảnh chính thức (.webp) gồm 10 mặt trước và 10 mặt sau của 10 môn chuyên.
+  - Cung cấp độ phân giải chuẩn: 3193x2012, Tỷ lệ (Ratio): 3193:2012.
+Nội dung thực hiện chi tiết:
+  1. Cập nhật hệ thống dữ liệu môn chuyên (/src/data/chvBadges.ts):
+     - Thay thế các liên kết lỗi 404 (Chuyên Anh 2, Chuyên Anh 3) bằng danh mục 10 môn chuyên chuẩn xác:
+       * 01: Chuyên Anh (Có thông tin) - ID: anh-tt
+       * 02: Chuyên Anh - ID: anh
+       * 03: Chuyên Toán - ID: toan
+       * 04: Chuyên Tin - ID: tin
+       * 05: Chuyên Lí - ID: li
+       * 06: Chuyên Hóa - ID: hoa
+       * 07: Chuyên Sinh - ID: sinh
+       * 08: Chuyên Văn - ID: van
+       * 09: Chuyên Sử - ID: su
+       * 10: Chuyên Địa - ID: dia
+     - Đặt tỷ lệ chuẩn xác cho dự án thẻ CHV: aspectRatio: 3193 / 2012 (~1.586978).
+  2. Đồng bộ kho tư liệu Multimedia Archive (/src/data/multimediaArchive.ts):
+     - Chuẩn hóa 20 mục asset của thẻ học sinh CHV (10 mặt trước + 10 mặt sau) với đầy đủ metadata ID, title, mode, type, url.
+     - Khắc phục hoàn toàn lỗi Uncaught Error: Could not load ... do URL cũ không tồn tại.
+  3. Cập nhật tỷ lệ và bảo toàn khung trắng trên mô hình 3D Lanyard (/src/components/Lanyard.tsx):
+     - Cập nhật hằng số tỷ lệ ngang mặc định: DEFAULT_LANDSCAPE_ASPECT = 3193 / 2012 (~1.58698).
+     - Giữ nguyên cơ chế khung trắng dải trên (LANDSCAPE_WHITE_RATIO = 0.14) với rãnh khoét oval bo góc chuẩn xác và kẹp kim loại xỏ thẻ nằm chính giữa khung trắng.
+     - Bề mặt ảnh học sinh bên dưới khung trắng được hiển thị trọn vẹn 100% với tỷ lệ chuẩn 3193:2012 không bị méo, co giãn hay đục lỗ lẹm vào nội dung.
+     - Đồng bộ kích thước CuboidCollider vật lý và vùng bấm cảm ứng mở rộng khớp chính xác với tỷ lệ thẻ mới.
 
+================================================================================
+LẦN 61: ĐỒNG BỘ THANH CHUYỂN MÔN CHUYÊN VỚI THANH TRẠNG THÁI THƯ CHÚC MỪNG
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+Yêu cầu người dùng:
+  - "thanh chuyển môn chuyên không đồng bộ với thanh chuyển đrổi trjạng thái của thư chúc mừng"
+Nguyên nhân trước khi sửa:
+  - Thanh chuyển trạng thái của thư chúc mừng (Zone USSH) sử dụng phong cách tối giản chuẩn Boulevard1st:
+    * Vị trí `fixed` ở đáy màn hình với z-index cao (z-50) và `pointer-events-auto`.
+    * Nút text thuần túy: không nền (`bg-transparent`), không viền (`border-none`), không bo góc (`rounded-none`).
+    * Font Archivo, normal-case (chữ thường): `gập vào`, `giữa giữa`, `mở ra`.
+    * Trạng thái active: `text-white font-medium`, inactive: `text-white/40 hover:text-white/80`.
+  - Trong khi đó, thanh chuyển môn chuyên (Zone CHV) trước đó:
+    * Bị đặt lồng bên trong `<section>` (`absolute` thay vì `fixed`).
+    * Dùng nút có hộp nền xám `bg-white/10`, viền dưới `border-b-2 border-[#89CC04]`, số thứ tự màu xanh chói `text-[#89CC04]`.
+    * Chữ viết hoa/hoa thường không đồng bộ, tạo cảm giác rời rạc và lệch tông giao diện so với các thanh điều khiển khác.
+Nội dung thực hiện chi tiết:
+  1. Đồng bộ cấu trúc DOM & Vị trí hiển thị:
+     - Chuyển `chv-subject-switcher-bar` ra ngoài container cuộn, đặt ở lớp điều khiển toàn cục với `fixed bottom-6 md:bottom-8 inset-x-0 z-50 pointer-events-auto`.
+     - Thiết lập căn chỉnh `flex items-center justify-start md:justify-center gap-4 sm:gap-6 md:gap-8 px-6 md:px-8 overflow-x-auto no-scrollbar select-none`.
+  2. Đồng bộ 100% ngôn ngữ thiết kế của các nút môn chuyên:
+     - Bỏ toàn bộ viền dưới `border-b-2`, bỏ nền `bg-white/10`, bỏ màu xanh `#89CC04`.
+     - Áp dụng chuẩn class nút: `font-archivo font-normal normal-case text-xs md:text-sm tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none shrink-0`.
+     - Chữ viết thường tinh tế: `shortVi.toLowerCase()` (`anh (tt)`, `anh`, `toán`, `tin`, `lí`, `hóa`, `sinh`, `văn`, `sử`, `địa`) và `shortEn.toLowerCase()` khi chuyển sang tiếng Anh.
+     - Trạng thái chọn: `text-white font-medium`, trạng thái chờ: `text-white/40 hover:text-white/80`.
+  3. Loại bỏ hoàn toàn khối mã thanh cũ bên trong section để tránh trùng lặp.
 
+================================================================================
+LẦN 62: ĐỔI TÊN MỤC THÀNH [PAKVARD] VÀ BỔ SUNG TEXT GIỚI THIỆU TẠI ZONE 1
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+Yêu cầu người dùng:
+  - "[Reimagined] đổi thành [Pakvard] riêng zone 1 trong mục đó thì chỉ là PAKVARD (không có ngoặc vuông), giảm opacity xuồng"
+  - "ở chính giữa màn hình sẽ có các dòng sau dưới font archivo:
+     [PAKVARD] - Reimagined by Boulevard
+     Là một chuỗi các thiết kế của Phát dưới dạng concept, gắn liền với các giá trị thị giác của các tổ chức gốc và có khả năng chuyển đổi thành sản phẩm thật ngoài đời
+     CHÚ Ý: Chỉ là concept, không có giá trị thương mại và không đại diện cho tổ chức tương ứng
+     (có thể điều chỉnh về chính tả và cách diễn đạt)"
+Nội dung thực hiện chi tiết:
+  1. Đổi tên mục lục tại trang chủ (/src/App.tsx):
+     - Item 05: Chuyển nhãn hiển thị từ `[Reimagined]` thành `[Pakvard]`.
+  2. Cập nhật nền Typographic Backdrop Zone 1 (/src/components/ReimaginedIntroScreen.tsx):
+     - Chuyển chữ nền SVG từ `[REIMAGINED]` thành `PAKVARD` (không có dấu ngoặc vuông theo đúng yêu cầu).
+     - Giảm opacity viền stroke xuống mức tinh tế `stroke="rgba(255, 255, 255, 0.16)"` làm watermark chìm nghệ thuật phía sau.
+  3. Bổ sung khối văn bản giới thiệu ở chính giữa màn hình Zone 1:
+     - Toàn bộ sử dụng font Archivo, căn giữa với layout phân tầng thị giác rõ ràng:
+       * Tiêu đề: `[PAKVARD] - Reimagined by Boulevard` (font-archivo, text trắng thanh lịch).
+       * Nội dung: "Là một chuỗi các thiết kế của Phát dưới dạng concept, gắn liền với các giá trị thị giác của các tổ chức gốc và có khả năng chuyển đổi thành sản phẩm thật ngoài đời." (hỗ trợ song ngữ Anh - Việt).
+       * Ghi chú pháp lý/khuyến cáo: "CHÚ Ý: Chỉ là concept, không có giá trị thương mại và không đại diện cho tổ chức tương ứng." (text-white/40).
+     - Đặt pointer-events-none cho văn bản để thao tác nhấp hoặc cuộn qua lại giữa các zone vẫn mượt mà 100%.
 
+================================================================================
+LẦN 63: MỞ RỘNG KHUNG PAKVARD ZONE 1, VIẾT HOA MỤC LỤC [PAKVARD], DÒNG CHÚ Ý ĐỎ 100%
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+Yêu cầu người dùng:
+  - "1. mở rộng khung chữ PAKVARD ở zone 1, tương đương của #BLVD"
+  - "2. ở mục lục chữ pakvard viết hoa"
+  - "3. dòng chú ý để opacity 100%, màu đỏ rõ ràng"
+Nội dung thực hiện chi tiết:
+  1. Mở rộng khung chữ PAKVARD tại Zone 1 tương đương chuẩn #BLVD (/src/components/ReimaginedIntroScreen.tsx):
+     - Loại bỏ các giới hạn padding và chiều cao cũ (`max-h-[85vh] px-2`).
+     - Chuyển container thành full-bleed tràn 100% màn hình: `absolute inset-0 w-full h-full`.
+     - Cập nhật thông số SVG theo chuẩn tương đương #BLVD:
+       * `viewBox="0 0 540 100"`
+       * `className="w-full h-full"`
+       * `preserveAspectRatio="none"`
+       * `fontSize="105"`
+       * `stroke="rgba(255, 255, 255, 0.16)"`, `strokeWidth="1.2"`
+     - Chữ PAKVARD được kéo dãn phủ toàn bộ bề mặt viewport theo chiều ngang và dọc hệt như #BLVD.
+  2. Viết hoa tên mục lục tại trang chủ (/src/App.tsx):
+     - Chuyển mục số 05 từ `[Pakvard]` thành `[PAKVARD]`.
+  3. Cập nhật dòng chú ý màu đỏ rõ ràng, opacity 100% (/src/components/ReimaginedIntroScreen.tsx):
+     - Áp dụng màu đỏ tươi nổi bật: `text-[#ff3838] opacity-100 font-medium`.
+     - Loại bỏ hoàn toàn độ trong suốt mờ cũ (text-white/40).
 
+================================================================================
+LẦN 64: BÊ NGUYÊN KHUNG SVG TỪ #BLVD VÀ DÃN CHỮ PAKVARD THEO ĐÚNG KHUNG ĐÓ
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+Yêu cầu người dùng:
+  - "=))) xấu, sao không nghê nguyên cái khung từ #BLVD sang r dãn theo khung đó?"
+Nội dung thực hiện chi tiết:
+  1. Đồng bộ 100% cấu trúc khung SVG từ #BLVD:
+     - Kế thừa trực tiếp cấu trúc viewBox và class của #BLVD:
+       * `viewBox="0 0 450 100"`
+       * `className="w-full h-full absolute inset-0 pointer-events-none select-none"`
+       * `preserveAspectRatio="none"`
+       * `fontSize="105"`
+       * `fill="none"`, `stroke="rgba(255, 255, 255, 0.16)"`, `strokeWidth="1.2"`
+  2. Kéo dãn các ký tự PAKVARD theo đúng khung đó:
+     - Sử dụng `textLength="435"` kết hợp `lengthAdjust="spacingAndGlyphs"`.
+     - Toàn bộ 7 ký tự của PAKVARD được kéo dãn cân xứng tuyệt đối từ mép trái sang mép phải với chiều cao và độ căng typographic hoàn toàn đồng nhất với chữ #BLVD, khắc phục triệt để tình trạng lệch tỉ lệ trước đó.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+================================================================================
+LẦN 65: BỎ SỐ 0 MỤC LỤC VÀ KÉO DÃN SỐ (STRETCH) THEO DÒNG & ĐỘ RỘNG 2 KÝ TỰ
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Yêu cầu người dùng:
+  - "mấy số trong mục lục, bỏ hết sô 0 đi, nhưng các số như 123 sẽ KÉO DÃN STRECTH để rộng ngang 2 chữ số và dài ngang số dòng của label (như 3 cái đầu có khả năng xuống dòng thì lúc đó kéo dãn đến 2 dòng luôn còn không thì 1 dòng)"
+Nội dung thực hiện chi tiết:
+  1. Loại bỏ số 0 đứng trước ở tất cả các mục (01, 02, 03, 04, 05 -> 1, 2, 3, 4, 5).
+  2. Triển khai cơ chế kéo dãn SVG typographic stretch theo chuẩn responsive:
+     - Container hàng chuyển thành `flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5`.
+     - Số thứ tự đặt trong container kéo dãn `self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch`.
+     - Chiều rộng `w-[1.15em] sm:w-[1.25em]` tương đương chính xác bề ngang của 2 chữ số.
+     - Sử dụng `<svg viewBox="0 0 100 100" preserveAspectRatio="none">` với `textLength="98"` và `lengthAdjust="spacingAndGlyphs"`:
+       * Chiều ngang: Chữ số đơn được kéo dãn (glyph stretch) lấp đầy chiều ngang 2 ký tự.
+       * Chiều dọc: Khi nhãn nhô ra 2 dòng (như Đội TNTN, CLB Olympia, hoặc Thông tin cơ bản trên mobile), chiều cao container tăng lên 2 dòng, chữ số tự động kéo dãn dọc bao trọn cả 2 dòng; khi nhãn chỉ có 1 dòng (như #BLVD, [PAKVARD]), chữ số co dãn vừa vặn đúng 1 dòng.
+     - Giữ nguyên màu xanh thương hiệu `#89CC04`, font Archivo font-bold và hiệu ứng hover tương tác.
 

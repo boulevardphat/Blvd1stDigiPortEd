@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AppLanguage } from '../types';
 import Lanyard from './Lanyard';
 import { CHV_MAJOR_BADGES, ChvMajorBadge, REIMAGINED_PROJECTS } from '../data/chvBadges';
-import { UsshDocumentViewer } from './UsshDocumentViewer';
+import { UsshDocumentViewer, UsshFoldState } from './UsshDocumentViewer';
 
 interface ReimaginedIntroScreenProps {
   onBack: () => void;
@@ -19,6 +19,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
   const [selectedMajor, setSelectedMajor] = useState<ChvMajorBadge>(CHV_MAJOR_BADGES[0]);
   const [usshMode, setUsshMode] = useState<'3d' | 'flat'>('3d');
+  const [usshFoldState, setUsshFoldState] = useState<UsshFoldState>('half');
 
   const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-chv', 'zone-ussh'];
   const activeZone = REIMAGINED_ZONES[activeZoneIndex];
@@ -147,8 +148,8 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         {isEn ? 'back' : 'trở về'}
       </button>
 
-      {/* Nút 'đặt lại thu phóng' (Desktop) ở góc dưới bên phải khi ở Zone USSH dạng dàn phẳng */}
-      {activeZone === 'zone-ussh' && usshMode === 'flat' && (
+      {/* Nút 'đặt lại thu phóng' (Desktop) ở góc dưới bên phải khi ở Zone USSH */}
+      {activeZone === 'zone-ussh' && (
         <button
           type="button"
           id="ussh-reset-zoom-desktop"
@@ -161,6 +162,71 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         >
           {isEn ? 'reset zoom' : 'đặt lại thu phóng'}
         </button>
+      )}
+
+      {/* Thanh chuyển đổi môn chuyên của Thẻ học sinh CHV (đồng bộ hoàn hảo với thanh trạng thái Thư chúc mừng HCMUSSH) */}
+      {activeZone === 'zone-chv' && (
+        <div
+          id="chv-subject-switcher-bar"
+          className="fixed bottom-6 md:bottom-8 inset-x-0 z-50 flex items-center justify-start md:justify-center gap-4 sm:gap-6 md:gap-8 px-6 md:px-8 overflow-x-auto no-scrollbar select-none pointer-events-auto"
+        >
+          {CHV_MAJOR_BADGES.map((major) => {
+            const isSelected = major.id === selectedMajor.id;
+            return (
+              <button
+                key={major.id}
+                type="button"
+                id={`btn-major-${major.id}`}
+                onClick={() => setSelectedMajor(major)}
+                className={`font-archivo font-normal normal-case text-xs md:text-sm tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none shrink-0 ${
+                  isSelected ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
+                }`}
+                title={isEn ? major.nameEn : major.nameVi}
+              >
+                {isEn ? major.shortEn.toLowerCase() : major.shortVi.toLowerCase()}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Thanh điều khiển trạng thái gập mở của Thư chúc mừng HCMUSSH (gập vào / giữa giữa / mở ra) */}
+      {activeZone === 'zone-ussh' && usshMode === '3d' && (
+        <div
+          id="reimagined-ussh-fold-text"
+          className="fixed bottom-14 md:bottom-18 inset-x-0 z-50 flex items-center justify-center gap-6 md:gap-8 select-none pointer-events-auto"
+        >
+          <button
+            type="button"
+            id="ussh-fold-closed"
+            onClick={() => setUsshFoldState('closed')}
+            className={`font-archivo font-normal normal-case text-xs md:text-sm tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none ${
+              usshFoldState === 'closed' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
+            }`}
+          >
+            {isEn ? 'folded' : 'gập vào'}
+          </button>
+          <button
+            type="button"
+            id="ussh-fold-half"
+            onClick={() => setUsshFoldState('half')}
+            className={`font-archivo font-normal normal-case text-xs md:text-sm tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none ${
+              usshFoldState === 'half' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
+            }`}
+          >
+            {isEn ? 'half-open' : 'giữa giữa'}
+          </button>
+          <button
+            type="button"
+            id="ussh-fold-open"
+            onClick={() => setUsshFoldState('open')}
+            className={`font-archivo font-normal normal-case text-xs md:text-sm tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none ${
+              usshFoldState === 'open' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
+            }`}
+          >
+            {isEn ? 'open' : 'mở ra'}
+          </button>
+        </div>
       )}
 
       {/* Thanh chuyển chế độ (mô hình 3d / dàn phẳng) ở cạnh dưới màn hình cho Zone USSH tương tự #BLVD */}
@@ -199,16 +265,18 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         }}
       >
         {/* ========================================================================= */}
-        {/* ZONE 1 (Đầu tiên): Chữ [REIMAGINED] kéo dãn to tràn màn hình chuẩn #BLVD */}
+        {/* ZONE 1 (Đầu tiên): Chữ PAKVARD (không ngoặc vuông, giảm opacity)          */}
+        {/* và khối văn bản giới thiệu concept ở chính giữa màn hình (font Archivo)   */}
         {/* ========================================================================= */}
         <section 
           id="reimagined-zone-main"
           className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
           onClick={() => goToZone(1)}
         >
+          {/* Typographic backdrop: bê nguyên khung viewBox="0 0 450 100" từ #BLVD sang và dãn chữ theo khung đó */}
           <svg 
-            viewBox="0 0 780 100" 
-            className="w-full h-full max-h-[85vh] px-2" 
+            viewBox="0 0 450 100" 
+            className="w-full h-full absolute inset-0 pointer-events-none select-none" 
             preserveAspectRatio="none"
           >
             <text
@@ -217,14 +285,38 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none"
-              fontSize="92"
+              fontSize="105"
               fill="none"
-              stroke="rgba(255, 255, 255, 0.85)"
+              stroke="rgba(255, 255, 255, 0.16)"
               strokeWidth="1.2"
+              textLength="435"
+              lengthAdjust="spacingAndGlyphs"
             >
-              [REIMAGINED]
+              PAKVARD
             </text>
           </svg>
+
+          {/* Khối văn bản ở chính giữa màn hình dưới font Archivo */}
+          <div className="relative z-10 flex flex-col items-center justify-center max-w-3xl px-6 md:px-12 text-center pointer-events-none select-none">
+            {/* Dòng 1: [PAKVARD] - Reimagined by Boulevard */}
+            <h1 className="font-archivo font-medium text-sm sm:text-base md:text-lg tracking-tight text-white mb-3 md:mb-4">
+              [PAKVARD] - Reimagined by Boulevard
+            </h1>
+
+            {/* Dòng 2: Giới thiệu concept */}
+            <p className="font-archivo font-normal text-xs sm:text-sm md:text-base text-white/75 leading-relaxed md:leading-loose mb-3 md:mb-4 max-w-xl">
+              {isEn 
+                ? 'A series of concept designs by Phat, closely tied to the visual identity and values of the original institutions, with the viability of being realized into physical products.'
+                : 'Là một chuỗi các thiết kế của Phát dưới dạng concept, gắn liền với các giá trị thị giác của các tổ chức gốc và có khả năng chuyển đổi thành sản phẩm thật ngoài đời.'}
+            </p>
+
+            {/* Dòng 3: Chú ý pháp lý / phi thương mại - Màu đỏ rõ ràng, opacity 100% */}
+            <p className="font-archivo font-medium text-[11px] sm:text-xs md:text-sm text-[#ff3838] leading-normal max-w-lg opacity-100">
+              {isEn
+                ? 'NOTICE: Concept designs only, without commercial value and not representing the respective organizations.'
+                : 'CHÚ Ý: Chỉ là concept, không có giá trị thương mại và không đại diện cho tổ chức tương ứng.'}
+            </p>
+          </div>
         </section>
 
         {/* ========================================================================= */}
@@ -254,33 +346,6 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               className="w-full h-[74vh] sm:h-[78vh] md:h-[82vh] lg:h-[86vh]"
             />
           </div>
-
-          {/* Thanh chuyển đổi 11 môn chuyên nằm ở cạnh dưới */}
-          <div 
-            id="chv-subject-switcher-bar"
-            className="absolute bottom-6 md:bottom-8 inset-x-0 z-40 flex items-center justify-center gap-1 sm:gap-2 px-4 overflow-x-auto no-scrollbar select-none"
-          >
-            {CHV_MAJOR_BADGES.map((major) => {
-              const isSelected = major.id === selectedMajor.id;
-              return (
-                <button
-                  key={major.id}
-                  type="button"
-                  id={`btn-major-${major.id}`}
-                  onClick={() => setSelectedMajor(major)}
-                  className={`shrink-0 px-2 sm:px-3 py-1 text-xs font-archivo tracking-normal transition-all duration-150 cursor-pointer rounded-none border-b-2 outline-none select-none ${
-                    isSelected
-                      ? 'text-white font-medium border-[#89CC04] bg-white/10'
-                      : 'text-white/40 hover:text-white/80 border-transparent hover:border-white/20 bg-transparent'
-                  }`}
-                  title={isEn ? major.nameEn : major.nameVi}
-                >
-                  <span className="text-[#89CC04] mr-1 font-normal select-none">{major.index}</span>
-                  <span>{isEn ? major.shortEn : major.shortVi}</span>
-                </button>
-              );
-            })}
-          </div>
         </section>
 
         {/* ========================================================================= */}
@@ -295,6 +360,8 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
             <UsshDocumentViewer
               id="ussh-viewer"
               mode={usshMode}
+              foldState={usshFoldState}
+              onFoldStateChange={setUsshFoldState}
               frontUrl={REIMAGINED_PROJECTS.hcmusshLetter.frontUrl}
               backUrl={REIMAGINED_PROJECTS.hcmusshLetter.backUrl}
             />

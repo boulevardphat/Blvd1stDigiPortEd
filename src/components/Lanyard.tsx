@@ -276,13 +276,14 @@ function Band({
   // Aspect ratio of the original front face of card.glb mesh (measured deltaX / deltaY in 3D)
   const BASE_PORTRAIT_ASPECT = 0.716366 / 0.9707; // ~0.737989
   const BASE_LANDSCAPE_ASPECT = 0.9707 / 0.716366; // ~1.35496
+  const DEFAULT_LANDSCAPE_ASPECT = 3193 / 2012; // ~1.58698 (Độ phân giải chuẩn 3193x2012)
 
   const targetAspect = useMemo(() => {
     if (aspectRatio && aspectRatio > 0) return aspectRatio;
     const imgW = frontTex?.image?.naturalWidth || frontTex?.image?.width;
     const imgH = frontTex?.image?.naturalHeight || frontTex?.image?.height;
     if (imgW && imgH) return imgW / imgH;
-    return isLandscape ? 1.5874 : null;
+    return isLandscape ? DEFAULT_LANDSCAPE_ASPECT : null;
   }, [aspectRatio, frontTex?.image, isLandscape]);
 
   const cardScaleX = useMemo(() => {
@@ -298,7 +299,7 @@ function Band({
     if (targetAspect) {
       return targetAspect / BASE_LANDSCAPE_ASPECT;
     }
-    return 1.5874 / BASE_LANDSCAPE_ASPECT;
+    return DEFAULT_LANDSCAPE_ASPECT / BASE_LANDSCAPE_ASPECT;
   }, [targetAspect, isLandscape]);
 
   // Tỷ lệ khung trắng ở cạnh trên thẻ ngang để ô/lỗ xỏ và kẹp kim loại không đục vào ảnh thẻ
@@ -615,7 +616,7 @@ function Band({
           {isLandscape ? (
             <CuboidCollider 
               position={[0, 0.3 * cardHeightScaleLandscape, 0]} 
-              args={[1.28 * (targetAspect ? targetAspect / 1.5874 : 1), 0.81 * cardHeightScaleLandscape, 0.01]} 
+              args={[1.28 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 0.81 * cardHeightScaleLandscape, 0.01]} 
             />
           ) : (
             <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
@@ -697,7 +698,7 @@ function Band({
           >
             {/* Invisible expanded hit area for easy touch targeting on mobile */}
             <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, 0, 0]}>
-              <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / 1.5874 : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4]} />
+              <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4]} />
               <meshBasicMaterial transparent opacity={0} />
             </mesh>
             <mesh 

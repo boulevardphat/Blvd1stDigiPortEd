@@ -11,8 +11,18 @@ export interface ChvMajorBadge {
 
 export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   {
-    id: 'anh',
+    id: 'anh-tt',
     index: '01',
+    nameVi: 'Chuyên Anh (Có thông tin)',
+    nameEn: 'English Major (With Info)',
+    shortVi: 'Anh (TT)',
+    shortEn: 'ENG (INFO)',
+    frontUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20-%20Chuy%C3%AAn%20Anh%20(C%C3%B3%20th%C3%B4ng%20tin).webp',
+    backUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh%20(C%C3%B3%20th%C3%B4ng%20tin).webp',
+  },
+  {
+    id: 'anh',
+    index: '02',
     nameVi: 'Chuyên Anh',
     nameEn: 'English Major',
     shortVi: 'Anh',
@@ -21,28 +31,8 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
     backUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh.webp',
   },
   {
-    id: 'anh2',
-    index: '02',
-    nameVi: 'Chuyên Anh (2)',
-    nameEn: 'English Major (2)',
-    shortVi: 'Anh (2)',
-    shortEn: 'ENG 2',
-    frontUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20-%20Chuy%C3%AAn%20Anh%20%282%29.webp',
-    backUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh%20%282%29.webp',
-  },
-  {
-    id: 'anh3',
-    index: '03',
-    nameVi: 'Chuyên Anh (3)',
-    nameEn: 'English Major (3)',
-    shortVi: 'Anh (3)',
-    shortEn: 'ENG 3',
-    frontUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20-%20Chuy%C3%AAn%20Anh%20%283%29.webp',
-    backUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh%20%283%29.webp',
-  },
-  {
     id: 'toan',
-    index: '04',
+    index: '03',
     nameVi: 'Chuyên Toán',
     nameEn: 'Math Major',
     shortVi: 'Toán',
@@ -52,7 +42,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'tin',
-    index: '05',
+    index: '04',
     nameVi: 'Chuyên Tin',
     nameEn: 'Informatics Major',
     shortVi: 'Tin',
@@ -62,7 +52,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'li',
-    index: '06',
+    index: '05',
     nameVi: 'Chuyên Lí',
     nameEn: 'Physics Major',
     shortVi: 'Lí',
@@ -72,7 +62,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'hoa',
-    index: '07',
+    index: '06',
     nameVi: 'Chuyên Hóa',
     nameEn: 'Chemistry Major',
     shortVi: 'Hóa',
@@ -82,7 +72,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'sinh',
-    index: '08',
+    index: '07',
     nameVi: 'Chuyên Sinh',
     nameEn: 'Biology Major',
     shortVi: 'Sinh',
@@ -92,7 +82,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'van',
-    index: '09',
+    index: '08',
     nameVi: 'Chuyên Văn',
     nameEn: 'Literature Major',
     shortVi: 'Văn',
@@ -102,7 +92,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'su',
-    index: '10',
+    index: '09',
     nameVi: 'Chuyên Sử',
     nameEn: 'History Major',
     shortVi: 'Sử',
@@ -112,7 +102,7 @@ export const CHV_MAJOR_BADGES: ChvMajorBadge[] = [
   },
   {
     id: 'dia',
-    index: '11',
+    index: '10',
     nameVi: 'Chuyên Địa',
     nameEn: 'Geography Major',
     shortVi: 'Địa',
@@ -130,7 +120,7 @@ export const REIMAGINED_PROJECTS = {
     index: '01',
     nameVi: 'Thẻ Học sinh CHV',
     nameEn: 'CHV Student Badge',
-    aspectRatio: 2043 / 1287,
+    aspectRatio: 3193 / 2012,
   },
   hcmusshLetter: {
     id: 'hcmussh-letter',

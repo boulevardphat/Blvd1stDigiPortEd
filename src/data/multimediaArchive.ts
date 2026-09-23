@@ -431,26 +431,18 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
   },
 
   // =========================================================
-  // EMPLOYER / CLUB: [REIMAGINED] Thẻ Học sinh CHV (22 assets)
   // =========================================================
-  // --- Mặt sau (11) ---
+  // EMPLOYER / CLUB: [REIMAGINED] Thẻ Học sinh CHV (20 assets)
+  // =========================================================
+  // --- Mặt sau (10) ---
   {
-    id: 'emp-chv-sau-anh2',
-    title: 'Thẻ CHV - Mặt sau Chuyên Anh (2)',
+    id: 'emp-chv-sau-anh-tt',
+    title: 'Thẻ CHV - Mặt sau Chuyên Anh (Có thông tin)',
     project: '[REIMAGINED] Thẻ Học sinh CHV',
     category: 'Thẻ Học sinh CHV',
     mode: 'employer-club',
     type: 'badge',
-    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh%20%282%29.webp',
-  },
-  {
-    id: 'emp-chv-sau-anh3',
-    title: 'Thẻ CHV - Mặt sau Chuyên Anh (3)',
-    project: '[REIMAGINED] Thẻ Học sinh CHV',
-    category: 'Thẻ Học sinh CHV',
-    mode: 'employer-club',
-    type: 'badge',
-    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh%20%283%29.webp',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20Anh%20(C%C3%B3%20th%C3%B4ng%20tin).webp',
   },
   {
     id: 'emp-chv-sau-anh',
@@ -533,24 +525,15 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
     type: 'badge',
     url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20sau%20-%20Chuy%C3%AAn%20%C4%90%E1%BB%8Ba.webp',
   },
-  // --- Mặt trước (11) ---
+  // --- Mặt trước (10) ---
   {
-    id: 'emp-chv-truoc-anh2',
-    title: 'Thẻ CHV - Mặt trước Chuyên Anh (2)',
+    id: 'emp-chv-truoc-anh-tt',
+    title: 'Thẻ CHV - Mặt trước Chuyên Anh (Có thông tin)',
     project: '[REIMAGINED] Thẻ Học sinh CHV',
     category: 'Thẻ Học sinh CHV',
     mode: 'employer-club',
     type: 'badge',
-    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20-%20Chuy%C3%AAn%20Anh%20%282%29.webp',
-  },
-  {
-    id: 'emp-chv-truoc-anh3',
-    title: 'Thẻ CHV - Mặt trước Chuyên Anh (3)',
-    project: '[REIMAGINED] Thẻ Học sinh CHV',
-    category: 'Thẻ Học sinh CHV',
-    mode: 'employer-club',
-    type: 'badge',
-    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20-%20Chuy%C3%AAn%20Anh%20%283%29.webp',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20Th%E1%BA%BB%20H%E1%BB%8Dc%20sinh%20CHV/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20-%20Chuy%C3%AAn%20Anh%20(C%C3%B3%20th%C3%B4ng%20tin).webp',
   },
   {
     id: 'emp-chv-truoc-anh',

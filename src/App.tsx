@@ -1722,10 +1722,28 @@ export default function App() {
                   {/* Item 01: Thông tin cơ bản / Basic Info */}
                   <div 
                     onClick={() => setIsBasicInfoOpen(true)}
-                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
                   >
-                    <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
-                      01
+                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
+                      <svg 
+                        viewBox="0 0 100 100" 
+                        preserveAspectRatio="none" 
+                        className="w-full h-full block select-none"
+                      >
+                        <text
+                          x="50%"
+                          y="50%"
+                          dominantBaseline="central"
+                          textAnchor="middle"
+                          className="font-archivo font-bold fill-[#89CC04] select-none"
+                          style={{ fontFamily: "'Archivo', sans-serif" }}
+                          fontSize="125"
+                          textLength="98"
+                          lengthAdjust="spacingAndGlyphs"
+                        >
+                          1
+                        </text>
+                      </svg>
                     </span>
                     <span className="hover-force-italic hover:text-white cursor-pointer">
                       {language === 'vi' ? 'Thông tin cơ bản' : 'Basic Information'}
@@ -1735,10 +1753,28 @@ export default function App() {
                   {/* Item 02: TNTN */}
                   <div 
                     onClick={handleTntnClick}
-                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
                   >
-                    <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
-                      02
+                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
+                      <svg 
+                        viewBox="0 0 100 100" 
+                        preserveAspectRatio="none" 
+                        className="w-full h-full block select-none"
+                      >
+                        <text
+                          x="50%"
+                          y="50%"
+                          dominantBaseline="central"
+                          textAnchor="middle"
+                          className="font-archivo font-bold fill-[#89CC04] select-none"
+                          style={{ fontFamily: "'Archivo', sans-serif" }}
+                          fontSize="125"
+                          textLength="98"
+                          lengthAdjust="spacingAndGlyphs"
+                        >
+                          2
+                        </text>
+                      </svg>
                     </span>
                     <span className="hover-force-italic hover:text-white cursor-pointer">
                       {language === 'vi' ? 'Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương' : 'TNTN Team - Hung Vuong for the gifted'}
@@ -1748,10 +1784,28 @@ export default function App() {
                   {/* Item 03: Olympia */}
                   <div 
                     onClick={handleHvocClick}
-                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
                   >
-                    <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
-                      03
+                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
+                      <svg 
+                        viewBox="0 0 100 100" 
+                        preserveAspectRatio="none" 
+                        className="w-full h-full block select-none"
+                      >
+                        <text
+                          x="50%"
+                          y="50%"
+                          dominantBaseline="central"
+                          textAnchor="middle"
+                          className="font-archivo font-bold fill-[#89CC04] select-none"
+                          style={{ fontFamily: "'Archivo', sans-serif" }}
+                          fontSize="125"
+                          textLength="98"
+                          lengthAdjust="spacingAndGlyphs"
+                        >
+                          3
+                        </text>
+                      </svg>
                     </span>
                     <span className="hover-force-italic hover:text-white cursor-pointer">
                       {language === 'vi' ? 'Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương' : 'Hung Vuong Olympia Club - Hung Vuong for the gifted'}
@@ -1761,26 +1815,62 @@ export default function App() {
                   {/* Item 04: #BLVD */}
                   <div 
                     onClick={handleBlvdClick}
-                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
                   >
-                    <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
-                      04
+                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
+                      <svg 
+                        viewBox="0 0 100 100" 
+                        preserveAspectRatio="none" 
+                        className="w-full h-full block select-none"
+                      >
+                        <text
+                          x="50%"
+                          y="50%"
+                          dominantBaseline="central"
+                          textAnchor="middle"
+                          className="font-archivo font-bold fill-[#89CC04] select-none"
+                          style={{ fontFamily: "'Archivo', sans-serif" }}
+                          fontSize="125"
+                          textLength="98"
+                          lengthAdjust="spacingAndGlyphs"
+                        >
+                          4
+                        </text>
+                      </svg>
                     </span>
                     <span className="hover-force-italic hover:text-white cursor-pointer">
                       #BLVD
                     </span>
                   </div>
 
-                  {/* Item 05: [Reimagined] */}
+                  {/* Item 05: [PAKVARD] */}
                   <div 
                     onClick={handleReimaginedClick}
-                    className="w-fit flex flex-col portrait:flex-col portrait:items-start portrait:gap-0.5 landscape:flex-row landscape:items-baseline landscape:gap-3.5 lg:landscape:gap-4.5 cursor-pointer group"
+                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
                   >
-                    <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.62em] sm:text-[0.68em] landscape:text-[1em] shrink-0 select-none">
-                      05
+                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
+                      <svg 
+                        viewBox="0 0 100 100" 
+                        preserveAspectRatio="none" 
+                        className="w-full h-full block select-none"
+                      >
+                        <text
+                          x="50%"
+                          y="50%"
+                          dominantBaseline="central"
+                          textAnchor="middle"
+                          className="font-archivo font-bold fill-[#89CC04] select-none"
+                          style={{ fontFamily: "'Archivo', sans-serif" }}
+                          fontSize="125"
+                          textLength="98"
+                          lengthAdjust="spacingAndGlyphs"
+                        >
+                          5
+                        </text>
+                      </svg>
                     </span>
                     <span className="hover-force-italic hover:text-white cursor-pointer">
-                      [Reimagined]
+                      [PAKVARD]
                     </span>
                   </div>
 
