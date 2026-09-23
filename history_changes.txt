@@ -3457,3 +3457,246 @@ Nội dung thực hiện chi tiết:
        * Chiều dọc: Khi nhãn nhô ra 2 dòng (như Đội TNTN, CLB Olympia, hoặc Thông tin cơ bản trên mobile), chiều cao container tăng lên 2 dòng, chữ số tự động kéo dãn dọc bao trọn cả 2 dòng; khi nhãn chỉ có 1 dòng (như #BLVD, [PAKVARD]), chữ số co dãn vừa vặn đúng 1 dòng.
      - Giữ nguyên màu xanh thương hiệu `#89CC04`, font Archivo font-bold và hiệu ứng hover tương tác.
 
+================================================================================
+LẦN 66: ĐỒNG BỘ CHIỀU CAO CHÍNH XÁC CỦA CÁC SỐ MỤC LỤC VỚI DÒNG TEXT (CAP-HEIGHT & BASELINE)
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Yêu cầu người dùng:
+  - "không cao tương đương" kèm hình ảnh kẻ đường gióng màu tím qua đỉnh chữ hoa và đáy baseline của các nhãn mục lục.
+Nguyên nhân kỹ thuật đã phát hiện:
+  - Trước đó sử dụng <text fontSize="125"> kết hợp dominantBaseline="central" trong SVG, cùng container nhận 100% height của dòng text (bao gồm cả line-height half-leading ở trên và dưới).
+  - Kết quả là số bị phóng to vượt qua đỉnh chữ hoa (cap-height) và chìm sâu dưới baseline chữ.
+Nội dung thực hiện chi tiết:
+  1. Trích xuất trực tiếp vector path chuẩn xác của các chữ số 1, 2, 3, 4, 5 từ font Archivo Bold nguyên bản thông qua opentype.
+  2. Định cấu hình `TOC_DIGIT_DATA` với viewBox bao khít chính xác bounding box của từng glyph:
+     - Số 1: viewBox="105 0 519 689"
+     - Số 2: viewBox="49 0 570 700"
+     - Số 3: viewBox="42 0 583 712"
+     - Số 4: viewBox="23 0 621 700"
+     - Số 5: viewBox="39 0 586 700"
+  3. Căn chỉnh khoảng đệm line-box theo tỉ lệ font học chuẩn xác:
+     - Font Archivo có capHeight = 700 / 1000 = 0.70em.
+     - Với `leading-snug` (1.375em): khoảng cách từ đỉnh dòng đến đỉnh chữ hoa là `(1.375 - 0.70) / 2 = 0.3375em`.
+     - Khoảng cách từ baseline đến đáy dòng là `0.3375em`.
+     - Thêm `style={{ paddingTop: "0.3375em", paddingBottom: "0.3375em" }}` vào container của số.
+  4. Kết quả căn chỉnh đạt độ chính xác pixel-perfect tuyệt đối:
+     - Đối với nhãn 1 dòng (Thông tin cơ bản, #BLVD, [PAKVARD]): Đỉnh số chạm đúng đỉnh chữ hoa (đường tím trên), đáy số chạm đúng chân chữ/baseline (đường tím dưới).
+     - Đối với nhãn 2 dòng (Đội TNTN, CLB Olympia): Đỉnh số chạm đúng đỉnh chữ hoa của dòng 1 (đường tím trên), đáy số chạm đúng baseline của dòng 2 (đường tím dưới).
+     - Bề rộng số tiếp tục được kéo dãn (stretch) lấp đầy bề ngang 2 chữ số (w-[1.15em] sm:w-[1.25em]) kết hợp SVG preserveAspectRatio="none".
+
+================================================================================
+LẦN 67: KHẮC PHỤC TRIỆT ĐỂ LỖI TRÀN CHIỀU CAO DO FLEX STRETCH & PADDING TRONG SVG
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Vấn đề phát hiện:
+  - Ở lần 66, việc sử dụng `paddingTop/paddingBottom` trên flex container kết hợp thẻ SVG con có `h-full` (height: 100%) khiến trình duyệt WebKit/Blink lấy chiều cao border-box (100% line-height) thay vì content-box. Kết quả là các con số vẫn bị cao hơn đỉnh và đáy chữ (vẫn nhận đủ 100% line-height của dòng).
+Giải pháp căn chỉnh triệt để:
+  1. Xây dựng component chuyên dụng `TocItem`:
+     - Sử dụng `items-start` thay cho `items-stretch` để loại bỏ hoàn toàn việc bị flexbox ép chiều cao theo toàn bộ line-box.
+     - Dùng `ResizeObserver` theo dõi chiều cao thực tế của nhãn văn bản (`labelRef`) để xác định chính xác số dòng thực tế (`lineCount`).
+  2. Thiết lập thông số hình học font chữ tuyệt đối:
+     - `marginTop: "0.3375em"`: Đưa mép trên của SVG về chính xác đỉnh của chữ hoa (cap-height).
+     - Chiều cao chính xác `digitHeight = `${(lineCount - 1) * 1.375 + 0.70}em``:
+       * Đối với nhãn 1 dòng: `height: 0.70em` (đúng bằng chiều cao chữ hoa cap-height), đáy số chạm đúng baseline.
+       * Đối với nhãn 2 dòng: `height: 2.075em` (bằng cap-height dòng 1 + 1 line-height dòng 2), đỉnh số chạm đúng đỉnh chữ hoa dòng 1 và đáy số chạm đúng chân chữ/baseline dòng 2.
+     - Bề rộng số: `w-[1.15em] sm:w-[1.25em]` (rộng ngang 2 chữ số).
+  3. Thay thế cả 5 mục trong danh sách TOC sang component `TocItem`.
+
+================================================================================
+LẦN 68: BỎ DẤU NGOẶC BAO QUANH CHỮ PAKVARD
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+Yêu cầu người dùng:
+  - "bỏ ngoặc đơn trong pakvard"
+Nội dung thay đổi chi tiết:
+  1. Trong /src/App.tsx: Thay nhãn mục lục thứ 5 từ `[PAKVARD]` -> `PAKVARD`.
+  2. Trong /src/components/ReimaginedIntroScreen.tsx: Cập nhật tiêu đề giới thiệu từ `[PAKVARD] - Reimagined by Boulevard` -> `PAKVARD - Reimagined by Boulevard` để đảm bảo tính đồng bộ nhận diện.
+
+================================================================================
+LẦN 69: TẠO KHUNG HÌNH CHỮ NHẬT VIỀN SIÊU MỎNG Ở GIỮA TAG MỤC LỤC VÀ DANH SÁCH
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Yêu cầu người dùng:
+  - "ở giữa tag MỤC LỤC và danh sách trong mục lục trong một số trường hợp quá xa nhau tạo không gian trống, hãy tạo 1 khung hình chữ nhật viền siêu mỏng, thay đổi kích thước khi scale và tắt hoàn toàn khi chuyển sang giao diện dọc hoàn toàn, để chữ mục lục đè tí lên khung HCN để mình xem thử"
+Quy tắc dự án:
+  - Boulevard1st: Tuyệt đối không bo góc các component (rounded-none, sharp brutalist).
+Nội dung thực hiện chi tiết:
+  1. Thêm khung hình chữ nhật viền siêu mỏng giữa tag MỤC LỤC và khối danh sách mục lục:
+     - Viền: `border border-white/20`, sắc cạnh hoàn toàn `rounded-none`.
+     - Vị trí: `relative z-0 flex-1 my-auto h-[78%] sm:h-[84%] md:h-[88%]`.
+     - Độ đè lớp: Mép trái dùng `-ml-8 sm:-ml-12 md:-ml-16 lg:-ml-20` để luồn nhẹ xuống dưới mép phải của tag MỤC LỤC (`z-10 relative`), giúp chữ MỤC LỤC đè nhẹ lên mép của khung đúng yêu cầu thị giác.
+     - Khả năng scale: Nhận `flex-1`, tự động co dãn theo khoảng trống khi người dùng thay đổi kích thước cửa sổ / tỉ lệ màn hình.
+     - Responsive dọc: Đặt `hidden landscape:block portrait:hidden` để tự động tắt hoàn toàn khi chuyển sang giao diện dọc.
+  2. Tinh chỉnh khối danh sách bên phải:
+     - Đặt `relative z-10 shrink-0 w-fit max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl portrait:flex-1 portrait:pl-6 portrait:sm:pl-10` để giữ bố cục danh sách chặt chẽ và nhường không gian co dãn cho khung hình chữ nhật ở giữa trên màn hình ngang.
+
+================================================================================
+LẦN 70: THUẬT TOÁN ĐỘ ĐO LINH HOẠT ẨN/HIỆN KHUNG HÌNH ẢNH MỤC LỤC
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Vấn đề người dùng phản hồi kèm ảnh chụp thực tế:
+  - Trên mobile ngang và tablet, khoảng cách giữa tag MỤC LỤC và danh sách rất ngắn (dưới 200px), khung HCN bị đè hoàn toàn bởi chữ MỤC LỤC hoặc biến thành một dải hẹp dị dạng.
+  - Người dùng yêu cầu tạo thuật toán tự động ẩn hoặc hiện dựa theo khoảng cách thực tế giữa tag MỤC LỤC và danh sách mục lục (vì sau này đây sẽ là khung ảnh, cần độ rộng hợp lý).
+Giải pháp thuật toán chi tiết:
+  1. Gắn refs cho các phần tử: `tocPageRef` (container), `tocTagRef` (tag MỤC LỤC), `tocListRef` (danh sách mục lục).
+  2. Thuật toán đo lường nội tại (Intrinsic gap measurement):
+     - Lắng nghe sự thay đổi kích thước bằng `ResizeObserver`, sự kiện `resize` và `orientationchange`.
+     - Kiểm tra nếu thiết bị ở màn hình dọc (`isPortrait`), lập tức đặt `showTocFrame = false`.
+     - Tính khoảng trống khả dụng thực tế:
+       `availableGap = containerWidth - padding - tagWidth - listWidth`
+     - Thiết lập ngưỡng tối thiểu hiển thị khung ảnh: `MIN_FRAME_GAP = 220px`.
+     - Nếu `availableGap >= 220px`: Bật `showTocFrame = true`. Khung có đủ chiều rộng thực tế để hiển thị ảnh thẩm mỹ, không bị méo bẹp. Chữ MỤC LỤC đè nhẹ lên mép trái khung (`-ml-5 sm:-ml-7 md:-ml-9`, ~20px-36px).
+     - Nếu `availableGap < 220px` (như trên mobile ngang, tablet hẹp, màn hình vừa): Tắt hoàn toàn `showTocFrame = false`.
+  3. Bố cục phản hồi:
+     - Khi khung ẩn (`showTocFrame === false`): Khối danh sách mục lục nhận `flex-1 pl-4 sm:pl-8 md:pl-12 lg:pl-16` tạo khoảng thở tự nhiên, không còn bị chèn ép hay vướng mẩu khung thừa.
+     - Cấu trúc khung chuẩn bị sẵn sàng cho khung ảnh: `rounded-none`, `overflow-hidden`, viền siêu mỏng `border border-white/20`.
+
+================================================================================
+LẦN 71: SỬA LỖI TÍNH TOÁN KHOẢNG TRỐNG KHIẾN KHUNG ẢNH BỊ ẨN TRÊN DESKTOP
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Vấn đề phát hiện:
+  - Ở lần 70, biến `showTocFrame` có giá trị khởi tạo `false`. Khi `showTocFrame === false`, khối cha danh sách mục lục nhận class `flex-1`, khiến `listEl.offsetWidth` dãn rộng chiếm trọn toàn bộ khoảng trống còn lại của container.
+  - Hậu quả là `availableGap = containerWidth - tagWidth - listWidth` bị tính ra xấp xỉ 0, khiến điều kiện `availableGap >= 220` không bao giờ thỏa mãn, dẫn đến khung bị ẩn luôn cả trên desktop (ảnh người dùng gửi).
+Giải pháp triệt để:
+  1. Tách biệt việc đo đạc nội dung:
+     - Gắn ref `tocListInnerRef` trực tiếp vào thẻ con `w-fit` chứa danh sách chữ.
+     - Sử dụng `innerEl.getBoundingClientRect().width` để đo chiều rộng vật lý thực tế của văn bản, hoàn toàn độc lập với việc khối cha đang là `flex-1` hay `shrink-0`.
+  2. Khởi tạo trạng thái mặc định:
+     - Đặt `showTocFrame = true` ngay từ đầu để khung xuất hiện ngay lập tức trên desktop khi render.
+  3. Cập nhật ngưỡng khoảng cách hiển thị:
+     - Ngưỡng tối thiểu `availableGap >= 180px`. Nếu khoảng trống giữa tag MỤC LỤC và danh sách văn bản >= 180px (màn hình desktop, laptop rộng), khung sẽ hiển thị trọn vẹn và đẹp mắt.
+     - Nếu dưới 180px (mobile xoay ngang, tablet ngang hẹp), khung tự động ẩn hoàn toàn để bảo vệ giao diện.
+
+================================================================================
+LẦN 72: CẢI TIẾN THUẬT TOÁN ĐO TRỰC TIẾP TỪ DÒNG DƯỚI CỦA CHỮ MỤC LỤC ĐẾN CẠNH TRÁI DANH SÁCH
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Vấn đề người dùng chỉ ra:
+  - Cụm chữ MỤC LỤC gồm 2 dòng xếp lớp (layer 1 ở trên và layer 2 ở dưới/bên phải theo hướng nhìn).
+  - Trước đây đo thẻ div SVG container không phản ánh đúng vị trí thực của dòng chữ thứ 2 (dòng dưới), khiến trên mobile ngang và tablet khoảng cách giữa chữ MỤC LỤC và danh sách rất ngắn nhưng khung vẫn hiện và bị chữ MỤC LỤC đè lên cả danh sách.
+Giải pháp thuật toán chuẩn xác theo yêu cầu:
+  1. Gắn ref trực tiếp vào thẻ SVG text của dòng dưới (layer 2):
+     - `tocSecondLineViRef` cho chữ tiếng Việt `MỤC LỤC` (y=142).
+     - `tocSecondLineEnRef` cho chữ tiếng Anh `CONTENTS` (y=142).
+  2. Đo đạc khoảng cách thực tế bằng pixel trên màn hình (Viewport Coordinates):
+     - Lấy tọa độ mép ngoài cùng bên phải của dòng dưới: `tocRightEdge = secondLineRect.right`.
+     - Lấy tọa độ mép trái ngoài cùng của danh sách (nơi bắt đầu các chữ số 1, 2, 3...): `listLeftEdge = listRect.left`.
+     - Tính khoảng cách thực tế từ dòng dưới đến cạnh trái danh sách:
+       `gapFromSecondLineToList = listLeftEdge - tocRightEdge`
+  3. Cơ chế kích hoạt khung thông minh:
+     - Khi khung đang ẩn: Chỉ bật khung khi `gapFromSecondLineToList >= 230px` (đủ không gian cho khung ảnh tối thiểu 180px-200px cùng lề đè nhẹ thẩm mỹ).
+     - Khi khung đang hiện: Nếu `frameWidth < 180px` hoặc `gapFromSecondLineToList < 190px` (bị co bẹp do màn hình hẹp), khung lập tức tắt hoàn toàn.
+     - Khởi tạo mặc định `showTocFrame = false` để trên mobile ngang và tablet (nơi gap < 100px) khung không bao giờ xuất hiện hay chớp nháy.
+
+================================================================================
+LẦN 73: SỬA LỖI PHỤ THUỘC VÒNG LẶP (CIRCULAR DEPENDENCY) KHIẾN KHUNG ẨN TRÊN DESKTOP
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Nguyên nhân gốc rễ (Root cause) tìm ra:
+  - Khi khung tắt, container danh sách mục lục nhận class `flex-1 pl-4`, khiến toàn bộ khối danh sách bị kéo tuột sang bên trái áp sát ngay sau chữ MỤC LỤC.
+  - Lúc này hàm đo khoảng cách đo khoảng trống giữa MỤC LỤC và danh sách trong trạng thái bị áp sát (chỉ khoảng 30px-50px), dẫn tới điều kiện hiển thị không bao giờ thỏa mãn (vòng lặp chết: khung tắt -> danh sách dạt sát MỤC LỤC -> đo ra gap nhỏ -> tiếp tục giữ khung tắt mãi mãi trên Desktop).
+Giải pháp hình học độc lập và triệt để:
+  1. Độc lập hóa công thức đo khoảng cách thực tế giữa dòng dưới MỤC LỤC và danh sách chữ:
+     - `availableGap = containerWidth - tagWidth - listContentWidth`
+     - Trong đó:
+       + `containerWidth`: Bề rộng khả dụng của trang (trừ padding 2 bên).
+       + `tagWidth`: Vị trí kết thúc của dòng dưới MỤC LỤC (chính là mép phải của SVG aspect 160/720 vì dòng thứ 2 có y=142 nằm sát mép phải 160).
+       + `listContentWidth`: Bề rộng vật lý thực tế của chữ danh sách mục lục (`tocListInnerRef.getBoundingClientRect().width`).
+     - Công thức này phản ánh chính xác 100% khoảng trống vật lý ở giữa 2 phần tử khi danh sách nằm ở vị trí chuẩn bên phải, hoàn toàn không phụ thuộc vào trạng thái ẩn/hiện của khung.
+  2. Bố cục Flexbox chuẩn mực:
+     - Danh sách mục lục luôn giữ `shrink-0 w-fit max-w-4xl` và có `ml-auto` khi khung ẩn để luôn cố định gọn gàng ở bên phải màn hình.
+     - Khi `availableGap >= 220px` (Desktop, Laptop, màn hình rộng): Khung hình chữ nhật hiển thị ở giữa với `flex-1`, viền mỏng, chữ MỤC LỤC đè nhẹ lên mép trái khung (`-ml-5 sm:-ml-7 md:-ml-9`).
+     - Khi `availableGap < 220px` (Mobile ngang, Tablet nhỏ) hoặc `isPortrait` (Màn hình dọc): Khung tự động tắt hoàn toàn, danh sách và chữ MỤC LỤC không bao giờ bị đè hay vướng khung méo.
+  3. Giá trị khởi tạo: Đặt `showTocFrame = true` ngay từ đầu, kết hợp `useLayoutEffect` chạy trước paint đảm bảo không chớp nháy.
+
+================================================================================
+LẦN 74: XỬ LÝ TRIỆT ĐỂ LỖI KHUNG BỊ KẸT DƯỚI CHỮ MỤC LỤC TRÊN MOBILE NGANG & TABLET NHỎ
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Phân tích ảnh lỗi từ người dùng:
+  - Trên mobile xoay ngang (chiều cao ~375px-414px), trước đây ngưỡng khoảng trống 220px vẫn vô tình thỏa mãn trên một số màn hình rộng, khiến khung hình chữ nhật mờ viền trắng (`border-white/20`) vẫn hiện ra nhưng bị bóp nghẹt thành một dải hẹp và bị chữ MỤC LỤC đè lên hoàn toàn.
+Xử lý dứt điểm 2 tầng bảo vệ:
+  1. Tầng 1 - Giới hạn chiều cao Viewport cho khung ảnh:
+     - Thêm điều kiện `isShortHeight = window.innerHeight < 520;`
+     - Trên mọi thiết bị mobile xoay ngang (iPhone, Android có chiều cao dưới 520px), không gian dọc không đủ để chứa một khung ảnh mục lục -> Tắt khung hoàn toàn (`setShowTocFrame(false)`).
+  2. Tầng 2 - Nâng ngưỡng khoảng trống an toàn từ dòng dưới MỤC LỤC đến cạnh trái danh sách:
+     - Nâng `MIN_GAP` từ 220px lên 280px (`gapFromSecondLineToList >= 280`).
+     - Đảm bảo trên tablet nhỏ hoặc màn hình có khoảng cách ngắn từ dòng dưới MỤC LỤC đến số 1 của danh sách, khung sẽ không bao giờ xuất hiện để tránh bị đè chữ.
+  3. Kết quả:
+     - Desktop / Laptop rộng (khoảng cách 400px - 1200px, chiều cao >= 600px): Khung hiện rõ ràng, sang trọng, co dãn mượt mà.
+     - Mobile xoay ngang & Tablet nhỏ (ảnh người dùng gửi): Khung biến mất hoàn toàn 100%, chữ MỤC LỤC và danh sách hiển thị sạch sẽ, không còn bất kỳ vệt khung hay viền mờ nào bị đè bên dưới.
+
+================================================================================
+LẦN 75: NÂNG CHUẨN NGƯỠNG HIỂN THỊ KHUNG ẢNH (GAP >= 380PX & ASPECT RATIO >= 0.52)
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Phân tích nguyên nhân lỗi vẫn tồn tại:
+  - Trên các thiết bị máy tính bảng xoay ngang (iPad, tablet lớn hoặc màn hình responsive ~1024px rộng), khoảng trống khả dụng từ dòng dưới MỤC LỤC đến danh sách tính ra khoảng ~290px-320px, vẫn vượt qua ngưỡng cũ (280px).
+  - Kết quả là khung viền trắng mờ vẫn hiện ra, nhưng với chiều cao lớn (~600px-675px), khung bị biến dạng thành một dải sọc dọc hẹp (tỉ lệ < 0.45) và bị dòng chữ MỤC LỤC đè lên gây khó chịu thị giác.
+Giải pháp triệt để:
+  1. Nâng ngưỡng khoảng trống an toàn: `gapFromSecondLineToList >= 380px` (trên Desktop Full HD / Laptop chuẩn thường đạt từ 450px đến 1200px nên hiển thị bình thường; trên mọi loại Tablet / Mobile ngang khoảng trống luôn < 350px nên tắt khung 100%).
+  2. Bổ sung điều kiện tỉ lệ khung ảnh dự kiến: `frameAspectRatio = gap / (containerHeight * 0.88) >= 0.52`. Đảm bảo ảnh chỉ xuất hiện khi có tỉ lệ thẩm mỹ chuẩn (không bị co thành dải dọc méo mó).
+  3. Kết quả: Khung viền mờ biến mất hoàn toàn trên thiết bị của người dùng, giao diện sạch sẽ, chỉ giữ lại cụm chữ MỤC LỤC và danh sách căn chỉnh tinh tế.
+
+================================================================================
+LẦN 76: GIẢI QUYẾT TRIỆT ĐỂ LỖI KHUNG VẪN HIỆN DO PAGE 2 NẰM NGOÀI MÀN HÌNH LÚC MOUNT
+================================================================================
+Thời điểm: 2026-09-23
+File ảnh hưởng:
+  - /src/App.tsx
+Phát hiện then chốt (Root Cause Solved):
+  - Trang web sử dụng bố cục Horizontal Snap Scroll. Khi người dùng mới vào trang, trang web ở Page 1 (Hero Section), trong khi Page 2 (Mục lục) nằm ở `scrollLeft` bên ngoài màn hình.
+  - Lúc component mount, `useLayoutEffect` chạy đo `innerEl.getBoundingClientRect().width` của Page 2 khi nó đang nằm ngoài viewport dẫn tới đo ra giá trị 0 hoặc sai lệch, khiến thuật toán tưởng là màn hình Desktop mênh mông và bật `showTocFrame = true`.
+  - Khi người dùng cuộn ngang sang Page 2, không có event nào gọi lại hàm kiểm tra nên khung bị kẹt ở trạng thái `true`, dẫn tới việc người dùng luôn thấy cái khung viền trắng mờ bị đè bẹp dí dưới chữ MỤC LỤC trên tablet/mobile ngang.
+Giải pháp dứt điểm:
+  1. Xây dựng hàm `computeShowTocFrame()` tính toán hình học Viewport độc lập và thuần túy:
+     - Không phụ thuộc vào trạng thái scroll hay việc Page 2 có đang nằm trong viewport hay không.
+     - Viewport < 1150px (toàn bộ mobile ngang, tablet ngang nhỏ/vừa như iPad 1024x768): Luôn trả về `false` ngay từ frame đầu tiên.
+     - Kiểm tra khoảng cách khả dụng `availableGap >= 380px` và tỉ lệ khung ảnh `frameAspectRatio >= 0.52`.
+  2. Gắn trực tiếp vào khởi tạo state: `useState<boolean>(computeShowTocFrame)`.
+     - Ngay từ miligiây đầu tiên trên tablet/mobile ngang, `showTocFrame` là `false` vĩnh viễn, loại bỏ 100% việc khung bị kích hoạt sai.
+  3. Lắng nghe trực tiếp `resize` và `orientationchange` của window.
+
+================================================================================
+LẦN 77: DỌN DẸP MÃ NGUỒN VÀ LOẠI BỎ CÁC FILE RÁC / FILE KHÔNG SỬ DỤNG
+================================================================================
+Thời điểm: 2026-09-23
+Các hạng mục đã dọn dẹp và tối ưu hóa:
+  1. Loại bỏ các file tạm / rác ở root:
+     - `temp_base_texture.png` (file ảnh tạm ~8MB sinh trong quá trình dev trước đó)
+     - `temp_check.webp`, `test_logo.webp`, `temp_luatchoi.webp`, `temp_thumb.png`
+     - `stdout`, `bun.lock` (dự án chuẩn dùng npm / package-lock.json)
+  2. Loại bỏ file dữ liệu không sử dụng:
+     - Xoá `src/data/multimediaArchive.ts` (1024 dòng dữ liệu lưu trữ cũ không có bất kỳ component nào import).
+  3. Loại bỏ thư mục và asset trùng lặp:
+     - Xoá `public/assets/lanyard/` (thư mục trùng lặp vì Lanyard.tsx đã import trực tiếp từ `src/assets/lanyard/`).
+     - Xoá `public/image/preview dây 3d.png` (ảnh preview thừa không dùng).
+  4. Tối ưu hoá kho font (`public/fonts/`):
+     - Loại bỏ 20 biến thể font ARIAL trùng lặp/dư thừa không được bất kỳ CSS nào khai báo, giải phóng hơn 5MB dung lượng tĩnh.
+     - Giữ lại đầy đủ 4 font chính thức được khai báo trong index.css: `ARIAL.TTF`, `ArialCE.ttf`, `Turista Gorda NF W01 Regular.ttf`, `vespertine Regular.ttf`.
+  5. Dọn dẹp code & linting:
+     - Làm sạch dòng trống thừa ở header import trong `App.tsx`.
+     - Kiểm tra toàn bộ codebase bằng TypeScript linter (`npm run lint` - 0 errors) và Vite production build hoàn toàn sạch sẽ.
+

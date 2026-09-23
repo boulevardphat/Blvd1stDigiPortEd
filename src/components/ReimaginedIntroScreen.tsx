@@ -298,9 +298,9 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
 
           {/* Khối văn bản ở chính giữa màn hình dưới font Archivo */}
           <div className="relative z-10 flex flex-col items-center justify-center max-w-3xl px-6 md:px-12 text-center pointer-events-none select-none">
-            {/* Dòng 1: [PAKVARD] - Reimagined by Boulevard */}
+            {/* Dòng 1: PAKVARD - Reimagined by Boulevard */}
             <h1 className="font-archivo font-medium text-sm sm:text-base md:text-lg tracking-tight text-white mb-3 md:mb-4">
-              [PAKVARD] - Reimagined by Boulevard
+              PAKVARD - Reimagined by Boulevard
             </h1>
 
             {/* Dòng 2: Giới thiệu concept */}

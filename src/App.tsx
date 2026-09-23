@@ -5,9 +5,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-
-
-
 import { IntroClock } from './components/IntroClock';
 import { VespertineBackground } from './components/VespertineBackground';
 import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD17_INSTAGRAM_PAGES, BLVD16_PAGES, Zone16Carousel } from './components/ZFoldBooklet';
@@ -17,6 +14,95 @@ import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
 import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
 import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS } from './data/chvBadges';
 import { AppLanguage, PortfolioMode, SceneState } from './types';
+
+const TOC_DIGIT_DATA: Record<number, { viewBox: string; d: string }> = {
+  1: {
+    viewBox: "105 0 519 689",
+    d: "M624 689L105 689L105 535L268 535L268 224L105 224L105 108Q152 105 205.50 89Q259 73 310 49Q361 25 400 0L467 0L467 535L624 535"
+  },
+  2: {
+    viewBox: "49 0 570 700",
+    d: "M619 700L49 700L49 652Q49 610 67 572.50Q85 535 115.50 501.50Q146 468 183 437.50Q220 407 259 378Q299 348 334 323Q369 298 391 272Q413 246 413 214Q413 195 404 178.50Q395 162 376.50 151.50Q358 141 327 141Q296 141 274.50 153Q253 165 241.50 186.50Q230 208 230 235L230 255L52 255Q51 249 51 243.50Q51 238 51 233Q51 162 83.50 110Q116 58 181.50 29Q247 0 346 0Q407 0 456 14.50Q505 29 539.50 56.50Q574 84 592.50 122Q611 160 611 207Q611 253 594 290Q577 327 546 359Q515 391 475 421Q435 451 388 482Q364 498 349 508.50Q334 519 327 524Q320 529 318 531L619 531"
+  },
+  3: {
+    viewBox: "42 0 583 712",
+    d: "M335 712Q235 712 170 685Q105 658 73.50 613Q42 568 42 514L42 493L218 493L218 512Q218 538 243.50 556.50Q269 575 322 575Q380 575 403 549Q426 523 426 483Q426 458 416.50 442.50Q407 427 391.50 419Q376 411 356 411L283 411L283 288L340 288Q360 288 375.50 280Q391 272 400.50 256Q410 240 410 216Q410 195 400 177Q390 159 370.50 148Q351 137 322 137Q297 137 276 146.50Q255 156 243 171Q231 186 231 203L231 213L64 213L64 188Q64 136 96 93.50Q128 51 189.50 25.50Q251 0 339 0Q424 0 483.50 25.50Q543 51 574 93.50Q605 136 605 187Q605 221 592.50 252Q580 283 557.50 305.50Q535 328 505 339L505 343Q562 361 593.50 405.50Q625 450 625 513Q623 568 591.50 613Q560 658 497 685Q434 712 335 712"
+  },
+  4: {
+    viewBox: "23 0 621 700",
+    d: "M548 700L358 700L358 559L23 559L23 410Q56 362 91.50 296.50Q127 231 160 154.50Q193 78 215 0L411 0Q407 33 389 75Q371 117 344 164Q317 211 285 256.50Q253 302 221 342.50Q189 383 160 412L358 412L358 269Q371 251 386.50 225Q402 199 418 170.50Q434 142 446 114.50Q458 87 463 66L548 66L548 412L644 412L644 559L548 559"
+  },
+  5: {
+    viewBox: "39 0 586 700",
+    d: "M343 700Q243 700 175.50 670.50Q108 641 73.50 588.50Q39 536 39 466L215 466Q215 492 227 514Q239 536 263 549Q287 562 322 562Q357 562 380.50 548.50Q404 535 416 512Q428 489 428 460Q428 430 416 407Q404 384 380.50 370.50Q357 357 323 357Q290 357 271 367Q252 377 242.50 388.50Q233 400 227 407L69 385L98 0L574 0L574 170L247 170L239 274Q239 274 256.50 263Q274 252 307 240.50Q340 229 386 229Q459 229 512.50 257Q566 285 595.50 337.50Q625 390 625 463Q625 528 590.50 582Q556 636 493 668Q430 700 343 700"
+  }
+};
+
+const TOC_DEFAULT_LINES: Record<number, number> = {
+  1: 1,
+  2: 2,
+  3: 2,
+  4: 1,
+  5: 1,
+};
+
+function TocItem({
+  digit,
+  children,
+  onClick
+}: {
+  digit: number;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  const labelRef = React.useRef<HTMLSpanElement>(null);
+  const [lineCount, setLineCount] = React.useState<number>(TOC_DEFAULT_LINES[digit] || 1);
+
+  React.useLayoutEffect(() => {
+    const el = labelRef.current;
+    if (!el) return;
+    const update = () => {
+      const computed = window.getComputedStyle(el);
+      const fs = parseFloat(computed.fontSize) || 16;
+      const lh = parseFloat(computed.lineHeight) || (fs * 1.375);
+      const h = el.offsetHeight;
+      const lines = Math.max(1, Math.round(h / lh));
+      setLineCount(lines);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [children]);
+
+  // Exact typographic height:
+  // 1 line: 0.70em (cap-height)
+  // n lines: ((n - 1) * 1.375 + 0.70)em
+  const digitHeight = `${(lineCount - 1) * 1.375 + 0.70}em`;
+
+  return (
+    <div 
+      onClick={onClick}
+      className="w-fit flex flex-row items-start gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
+    >
+      <span 
+        className="shrink-0 w-[1.15em] sm:w-[1.25em] flex items-center select-none"
+        style={{ marginTop: '0.3375em', height: digitHeight }}
+      >
+        <svg 
+          viewBox={TOC_DIGIT_DATA[digit].viewBox} 
+          preserveAspectRatio="none" 
+          className="w-full h-full block fill-[#89CC04] select-none pointer-events-none"
+        >
+          <path d={TOC_DIGIT_DATA[digit].d} />
+        </svg>
+      </span>
+      <span ref={labelRef} className="hover-force-italic hover:text-white cursor-pointer">
+        {children}
+      </span>
+    </div>
+  );
+}
 
 export default function App() {
 
@@ -48,6 +134,56 @@ export default function App() {
   const [phoneCopied, setPhoneCopied] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
   const bgAudioRef = React.useRef<HTMLAudioElement>(null);
+
+  // Dynamic TOC Image Frame Algorithm: Ẩn/hiện dựa theo khoảng cách thực tế từ dòng dưới MỤC LỤC đến cạnh trái danh sách
+  const computeShowTocFrame = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    // 1. Luôn ẩn ở giao diện dọc hoàn toàn (portrait)
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches || window.innerHeight > window.innerWidth;
+    if (isPortrait) return false;
+
+    // 2. Không gian chiều cao thấp (mobile xoay ngang có chiều cao < 520px, không đủ không gian chứa khung ảnh)
+    if (window.innerHeight < 520) return false;
+
+    // 3. Đo đạc hình học viewport độc lập (không bị ảnh hưởng khi Page 2 nằm ngoài màn hình khi scroll):
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Viewport dưới 1150px (toàn bộ mobile ngang, tablet ngang nhỏ/vừa như iPad 1024x768):
+    // Khoảng cách từ dòng dưới MỤC LỤC đến danh sách quá ngắn, khung sẽ bị đè bẹp -> Tắt hoàn toàn
+    if (vw < 1150) return false;
+
+    const pad = vw >= 1024 ? 128 : vw >= 768 ? 96 : 32;
+    const tagWidth = (vh * 0.88) * (160 / 720); // Bề rộng thực tế của chữ MỤC LỤC với aspect ratio 160/720
+    const listEstimatedWidth = 480; // Chiều rộng dòng chữ dài nhất trong danh sách
+    const availableGap = vw - pad - tagWidth - listEstimatedWidth;
+
+    const estimatedFrameHeight = vh * 0.88;
+    const frameAspectRatio = availableGap / (estimatedFrameHeight || 1);
+
+    // Chỉ bật trên Desktop / Laptop rộng khi khoảng cách >= 380px và tỉ lệ khung ảnh >= 0.52
+    return availableGap >= 380 && frameAspectRatio >= 0.52;
+  };
+
+  const tocPageRef = React.useRef<HTMLDivElement>(null);
+  const tocTagRef = React.useRef<HTMLDivElement>(null);
+  const tocListInnerRef = React.useRef<HTMLDivElement>(null);
+  const [showTocFrame, setShowTocFrame] = useState<boolean>(computeShowTocFrame);
+
+  React.useLayoutEffect(() => {
+    const updateTocFrame = () => {
+      setShowTocFrame(computeShowTocFrame());
+    };
+
+    updateTocFrame();
+    window.addEventListener('resize', updateTocFrame);
+    window.addEventListener('orientationchange', updateTocFrame);
+
+    return () => {
+      window.removeEventListener('resize', updateTocFrame);
+      window.removeEventListener('orientationchange', updateTocFrame);
+    };
+  }, [language]);
 
   const handlePhoneClick = () => {
     try {
@@ -1629,11 +1765,15 @@ export default function App() {
 
             {/* Page 2: Table of Contents */}
             <div 
+              ref={tocPageRef}
               id="page-black-blank"
               className="relative w-full h-[calc(var(--vh,1vh)*100)] max-h-[calc(var(--vh,1vh)*100)] bg-black shrink-0 z-20 flex items-center justify-between overflow-hidden snap-start snap-always select-none px-4 sm:px-8 md:px-12 lg:px-16"
             >
               {/* TABLE OF CONTENTS / MỤC LỤC Sublogo: Fixed aspect ratio vector so overlap & proportions are 100% mathematically locked */}
-              <div className="relative h-[82%] sm:h-[88%] md:h-[92%] w-auto aspect-[160/720] shrink-0 flex items-center justify-center select-none pointer-events-none">
+              <div 
+                ref={tocTagRef}
+                className="relative z-10 h-[82%] sm:h-[88%] md:h-[92%] w-auto aspect-[160/720] shrink-0 flex items-center justify-center select-none pointer-events-none"
+              >
                 <svg
                   viewBox="0 0 160 720"
                   className="h-full w-full overflow-visible"
@@ -1716,163 +1856,52 @@ export default function App() {
                 </svg>
               </div>
 
-              {/* Right Side: Project List - Centered and nicely spaced */}
-              <div className="flex-1 flex flex-col justify-center pl-6 sm:pl-10 md:pl-16 lg:pl-24 max-w-4xl">
-                <div className="flex flex-col justify-center space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8 text-[clamp(1rem,2.6vw,2.35rem)] text-white/95 font-archivo font-medium tracking-tight leading-snug select-none">
+              {/* Khung hình chữ nhật viền siêu mỏng ở giữa tag MỤC LỤC và danh sách, hiển thị linh hoạt theo thuật toán khoảng cách, sau này dùng làm khung ảnh */}
+              {showTocFrame && (
+                <div 
+                  aria-hidden="true"
+                  className="hidden landscape:flex portrait:hidden relative z-0 flex-1 my-auto h-[78%] sm:h-[84%] md:h-[88%] border border-white/20 rounded-none pointer-events-none -ml-5 sm:-ml-7 md:-ml-9 mr-4 sm:mr-6 md:mr-8 overflow-hidden items-center justify-center transition-all duration-300"
+                >
+                  <div className="w-full h-full opacity-0 pointer-events-none" />
+                </div>
+              )}
+
+              {/* Right Side: Project List */}
+              <div 
+                className={`relative z-10 flex flex-col justify-center select-none ${
+                  showTocFrame 
+                    ? 'shrink-0 w-fit max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl' 
+                    : 'shrink-0 w-fit max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl ml-auto portrait:ml-0 portrait:flex-1 portrait:pl-6 portrait:sm:pl-10'
+                }`}
+              >
+                <div 
+                  ref={tocListInnerRef}
+                  className="w-fit flex flex-col justify-center space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8 text-[clamp(1rem,2.6vw,2.35rem)] text-white/95 font-archivo font-medium tracking-tight leading-snug select-none"
+                >
                   {/* Item 01: Thông tin cơ bản / Basic Info */}
-                  <div 
-                    onClick={() => setIsBasicInfoOpen(true)}
-                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
-                  >
-                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
-                      <svg 
-                        viewBox="0 0 100 100" 
-                        preserveAspectRatio="none" 
-                        className="w-full h-full block select-none"
-                      >
-                        <text
-                          x="50%"
-                          y="50%"
-                          dominantBaseline="central"
-                          textAnchor="middle"
-                          className="font-archivo font-bold fill-[#89CC04] select-none"
-                          style={{ fontFamily: "'Archivo', sans-serif" }}
-                          fontSize="125"
-                          textLength="98"
-                          lengthAdjust="spacingAndGlyphs"
-                        >
-                          1
-                        </text>
-                      </svg>
-                    </span>
-                    <span className="hover-force-italic hover:text-white cursor-pointer">
-                      {language === 'vi' ? 'Thông tin cơ bản' : 'Basic Information'}
-                    </span>
-                  </div>
+                  <TocItem digit={1} onClick={() => setIsBasicInfoOpen(true)}>
+                    {language === 'vi' ? 'Thông tin cơ bản' : 'Basic Information'}
+                  </TocItem>
 
                   {/* Item 02: TNTN */}
-                  <div 
-                    onClick={handleTntnClick}
-                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
-                  >
-                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
-                      <svg 
-                        viewBox="0 0 100 100" 
-                        preserveAspectRatio="none" 
-                        className="w-full h-full block select-none"
-                      >
-                        <text
-                          x="50%"
-                          y="50%"
-                          dominantBaseline="central"
-                          textAnchor="middle"
-                          className="font-archivo font-bold fill-[#89CC04] select-none"
-                          style={{ fontFamily: "'Archivo', sans-serif" }}
-                          fontSize="125"
-                          textLength="98"
-                          lengthAdjust="spacingAndGlyphs"
-                        >
-                          2
-                        </text>
-                      </svg>
-                    </span>
-                    <span className="hover-force-italic hover:text-white cursor-pointer">
-                      {language === 'vi' ? 'Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương' : 'TNTN Team - Hung Vuong for the gifted'}
-                    </span>
-                  </div>
+                  <TocItem digit={2} onClick={handleTntnClick}>
+                    {language === 'vi' ? 'Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương' : 'TNTN Team - Hung Vuong for the gifted'}
+                  </TocItem>
 
                   {/* Item 03: Olympia */}
-                  <div 
-                    onClick={handleHvocClick}
-                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
-                  >
-                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
-                      <svg 
-                        viewBox="0 0 100 100" 
-                        preserveAspectRatio="none" 
-                        className="w-full h-full block select-none"
-                      >
-                        <text
-                          x="50%"
-                          y="50%"
-                          dominantBaseline="central"
-                          textAnchor="middle"
-                          className="font-archivo font-bold fill-[#89CC04] select-none"
-                          style={{ fontFamily: "'Archivo', sans-serif" }}
-                          fontSize="125"
-                          textLength="98"
-                          lengthAdjust="spacingAndGlyphs"
-                        >
-                          3
-                        </text>
-                      </svg>
-                    </span>
-                    <span className="hover-force-italic hover:text-white cursor-pointer">
-                      {language === 'vi' ? 'Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương' : 'Hung Vuong Olympia Club - Hung Vuong for the gifted'}
-                    </span>
-                  </div>
+                  <TocItem digit={3} onClick={handleHvocClick}>
+                    {language === 'vi' ? 'Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương' : 'Hung Vuong Olympia Club - Hung Vuong for the gifted'}
+                  </TocItem>
 
                   {/* Item 04: #BLVD */}
-                  <div 
-                    onClick={handleBlvdClick}
-                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
-                  >
-                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
-                      <svg 
-                        viewBox="0 0 100 100" 
-                        preserveAspectRatio="none" 
-                        className="w-full h-full block select-none"
-                      >
-                        <text
-                          x="50%"
-                          y="50%"
-                          dominantBaseline="central"
-                          textAnchor="middle"
-                          className="font-archivo font-bold fill-[#89CC04] select-none"
-                          style={{ fontFamily: "'Archivo', sans-serif" }}
-                          fontSize="125"
-                          textLength="98"
-                          lengthAdjust="spacingAndGlyphs"
-                        >
-                          4
-                        </text>
-                      </svg>
-                    </span>
-                    <span className="hover-force-italic hover:text-white cursor-pointer">
-                      #BLVD
-                    </span>
-                  </div>
+                  <TocItem digit={4} onClick={handleBlvdClick}>
+                    #BLVD
+                  </TocItem>
 
-                  {/* Item 05: [PAKVARD] */}
-                  <div 
-                    onClick={handleReimaginedClick}
-                    className="w-fit flex flex-row items-stretch gap-2.5 sm:gap-3.5 lg:gap-4.5 cursor-pointer group"
-                  >
-                    <span className="self-stretch shrink-0 w-[1.15em] sm:w-[1.25em] flex items-stretch select-none">
-                      <svg 
-                        viewBox="0 0 100 100" 
-                        preserveAspectRatio="none" 
-                        className="w-full h-full block select-none"
-                      >
-                        <text
-                          x="50%"
-                          y="50%"
-                          dominantBaseline="central"
-                          textAnchor="middle"
-                          className="font-archivo font-bold fill-[#89CC04] select-none"
-                          style={{ fontFamily: "'Archivo', sans-serif" }}
-                          fontSize="125"
-                          textLength="98"
-                          lengthAdjust="spacingAndGlyphs"
-                        >
-                          5
-                        </text>
-                      </svg>
-                    </span>
-                    <span className="hover-force-italic hover:text-white cursor-pointer">
-                      [PAKVARD]
-                    </span>
-                  </div>
+                  {/* Item 05: PAKVARD */}
+                  <TocItem digit={5} onClick={handleReimaginedClick}>
+                    PAKVARD
+                  </TocItem>
 
                   {/* Item: Khác / Others (không đánh số) - Reactively changes according to portfolioMode */}
                   <div 
