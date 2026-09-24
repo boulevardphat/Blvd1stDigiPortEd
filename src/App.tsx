@@ -12,6 +12,7 @@ import { HvocIntroScreen, HVOC_LOGO_URL } from './components/HvocIntroScreen';
 import { TntnIntroScreen, TNTN_CHV_LOGO_URL, CDTTBP_VII_TNTN_LOGO_URL } from './components/TntnIntroScreen';
 import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
 import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
+import { OthersIntroScreen } from './components/OthersIntroScreen';
 import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS } from './data/chvBadges';
 import { AppLanguage, PortfolioMode, SceneState } from './types';
 
@@ -322,6 +323,17 @@ export default function App() {
     // Bắt đầu chuỗi [REIMAGINED]: hiện màn hình LOADING trước khi mở trang giới thiệu
     setReimaginedLoadingProgress(0);
     setScene('reimagined-loading');
+  };
+
+  const handleOthersClick = () => {
+    // Chuyển sang chế độ cá nhân và mở trang giới thiệu Mục Khác (Others)
+    if (portfolioMode !== 'individual') {
+      setPortfolioMode('individual');
+      try {
+        localStorage.setItem('blvd_portfolio_mode', 'individual');
+      } catch (e) {}
+    }
+    setScene('others-intro');
   };
 
   // Quản lý tiến trình tải tài nguyên của HVOC
@@ -1222,6 +1234,14 @@ export default function App() {
         />
       )}
 
+      {/* Trang giới thiệu Mục Khác (Others) */}
+      {scene === 'others-intro' && (
+        <OthersIntroScreen 
+          onBack={() => setScene('main-app')} 
+          language={language}
+        />
+      )}
+
       {/* --- SEPARATE #BLVD SEQUENCE --- */}
       {/* Màn hình loading LOADING hiện dần từ trái sang phải từ 0% đến 100% theo tiến trình tải ảnh & model */}
       {scene === 'blvd-loading' && (
@@ -1905,35 +1925,25 @@ export default function App() {
 
                   {/* Item: Khác / Others (không đánh số) - Reactively changes according to portfolioMode */}
                   <div 
-                    className="w-fit flex flex-col items-start portrait:mt-2.5 portrait:pt-1.5"
+                    onClick={handleOthersClick}
+                    className="w-fit flex flex-col items-start portrait:mt-2.5 portrait:pt-1.5 cursor-pointer group"
                     title={portfolioMode === 'individual' 
-                      ? (language === 'vi' ? 'Khả dụng ở chế độ Cá nhân' : 'Available in Individual Mode') 
-                      : (language === 'vi' ? 'Chỉ có ở chế độ Cá nhân. Bấm để chuyển mode.' : 'Only in Individual mode. Click to switch.')
+                      ? (language === 'vi' ? 'Khả dụng ở chế độ Cá nhân. Bấm để xem.' : 'Available in Individual Mode. Click to view.') 
+                      : (language === 'vi' ? 'Bấm để chuyển sang chế độ Cá nhân và xem.' : 'Click to switch to Individual mode and view.')
                     }
                   >
-                    <span className={portfolioMode === 'individual' ? 'hover-force-italic text-white/95 hover:text-white cursor-pointer' : 'text-[#555555]'}>
+                    <span className={portfolioMode === 'individual' ? 'hover-force-italic text-white/95 hover:text-white cursor-pointer' : 'text-[#888888] group-hover:text-white hover-force-italic cursor-pointer transition-colors'}>
                       {language === 'vi' ? 'Khác' : 'Others'}
                     </span>
                     <span className="text-[13px] sm:text-xs md:text-[0.52em] font-normal text-neutral-300/90 tracking-normal mt-1 flex items-center gap-1 flex-wrap">
                       {portfolioMode === 'individual' ? (
-                        <span>{language === 'vi' ? '(Đang hiển thị)' : '(Active)'}</span>
+                        <span>{language === 'vi' ? '(Đang hiển thị - bấm để mở)' : '(Active - click to open)'}</span>
                       ) : (
                         <span>
                           {language === 'vi' ? '(Chỉ có ở chế độ cá nhân, ' : '(Only in individual mode, '}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPortfolioMode('individual');
-                              try {
-                                localStorage.setItem('blvd_portfolio_mode', 'individual');
-                              } catch (err) {}
-                            }}
-                            className="text-neutral-300 hover:text-white no-underline hover-force-italic cursor-pointer transition-colors p-0 bg-transparent border-0 font-medium"
-                          >
-                            {language === 'vi' ? 'chuyển?' : 'switch?'}
-                          </button>
-                          {')'}
+                          <span className="text-neutral-300 group-hover:text-white no-underline hover-force-italic font-medium">
+                            {language === 'vi' ? 'bấm để mở)' : 'click to open)'}
+                          </span>
                         </span>
                       )}
                     </span>

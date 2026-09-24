@@ -3700,3 +3700,104 @@ Các hạng mục đã dọn dẹp và tối ưu hóa:
      - Làm sạch dòng trống thừa ở header import trong `App.tsx`.
      - Kiểm tra toàn bộ codebase bằng TypeScript linter (`npm run lint` - 0 errors) và Vite production build hoàn toàn sạch sẽ.
 
+
+================================================================================
+LẦN 78: TRIỂN KHAI TOÀN DIỆN MỤC KHÁC (OTHERS) VỚI 2 TÙY CHỌN: CHO PHÁT VÀ CHO LỚP 12A2
+================================================================================
+Thời điểm: 2026-09-24 (Turn hiện tại)
+File ảnh hưởng:
+  - /multimediaArchive.ts
+  - /src/types.ts
+  - /src/App.tsx
+  - /src/components/OthersIntroScreen.tsx
+  - /src/components/OthersForPhatScreen.tsx
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Mục lục chính (TOC) & Phân luồng điều hướng:
+     - Bổ sung SceneState 'others-intro' vào /src/types.ts.
+     - Cập nhật mục "Khác" / "Others" trong Mục lục (/src/App.tsx):
+       + Thêm hàm handleOthersClick: Tự động chuyển portfolioMode sang 'individual' nếu đang ở chế độ khác, đồng thời kích hoạt scene = 'others-intro'.
+       + Bổ sung hiệu ứng hover, cursor pointer, subtext hướng dẫn bấm mở rõ ràng.
+  2. Giao diện danh mục Khác (OthersIntroScreen.tsx):
+     - Định dạng list typography chuẩn nét giống HVOC (font-archivo font-medium uppercase, số thứ tự màu #89CC04, hiệu ứng hover-force-italic).
+     - KHÔNG chia 2 cột màn hình trái/phải theo đúng yêu cầu: Thiết kế đơn cột (single column) căn chỉnh mượt mà, sang trọng và chuẩn responsive trên cả Desktop lẫn Mobile.
+     - Cung cấp 2 tùy chọn chính xác:
+       + 01: CHO PHÁT (FOR PHAT)
+       + 02: CHO LỚP 12A2 (FOR CLASS 12A2)
+     - Nút "trở về" / "back" cố định ở góc trên bên trái trên Desktop, inline ở đầu trang trên Mobile.
+  3. Giao diện Cho Phát (OthersForPhatScreen.tsx):
+     - Lấy đầy đủ 100% hình ảnh từ kho multimediaArchive.ts (nhóm Individual):
+       + Dự án 1: Thuận Phát, Boulevard et ville de Da Lat:
+         * Tập hợp #BLVD16 (8 ảnh: 1.webp -> 8.webp)
+         * Tập hợp #BLVD17 (5 ảnh: 1.webp -> 5.webp)
+         * Hiện thực hoá Ý tưởng #2 trong project_plan_and_ideas.txt: Tích hợp chế độ "Instagram Carousel" (tỷ lệ khung vuông 1:1, cuộn ngang scroll-snap-type: x mandatory, dots pagination, nút điều hướng trước/sau, chỉ số trang) kèm tùy chọn chuyển sang xem "Tuyến tính" (Linear).
+       + Dự án 2: Museum of Fine Arts (6 ảnh: 1.webp -> 6.webp với fallback an toàn), hỗ trợ cả Instagram Carousel và Tuyến tính.
+       + Dự án 3: Poster Bảo vệ môi trường dàn phẳng theo chuẩn HVOC.
+     - Hiển thị nhãn công cụ sử dụng (Canva, Affinity, ibisPaint).
+  4. Giao diện Cho lớp 12A2 (OthersFor12A2Screen.tsx):
+     - Dự án 1: Kỉ yếu 12A2:
+       + Thẻ quà tặng kỉ yếu (Mặt trước & Mặt sau):
+         * Hiện thực hoá Ý tưởng #3 trong project_plan_and_ideas.txt: Tích hợp thẻ tương tác "3D Flip Card" dùng CSS 3D transforms thuần (preserve-3d, rotateY(180deg), perspective: 1400px), người dùng có thể nhấp/chạm trực tiếp vào thẻ hoặc bấm nút để lật mặt êm dịu, không giật lag.
+         * Hỗ trợ chuyển đổi giữa chế độ 3D Flip Card và chế độ xem Cả 2 mặt cùng lúc (Linear).
+       + Thư mời kỉ yếu 12A2 (Poster dàn phẳng với bố cục sắc sảo).
+     - Dự án 2: Poster chào mừng [A2K28] 20_10_2025.
+  5. Tuân thủ bộ quy tắc thiết kế & chất lượng code:
+     - Tuân thủ nghiêm ngặt nguyên tắc Boulevard1st: Toàn bộ component, ảnh, nút bấm đều là góc vuông sắc cạnh (rounded-none).
+     - Tone màu đen/trắng tối giản, điểm xuyết xanh #89CC04.
+     - Sửa lỗi import đường dẫn tại multimediaArchive.ts ('./src/types').
+     - Kiểm tra toàn diện TypeScript linting (npm run lint) và build applet (npm run build) thành công 100% không cảnh báo hay lỗi.
+
+================================================================================
+LẦN 79: TỐI ƯU THẺ QUÀ 3D CHÂN THỰC BO GÓC, CHUYỂN KỈ YẾU SANG CÁ NHÂN VÀ TÁCH ĐÀ LẠT 16/17 ĐỒNG BỘ THỊ GIÁC #BLVD
+================================================================================
+Thời điểm: 2026-09-24 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/GiftCard3D.tsx (tạo mới)
+  - /src/components/OthersForPhatScreen.tsx
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Thẻ quà tặng kỉ yếu 3D chân thực (GiftCard3D.tsx):
+     - Bo góc vật lý mềm mại như thẻ nhựa chuẩn (rounded-2xl sm:rounded-[20px]).
+     - Mặc định 3D: Loại bỏ hoàn toàn thanh chuyển đổi giữa 3D và 2D, loại bỏ 2 nút "mặt trước / mặt sau".
+     - Tương tác lật mặt trực tiếp: Nhấp hoặc chạm vào thẻ để xoay lật 180 độ êm mượt (transition: transform 0.8s cubic-bezier(0.2, 0.85, 0.35, 1)).
+     - Hiệu ứng vật lý chiều sâu (Parallax 3D Tilt): Thẻ nghiêng theo góc di chuyển của con trỏ chuột trên desktop, có lớp phản quang bóng kính (Glossy Sheen) di chuyển chân thực, viền vát cạnh giả lập độ dày nhựa (Card Edge Bevel) và bóng đổ nhiều lớp (shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)]).
+     - Dòng chỉ dẫn tối giản thanh lịch: "(bấm hoặc chạm vào thẻ để lật mặt)" với icon xoay 3D.
+  2. Bê 2 ấn phẩm Kỉ yếu sang danh mục Cá nhân (Cho Phát):
+     - Chuyển toàn bộ "Thẻ quà tặng kỉ yếu" (3D Flip Card) và "Thư mời kỉ yếu" (Poster) sang OthersForPhatScreen.tsx thành Mục 04.
+     - Danh mục Cho lớp 12A2 (OthersFor12A2Screen.tsx) chỉ giữ lại [A2K28] 20_10_2025 (Mục 01) sắc nét và gọn gàng.
+  3. Tách Đà Lạt 16 và 17 thành 2 phần độc lập:
+     - Mục 01: Thuận Phát, Boulevard và Đà Lạt (#BLVD16) với 8 ảnh vuông 1:1.
+     - Mục 02: Thuận Phát, Boulevard và Đà Lạt (#BLVD17) với 5 cụm ảnh (mỗi file là 1 cụm gồm 2 ảnh vuông).
+     - Hiện thực hóa trải nghiệm giống các dự án khác cho #BLVD17:
+       + Tách thành 10 ảnh vuông 1:1 độc lập (từ nửa trái và nửa phải của 5 file cụm) cho chế độ Instagram để người dùng lướt xem từng ảnh vuông 1:1 sắc nét y như Đà Lạt 16 và MFA.
+       + Bổ sung nút chuyển nhanh "từng ảnh vuông 1:1 (10)" vs "cụm 2 ảnh đôi (5)" để xem được cả cụm gốc nếu muốn.
+  4. Đồng bộ thị giác toàn diện theo chuẩn #BLVD:
+     - Cả 3 dự án hình ảnh (Đà Lạt #BLVD16, Đà Lạt #BLVD17, Bảo tàng nghệ thuật - Museum of Fine Arts) đều sở hữu:
+       + Thanh chuyển đổi "tuyến tính / Instagram" đặt ở DƯỚI ảnh (thay vì trên đầu).
+       + Định dạng nút chuẩn chữ thường (#BLVD style): "tuyến tính" / "Instagram", active font-medium trắng sáng, inactive mờ 40%.
+       + Khung ảnh Instagram vuông (aspect-square) viền mảnh border-white/20, hover hiện mũi tên ‹ › mờ tinh tế, thanh gạch ngang (Dash lines) định vị chuẩn #BLVD.
+       + Chế độ tuyến tính hiển thị dải trượt ngang border-y border-white/20 với hỗ trợ kéo chuột (drag) và con lăn chuột mượt mà.
+  5. Kiểm tra chất lượng & kiểm thử hệ thống:
+     - Linter TypeScript: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 80: KHẮC PHỤC LỖI CẮT ĐÔI ẢNH ĐÀ LẠT #BLVD17, GIỮ NGUYÊN VẸN CỤM ẢNH ĐÔI CHUẨN TỈ LỆ
+================================================================================
+Thời điểm: 2026-09-24 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersForPhatScreen.tsx
+Chi tiết thay đổi & sửa lỗi kỹ thuật:
+  1. Loại bỏ triệt để logic cắt đôi ảnh (split/crop) ở Đà Lạt #BLVD17:
+     - Xoá cấu trúc mảng tạm DALAT_BLVD17_SQUARES và loại bỏ state blvd17Format gây chia đôi ảnh vụn vặt và sai lệch vị trí khung.
+     - Khôi phục danh sách 5 ảnh nguyên bản DALAT_BLVD17_IMAGES (1.webp -> 5.webp).
+  2. Thiết lập đúng tỉ lệ khung ảnh chuẩn cho cụm 2 ảnh đôi:
+     - Khung ảnh Instagram của #BLVD17 được thiết lập đúng tỉ lệ vật lý tự nhiên của cụm ảnh: aspect-[6685/3500] (chiều rộng tối đa w-[min(94vw,620px)]).
+     - Ảnh bên trong hiển thị trọn vẹn 100% (object-contain), không bị cắt xén, không bị đứt đoạn, bảo toàn bố cục cụm 2 ảnh hình vuông liền mạch.
+  3. Duy trì đầy đủ trải nghiệm tương tác chuẩn #BLVD:
+     - Chế độ Instagram Carousel: 5 slide nguyên bản mượt mà, mũi tên ‹ › hover tinh tế, 5 thanh định vị (Dash lines), chỉ số trang góc trên 1/5.
+     - Chế độ Tuyến tính: Dải ảnh trượt ngang kéo mượt mà, hỗ trợ con lăn chuột.
+     - Thanh điều hướng "tuyến tính / Instagram" ở dưới ảnh chuẩn xác.
+  4. Kiểm thử:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Thành công 100%.
