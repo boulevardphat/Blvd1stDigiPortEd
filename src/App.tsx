@@ -1883,20 +1883,21 @@ export default function App() {
                       <svg 
                         width="100%" 
                         height="100%" 
-                        viewBox="0 0 400 50" 
+                        viewBox="0 0 1000 85" 
                         preserveAspectRatio="none" 
-                        className="w-full h-[clamp(1.5rem,3.5vw,4.5rem)] overflow-visible"
+                        className="w-full h-[clamp(1.2rem,3.2vw,4.2rem)] overflow-hidden"
                       >
                         <text 
-                          x="3" 
-                          y="45" 
-                          textLength="398" 
+                          x="-18" 
+                          y="68" 
+                          textLength="1036" 
                           lengthAdjust="spacingAndGlyphs" 
                           fontFamily="Archivo, sans-serif" 
-                          fontWeight="300" 
-                          fontSize="48" 
-                          fill="rgba(255, 255, 255, 0.7)" 
-                          style={{ textTransform: 'uppercase' }}
+                          fontSize="78" 
+                          fill="none"
+                          stroke="rgba(255, 255, 255, 0.95)"
+                          strokeWidth="3.2"
+                          style={{ fontVariationSettings: '"wdth" 100, "wght" 500', textTransform: 'uppercase' }}
                         >
                           DIGITAL PORTFOLIO
                         </text>
@@ -1926,20 +1927,21 @@ export default function App() {
                       <svg 
                         width="100%" 
                         height="100%" 
-                        viewBox="0 0 400 50" 
+                        viewBox="0 0 1000 85" 
                         preserveAspectRatio="none" 
-                        className="w-full h-[clamp(1.2rem,4vw,2.5rem)] overflow-visible"
+                        className="w-full h-[clamp(1.1rem,4.2vw,2.6rem)] overflow-hidden"
                       >
                         <text 
-                          x="3" 
-                          y="45" 
-                          textLength="398" 
+                          x="-18" 
+                          y="68" 
+                          textLength="1036" 
                           lengthAdjust="spacingAndGlyphs" 
                           fontFamily="Archivo, sans-serif" 
-                          fontWeight="300" 
-                          fontSize="48" 
-                          fill="rgba(255, 255, 255, 0.7)" 
-                          style={{ textTransform: 'uppercase' }}
+                          fontSize="78" 
+                          fill="none"
+                          stroke="rgba(255, 255, 255, 0.95)"
+                          strokeWidth="3.2"
+                          style={{ fontVariationSettings: '"wdth" 100, "wght" 500', textTransform: 'uppercase' }}
                         >
                           DIGITAL PORTFOLIO
                         </text>
