@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 
 interface VespertineBackgroundProps {
@@ -6,18 +6,6 @@ interface VespertineBackgroundProps {
 }
 
 export const VespertineBackground = ({ shiftLeft = false }: VespertineBackgroundProps) => {
-  const bgRef = useRef<HTMLImageElement>(null);
-  const sjRef = useRef<HTMLImageElement>(null);
-  const [bgLoaded, setBgLoaded] = useState(false);
-  const [sjLoaded, setSjLoaded] = useState(false);
-
-  useEffect(() => {
-    if (bgRef.current?.complete) setBgLoaded(true);
-    if (sjRef.current?.complete) setSjLoaded(true);
-  }, []);
-  
-  const isLoaded = bgLoaded && sjLoaded;
-
   return (
     <motion.div 
       className="absolute inset-0 w-full h-full pointer-events-none z-0"
@@ -25,46 +13,14 @@ export const VespertineBackground = ({ shiftLeft = false }: VespertineBackground
       animate={{ x: shiftLeft ? '-25%' : '0%' }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Background Layer */}
+      {/* Ảnh Vespertine gốc nguyên bản */}
       <img
-        ref={bgRef}
-        src="https://i.ibb.co/JFvk9wzr/vespertine-bg.png"
-        alt="Background layer"
-        referrerPolicy="no-referrer"
-        loading="eager"
-        fetchPriority="high"
-        className="absolute inset-0 w-full h-full object-cover portrait:object-[49%_center] pointer-events-none"
-        onLoad={() => setBgLoaded(true)}
-      />
-      
-      {/* Middle empty layer (for future use) */}
-      <div className="absolute inset-0 pointer-events-none z-0" id="middle-layer">
-        
-      </div>
-
-      {/* Subject Layer */}
-      <img
-        ref={sjRef}
-        src="https://i.ibb.co/jPHPJSG7/vespertine-sj.png"
-        alt="Subject layer"
-        referrerPolicy="no-referrer"
-        loading="eager"
-        fetchPriority="high"
-        className="absolute inset-0 w-full h-full object-cover portrait:object-[49%_center] pointer-events-none"
-        onLoad={() => setSjLoaded(true)}
-      />
-
-      {/* Fallback / Original Image (On top, fades out when others load) */}
-      <motion.img 
         src="https://i.ibb.co/vy4ykmw/vespertine.png" 
-        alt="Fallback background"
+        alt="Vespertine background"
         referrerPolicy="no-referrer"
         loading="eager"
         fetchPriority="high"
-        className="absolute inset-0 w-full h-full object-cover portrait:object-[49%_center] pointer-events-none z-10"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: isLoaded ? 0 : 1 }}
-        transition={{ duration: 0 }}
+        className="absolute inset-0 w-full h-full object-cover portrait:object-[49%_center] pointer-events-none"
       />
     </motion.div>
   );

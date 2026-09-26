@@ -4329,6 +4329,25 @@ Chi tiết thay đổi & tính năng tích hợp:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 103: GIẢ LƯỢC BACKGROUND GIAO DIỆN CHÍNH, CHỈ GIỮ LẠI ẢNH VESPERTINE GỐC
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/VespertineBackground.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. VespertineBackground.tsx:
+     - Loại bỏ hoàn toàn hai lớp cắt ghép hình ảnh: `vespertine-bg.png` (background layer) và `vespertine-sj.png` (subject layer).
+     - Chỉ giữ lại đúng 1 ảnh nền gốc `vespertine.png` nguyên bản (https://i.ibb.co/vy4ykmw/vespertine.png).
+     - Loại bỏ state tải đa tầng (bgLoaded/sjLoaded) và hiệu ứng chuyển đổi độ mờ phức tạp, giúp ảnh nền hiển thị ngay tức thì, mượt mà và sắc nét.
+  2. App.tsx:
+     - Loại bỏ `vespertine-bg.png` và `vespertine-sj.png` khỏi danh sách mảng tải trước tài nguyên `mainAppImages` để tối ưu hóa thời gian tải trang đầu tiên.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
 
 
 

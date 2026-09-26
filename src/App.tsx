@@ -214,8 +214,6 @@ export default function App() {
       'https://i.ibb.co/tP3rK5bg/ultrayoung.jpg',
       'https://i.ibb.co/Nd6BpwZ2/young.jpg',
       'https://i.ibb.co/vy4ykmw/vespertine.png',
-      'https://i.ibb.co/JFvk9wzr/vespertine-bg.png',
-      'https://i.ibb.co/jPHPJSG7/vespertine-sj.png',
       'https://i.ibb.co/ccfZG4Zk/n-n-blvd18.webp',
       'https://i.ibb.co/RTw2phXD/canva.jpg',
       'https://i.ibb.co/pBXrq6cf/affinity.jpg',
