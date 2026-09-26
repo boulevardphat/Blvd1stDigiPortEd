@@ -4035,6 +4035,24 @@ Chi tiết thay đổi & tính năng tích hợp:
      - TypeScript linter: 0 lỗi (tsc --noEmit).
      - Production build: Thành công 100%.
 
+================================================================================
+LẦN 92: LOẠI BỎ NỀN ĐEN ĐẶC VÀ ĐIỀU CHỈNH OPACITY ẢNH MỤC LỤC ĐỂ HIỆN RÕ ĐỘ MỜ CHÌM VÀO NỀN
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/App.tsx
+Nguyên nhân khiến ảnh trước đó vẫn "rõ mồn một":
+  1. Khung chứa (#toc-image-frame) trước đó có class 'bg-neutral-950' (nền đen đặc), khiến phần trăm mờ của ảnh lại phủ lên nền đen đặc thay vì xuyên thấu nền sao trời động của ứng dụng.
+  2. Mức 65% opacity trên nền đen theo cảm nhận thị giác mắt người (perceived contrast) vẫn giữ tới ~85% chi tiết và độ sáng nét của ảnh ban ngày.
+Chi tiết giải pháp tối ưu:
+  1. Loại bỏ 'bg-neutral-950', chuyển khung chứa thành 'bg-transparent' để nền vũ trụ / hạt sao có thể xuyên thấu qua ảnh.
+  2. Điều chỉnh mức opacity xuống 35% ('opacity: 0.35', tương đương giảm đi 65% độ đậm) để ảnh thực sự chìm nhẹ nhàng, mờ ảo vào không gian nền và làm nổi bật hoàn toàn các mục văn bản.
+  3. Khởi động lại dev server để xóa sạch cache biên dịch.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+
 
 
 

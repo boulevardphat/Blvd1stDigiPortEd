@@ -1881,13 +1881,13 @@ export default function App() {
                 <div 
                   id="toc-image-frame"
                   aria-hidden="true"
-                  className="hidden landscape:flex portrait:hidden relative z-0 flex-1 my-auto h-[78%] sm:h-[84%] md:h-[88%] border border-white/20 rounded-none pointer-events-none -ml-5 sm:-ml-7 md:-ml-9 mr-4 sm:mr-6 md:mr-8 overflow-hidden items-center justify-center transition-all duration-300 bg-neutral-950"
+                  className="hidden landscape:flex portrait:hidden relative z-0 flex-1 my-auto h-[78%] sm:h-[84%] md:h-[88%] border border-white/20 rounded-none pointer-events-none -ml-5 sm:-ml-7 md:-ml-9 mr-4 sm:mr-6 md:mr-8 overflow-hidden items-center justify-center transition-all duration-300 bg-transparent"
                 >
                   <img
                     src="https://i.ibb.co/6cTc4nMC/club.jpg"
                     alt="club"
-                    className="w-full h-full object-cover object-center select-none pointer-events-none rounded-none block opacity-65"
-                    style={{ opacity: 0.65 }}
+                    className="w-full h-full object-cover object-center select-none pointer-events-none rounded-none block opacity-35"
+                    style={{ opacity: 0.35 }}
                     referrerPolicy="no-referrer"
                     loading="lazy"
                     decoding="async"
