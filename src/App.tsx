@@ -1876,13 +1876,22 @@ export default function App() {
                 </svg>
               </div>
 
-              {/* Khung hình chữ nhật viền siêu mỏng ở giữa tag MỤC LỤC và danh sách, hiển thị linh hoạt theo thuật toán khoảng cách, sau này dùng làm khung ảnh */}
+              {/* Khung hình chữ nhật ở giữa tag MỤC LỤC và danh sách: hiển thị ảnh câu lạc bộ */}
               {showTocFrame && (
                 <div 
+                  id="toc-image-frame"
                   aria-hidden="true"
-                  className="hidden landscape:flex portrait:hidden relative z-0 flex-1 my-auto h-[78%] sm:h-[84%] md:h-[88%] border border-white/20 rounded-none pointer-events-none -ml-5 sm:-ml-7 md:-ml-9 mr-4 sm:mr-6 md:mr-8 overflow-hidden items-center justify-center transition-all duration-300"
+                  className="hidden landscape:flex portrait:hidden relative z-0 flex-1 my-auto h-[78%] sm:h-[84%] md:h-[88%] border border-white/20 rounded-none pointer-events-none -ml-5 sm:-ml-7 md:-ml-9 mr-4 sm:mr-6 md:mr-8 overflow-hidden items-center justify-center transition-all duration-300 bg-neutral-950"
                 >
-                  <div className="w-full h-full opacity-0 pointer-events-none" />
+                  <img
+                    src="https://i.ibb.co/6cTc4nMC/club.jpg"
+                    alt="club"
+                    className="w-full h-full object-cover object-center select-none pointer-events-none rounded-none block opacity-65"
+                    style={{ opacity: 0.65 }}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               )}
 

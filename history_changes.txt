@@ -3801,3 +3801,240 @@ Chi tiết thay đổi & sửa lỗi kỹ thuật:
   4. Kiểm thử:
      - TypeScript linter: 0 lỗi.
      - Production build: Thành công 100%.
+
+================================================================================
+LẦN 81: LƯU TRỮ POSTER HẬU TỐT NGHIỆP 2026 VÀ CẬP NHẬT DANH MỤC CHO LỚP 12A2 (OTHERS)
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /multimediaArchive.ts
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Lưu trữ tài nguyên ảnh mới vào kho lưu trữ (multimediaArchive.ts):
+     - Thêm ấn phẩm mới '[A2K28] Hậu Tốt nghiệp 2026' vào BLVD_ARCHIVE_ASSETS thuộc nhóm 'individual' với đường dẫn chính thức:
+       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026.webp'
+     - Cập nhật định danh tài nguyên '[A2K28] 19_11_2025' trong kho lưu trữ tương ứng.
+  2. Cập nhật giao diện danh mục Cho lớp 12A2 (OthersFor12A2Screen.tsx):
+     - Mục 01: '[A2K28] HẬU TỐT NGHIỆP 2026' - Thêm mới với poster kích thước chuẩn 1920x1280 (tỉ lệ 3:2 landscape), hiển thị sắc nét với nhãn công cụ Canva và viền khung tối giản Boulevard1st.
+     - Mục 02: '[A2K28] 19_11_2025' - Đổi tên phần đang có sẵn sang 19_11_2025 theo đúng yêu cầu người dùng, giữ nguyên hiển thị hình ảnh poster kỷ niệm 1:1.
+     - Mục 03: '[A2K28] 20_10_2025' - Thêm mới mục 20_10_2025 riêng biệt với khung chờ thẩm mỹ chuẩn Boulevard1st (ĐANG CẬP NHẬT ẤN PHẨM / COMING SOON), sẵn sàng tải ảnh ngay khi có đường dẫn.
+  3. Kiểm thử & chất lượng code:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 82: TÍCH HỢP FACEBOOK SDK CHO REEL HẬU TỐT NGHIỆP 2026 (16:9), LOẠI BỎ CÁC YẾU TỐ THỪA VÀ CẬP NHẬT LINK GITHUB
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /multimediaArchive.ts
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Cập nhật kho lưu trữ tài nguyên (multimediaArchive.ts):
+     - Cập nhật đường dẫn lưu trữ cho ấn phẩm '[A2K28] Hậu Tốt nghiệp 2026 (Bước 1)':
+       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%201).webp'
+     - Link này chỉ lưu trữ tài nguyên, không hiển thị trực tiếp lên giao diện người dùng.
+  2. Tích hợp Facebook SDK trình chiếu Reel [A2K28] Hậu Tốt nghiệp 2026 (OthersFor12A2Screen.tsx):
+     - Thay thế thẻ ảnh GitHub bằng FacebookReelPlayer sử dụng Facebook SDK (v20.0).
+     - Đường dẫn Reel: https://www.facebook.com/reel/1364142485827244.
+     - Khung hiển thị chuẩn tỉ lệ video 16:9 (aspect-video / aspect-[16/9]), tự động co giãn thích ứng (responsive) theo chiều rộng container / tab trình duyệt.
+     - Tự động nạp #fb-root và phân giải FB.XFBML.parse(containerRef.current); kèm cơ chế fallback an toàn qua iframe nếu trình duyệt chặn script mạng xã hội.
+     - Tuân thủ nghiêm ngặt nguyên tắc Boulevard1st: hoàn toàn không bo góc (rounded-none, border-radius: 0).
+  3. Dọn dẹp triệt để các yếu tố thừa trên giao diện Cho lớp 12A2 (OthersFor12A2Screen.tsx):
+     - Loại bỏ toàn bộ icon Canva không cần thiết bên cạnh tiêu đề.
+     - Loại bỏ dòng phụ đề micro-copy "KỶ NIỆM TẬP THỂ 12A2 - K28 CHUYÊN HÙNG VƯƠNG", trả lại tiêu đề "CHO LỚP 12A2" tối giản và gọn gàng.
+     - Loại bỏ khối hộp placeholder tạm "COMING SOON / ĐANG CẬP NHẬT ẤN PHẨM" ở mục 20_10_2025; chỉ render mục 03 khi POSTER_20_10_URL có dữ liệu thực tế.
+     - Danh mục hiển thị tinh tế và sạch sẽ gồm:
+       + 01: [A2K28] HẬU TỐT NGHIỆP 2026 (Facebook Reel 16:9 responsive).
+       + 02: [A2K28] 19_11_2025 (Poster kỷ niệm).
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100% không cảnh báo.
+
+================================================================================
+LẦN 83: KHÔI PHỤC MICROCOPY, LOẠI BỎ TIỀN TỐ [A2K28], GIỮ MỤC 20_10_2025 VÀ TỐI ƯU ĐỘ PHÂN GIẢI HD CHO FACEBOOK REEL
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Khôi phục lại dòng microcopy dưới tiêu đề chính "CHO LỚP 12A2":
+     - Hiển thị lại: 'KỶ NIỆM TẬP THỂ 12A2 - K28 CHUYÊN HÙNG VƯƠNG' (tiếng Việt) và 'CLASS 12A2 MEMORIES (K28 CHUYEN HUNG VUONG)' (tiếng Anh) với màu xanh đặc trưng #89CC04.
+  2. Bỏ hoàn toàn tiền tố "[A2K28]" trong tên các dự án:
+     - Mục 01: 'HẬU TỐT NGHIỆP 2026' (En: 'POST-GRADUATION 2026') thay vì '[A2K28] HẬU TỐT NGHIỆP 2026'.
+     - Mục 02: '19_11_2025' thay vì '[A2K28] 19_11_2025'.
+     - Mục 03: '20_10_2025' thay vì '[A2K28] 20_10_2025'.
+  3. Khôi phục mục 03 (20_10_2025):
+     - Giữ nguyên mục 03 trong danh sách với tiêu đề '20_10_2025'.
+     - Khung hiển thị thiết kế tối giản, sạch sẽ (w-full max-w-[640px] aspect-square bg-[#0a0a0a] border border-white/10) chuẩn Boulevard1st sắc cạnh, không chứa chữ placeholder ảo.
+  4. Giải pháp ép độ phân giải HD cho Facebook Reel:
+     - Cấu hình data-width="1280" trong thẻ fb-video của Facebook SDK và width=1280&height=720&quality=hd cho iframe fallback, giúp máy chủ Facebook CDN ưu tiên cung cấp luồng video bitrate HD (720p/1080p) thay vì mặc định 360p khi dùng auto.
+     - Bổ sung nút liên kết mở trực tiếp Full HD gốc trên Facebook: "Xem bản Full HD gốc trên Facebook ↗".
+  5. Kiểm thử:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 84: BỎ THANH CHÚ THÍCH DƯỚI VIDEO REEL VÀ CHỈ GIỮ LẠI ĐỀ MỤC CHO MỤC 20_10_2025
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Loại bỏ thanh chú thích & liên kết dưới video Facebook Reel (OthersFor12A2Screen.tsx):
+     - Xoá hoàn toàn khối thanh chú thích tỉ lệ, độ phân giải ('16:9 • Độ phân giải HD') và liên kết mở Facebook ('Xem bản Full HD gốc trên Facebook ↗').
+     - Khung video 16:9 đứng độc lập, sắc nét, tối giản và liền mạch với layout.
+  2. Bỏ toàn bộ nội dung của mục 20_10_2025, chỉ giữ lại đề mục (OthersFor12A2Screen.tsx):
+     - Xoá toàn bộ khung ảnh, khung hình vuông tạm thời bên trong mục 03.
+     - Chỉ giữ lại duy nhất dòng đề mục: '03 20_10_2025' sạch sẽ, ngay ngắn theo đúng yêu cầu người dùng.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 85: BỔ SUNG THANH TOOL DƯỚI REEL VÀ CỬA SỔ "CÁCH THỰC HIỆN" VỚI SỐ KÉO DÃN RESPONSIVE
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Bổ sung nút thanh tool dưới khung FB Reel (OthersFor12A2Screen.tsx):
+     - Thiết kế chuẩn giống các thanh tool ở các mục khác: không khung, font Archivo thường (normal-case, text-sm md:text-base, text-white/50 hover:text-white, rounded-none).
+     - Nhãn nút: 'cách thực hiện' (tiếng Anh: 'workflow').
+  2. Xây dựng cửa sổ modal "CÁCH THỰC HIỆN" tối giản chuẩn Brutalist Boulevard1st:
+     - Khung cửa sổ gọn gàng với backdrop làm mờ nhẹ (bg-black/80 backdrop-blur-md), viền sắc cạnh (rounded-none border border-neutral-800), nút đóng ✕ thanh mảnh ở góc trên bên phải.
+     - Không chứa ảnh thừa hay text chìm watermark.
+  3. Kỹ thuật số thứ tự kéo dãn responsive theo chiều cao text (SVG preserveAspectRatio="none"):
+     - Tái sử dụng chính xác bộ dữ liệu SVG vector từ mục lục (TOC_DIGIT_DATA cho các số 1, 2, 3 với màu xanh #89CC04).
+     - Áp dụng thuật toán đo đạc ResizeObserver và công thức tính toán typographic cap-height để số kéo dãn mượt mà theo đúng số dòng text khi co giãn màn hình.
+  4. Nội dung 3 bước thực hiện chỉn chu kèm icon và ảnh minh họa:
+     - Bước 1: Dùng công cụ Canva và ibisPaint để tách nền từng thành viên trong lớp, đưa nền phía sau về một màu xanh lá chói thống nhất. Hiển thị 2 icon Canva và ibisPaint, đồng thời lồng ghép ảnh minh họa phông xanh từ GitHub ('[A2K28] Hậu Tốt nghiệp 2026 (Bước 1).webp') ngay bên dưới.
+     - Bước 2: Dùng Chroma Key để tách nền màu trơn, sau đó lồng ghép lên tấm ảnh gốc và thực hiện các tinh chỉnh cần thiết (icon Canva).
+     - Bước 3: Xuất toàn bộ chuỗi ảnh tĩnh ra, tuần tự ghép nối và biên tập lại thành video hoàn chỉnh (icon Edits).
+  5. Kiểm thử:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 86: BỔ SUNG BƯỚC 0, CẬP NHẬT BƯỚC 1 VÀ 2 TRONG MODAL "CÁCH THỰC HIỆN" (KÈM ẢNH TƯ LIỆU)
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /multimediaArchive.ts
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Cập nhật kho dữ liệu lưu trữ (multimediaArchive.ts):
+     - Bổ sung tài nguyên '[A2K28] Hậu Tốt nghiệp 2026 (Bước 0)':
+       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20%28B%C6%B0%E1%BB%9Bc%200%29.webp'
+     - Bổ sung tài nguyên '[A2K28] Hậu Tốt nghiệp 2026 (Bước 2)':
+       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%202).webp'
+  2. Bổ sung vector số 0 kéo dãn chuẩn typographic vào STEP_DIGIT_DATA (OthersFor12A2Screen.tsx):
+     - Trích xuất chính xác vector glyph 0 từ font Archivo Bold nguyên bản (viewBox="50 0 475 710"), kéo dãn responsive theo chiều cao khối văn bản.
+  3. Bổ sung Bước 0 vào modal "CÁCH THỰC HIỆN" (OthersFor12A2Screen.tsx):
+     - Nội dung: "Chuẩn bị tư liệu chỉnh sửa."
+     - Ảnh minh họa: '[A2K28] Hậu Tốt nghiệp 2026 (Bước 0).webp' từ GitHub.
+  4. Cập nhật tinh chỉnh Bước 1 (OthersFor12A2Screen.tsx):
+     - Bỏ cụm "màu xanh lá chói", chỉnh sửa thành: "Dùng công cụ Canva và ibisPaint để tách nền từng thành viên trong lớp, để lại nền đằng sau một màu trơn thống nhất (miễn là không trùng với màu của vật thể cần tách)."
+     - Giữ nguyên ảnh minh họa Bước 1 cùng 2 icon Canva và ibisPaint.
+  5. Cập nhật tinh chỉnh Bước 2 (OthersFor12A2Screen.tsx):
+     - Bổ sung công việc ghép logo & tên trường đại học: "Dùng Chroma Key để tách nền màu trơn, sau đó lồng ghép lên tấm ảnh gốc, ghép logo cùng tên các trường đại học và thực hiện các tinh chỉnh cần thiết."
+     - Bổ sung ảnh minh họa Bước 2 ('[A2K28] Hậu Tốt nghiệp 2026 (Bước 2).webp') kèm icon Canva.
+  6. Kiểm thử:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 87: KHẮC PHỤC TRIỆT ĐỂ LỖI SỐ THỨ TỰ BỊ DÀI HƠN TEXT TRÊN MOBILE TRONG MODAL
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+Nguyên nhân kỹ thuật đã xác định:
+  - Trước đó, đoạn text bên phải có class 'text-xs sm:text-sm md:text-base', nên trên màn hình Mobile font-size của text là 12px (text-xs).
+  - Trong khi đó, thẻ span chứa số SVG lại thừa hưởng font-size mặc định của modal window là 16px (1em = 16px).
+  - Khi tính toán chiều cao số theo đơn vị em `((lines - 1) * 1.4 + 0.75)em`, 1em của số là 16px trong khi 1em của text chỉ là 12px. Với 4 dòng text (4 * 16.8px = 67.2px), số lại nhận 4.95 * 16px = 79.2px (chênh lệch đúng 12px tương đương 1 dòng text như người dùng phản ánh).
+Chi tiết giải pháp tối ưu:
+  1. Đồng bộ font context: Gán 'text-xs sm:text-sm md:text-base leading-[1.4]' lên trực tiếp thẻ hàng cha flex container.
+  2. Đo lường & tính toán chiều cao pixel chính xác theo chuẩn typographic Archivo:
+     - capHeight = 0.70 * fs
+     - topOffset = (lineHeight - capHeight) / 2
+     - height = (lines - 1) * lineHeight + capHeight
+     - Đặt trực tiếp style pixel `{ marginTop: topOffset, height }` thông qua ResizeObserver.
+  3. Kết quả:
+     - Trên cả Mobile, Tablet và Desktop, đỉnh của số luôn căn khít đỉnh chữ hoa dòng đầu tiên, đáy của số luôn kết thúc chính xác tại baseline của dòng cuối cùng, không còn hiện tượng số bị thừa một dòng text trên Mobile.
+  4. Kiểm thử:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 88: CĂN ĐỀU 2 LỀ 2 BÊN (TEXT-JUSTIFY) CHO CÁC VĂN BẢN TRONG PHẦN CÁCH THỰC HIỆN
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Căn đều 2 lề 2 bên cho văn bản mô tả các bước trong modal "CÁCH THỰC HIỆN":
+     - Cập nhật thẻ <p ref={textRef}> từ 'text-left' sang 'text-justify'.
+     - Giữ nguyên các thuộc tính font chữ 'font-archivo font-normal text-xs sm:text-sm md:text-base text-neutral-200 leading-[1.4]'.
+  2. Kết quả:
+     - Các đoạn văn bản nhiều dòng ở Bước 1, Bước 2, Bước 3 được căn phẳng đều ở cả hai mép trái và phải, tạo khối nội dung cân đối, vuông vắn và chuyên nghiệp chuẩn phong cách thiết kế dự án.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 89: CHUYỂN PHẦN CÁCH THỰC HIỆN THÀNH 1 "APP" RIÊNG TRÊN MOBILE VỚI NÚT TRỞ VỀ GÓC TRÊN BÊN TRÁI
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Tách biệt hoàn toàn giao diện Mobile và Desktop khi mở "cách thực hiện":
+     - Trên Desktop (`md:`): Giữ nguyên cửa sổ modal Brutalist `#workflow-modal-window-desktop` với backdrop làm mờ kính nhẹ và nút đóng ✕ ở góc trên bên phải.
+     - Trên Mobile (`md:hidden`): Trở thành một màn hình ("app") riêng toàn diện `#workflow-screen-mobile`, kích thước `fixed inset-0 w-screen h-[calc(var(--vh,1vh)*100)] bg-black text-white z-50`.
+  2. Nút "trở về" / "back" chuẩn góc trên bên trái trên Mobile:
+     - Nút được đặt tự nhiên trong luồng nội dung đầu trang (`w-full px-6 pt-6 pb-2 shrink-0`), font Archivo thường không khung (`text-xs sm:text-sm tracking-normal text-white/60 hover:text-white rounded-none`), giống hệt các màn hình app khác trong dự án (OthersFor12A2, OthersForPhat, HvocClubDay, TntnIntro,...).
+  3. Tối ưu trải nghiệm cuộn (scroll) trên Mobile:
+     - Nút trở về cuộn tự nhiên cùng nội dung trang, không sử dụng fixed để tránh kẹt hay cản trở thao tác vuốt cuộn của ngón tay trên điện thoại.
+     - Tự động reset cuộn về đầu trang (`scrollTop = 0`) thông qua `mobileWorkflowScrollRef` mỗi khi người dùng mở màn hình.
+     - Thiết lập khoảng đệm đáy `pb-28` để người dùng có thể cuộn hết cỡ toàn bộ nội dung của Bước 3 mà không bị thanh điều hướng trình duyệt di động che khuất.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 90: ĐƯA ẢNH CÂU LẠC BỘ VÀO KHUNG HÌNH CHỮ NHẬT Ở MỤC LỤC
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/App.tsx
+  - /multimediaArchive.ts
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Hiển thị ảnh câu lạc bộ trong khung hình chữ nhật ở Mục lục (App.tsx):
+     - Thay thế placeholder div rỗng trước đó bằng thẻ <img> hiển thị ảnh:
+       `https://i.ibb.co/6cTc4nMC/club.jpg`
+     - Thiết lập căn chỉnh: `w-full h-full object-cover object-center select-none pointer-events-none rounded-none block`.
+     - Giữ nguyên viền siêu mỏng `border border-white/20`, kích thước linh hoạt theo thuật toán `showTocFrame` (hiển thị khi tỉ lệ màn hình và khoảng cách giữa nhãn Mục lục và danh sách dự án đạt chuẩn).
+  2. Cập nhật kho dữ liệu lưu trữ (multimediaArchive.ts):
+     - Thêm tài nguyên `toc-club-photo` với đường dẫn `https://i.ibb.co/6cTc4nMC/club.jpg` (chế độ 'employer-club').
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 91: GIẢM ĐỘ MỜ ĐỤC (OPACITY) CỦA ẢNH CÂU LẠC BỘ Ở MỤC LỤC XUỐNG 65%
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/App.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Giảm opacity của ảnh trong khung hình chữ nhật ở Mục lục:
+     - Cập nhật thẻ <img> của ảnh `https://i.ibb.co/6cTc4nMC/club.jpg` thêm class `opacity-65` và style `{ opacity: 0.65 }`.
+     - Giúp hình ảnh có độ chìm nhẹ nhàng (65% opacity), hòa hợp tự nhiên vào nền tối và làm nổi bật danh sách chữ mục lục bên cạnh.
+  2. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+
+
+

@@ -970,16 +970,56 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
   },
 
   // =========================================================
-  // INDIVIDUAL: [A2K28] 20_10_2025 (1 asset)
+  // INDIVIDUAL: [A2K28] 19_11_2025 (1 asset)
   // =========================================================
   {
-    id: 'ind-a2k28',
-    title: '[A2K28] 20_10_2025',
-    project: '[A2K28] 20_10_2025',
-    category: '[A2K28] 20_10_2025',
+    id: 'ind-a2k28-19-11',
+    title: '[A2K28] 19_11_2025',
+    project: '[A2K28] 19_11_2025',
+    category: '[A2K28] 19_11_2025',
     mode: 'individual',
     type: 'poster',
     url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2025.webp',
+  },
+
+  // =========================================================
+  // INDIVIDUAL: [A2K28] Hậu Tốt nghiệp 2026 (3 assets)
+  // =========================================================
+  {
+    id: 'ind-a2k28-hau-tot-nghiep-2026-b0',
+    title: '[A2K28] Hậu Tốt nghiệp 2026 (Bước 0)',
+    project: '[A2K28] Hậu Tốt nghiệp 2026',
+    category: '[A2K28] Hậu Tốt nghiệp 2026',
+    mode: 'individual',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20%28B%C6%B0%E1%BB%9Bc%200%29.webp',
+  },
+  {
+    id: 'ind-a2k28-hau-tot-nghiep-2026',
+    title: '[A2K28] Hậu Tốt nghiệp 2026 (Bước 1)',
+    project: '[A2K28] Hậu Tốt nghiệp 2026',
+    category: '[A2K28] Hậu Tốt nghiệp 2026',
+    mode: 'individual',
+    type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%201).webp',
+  },
+  {
+    id: 'ind-a2k28-hau-tot-nghiep-2026-b2',
+    title: '[A2K28] Hậu Tốt nghiệp 2026 (Bước 2)',
+    project: '[A2K28] Hậu Tốt nghiệp 2026',
+    category: '[A2K28] Hậu Tốt nghiệp 2026',
+    mode: 'individual',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%202).webp',
+  },
+  {
+    id: 'toc-club-photo',
+    title: 'Câu lạc bộ - Ảnh mục lục',
+    project: 'Mục lục',
+    category: 'Mục lục',
+    mode: 'employer-club',
+    type: 'poster',
+    url: 'https://i.ibb.co/6cTc4nMC/club.jpg',
   },
 ];
 
