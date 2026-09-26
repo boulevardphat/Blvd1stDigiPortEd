@@ -137,6 +137,51 @@ export default function App() {
   const [emailCopied, setEmailCopied] = useState(false);
   const bgAudioRef = React.useRef<HTMLAudioElement>(null);
 
+  // Trạng thái tải và giải mã (decode) hoàn tất của ảnh nền Vespertine gốc
+  const [vespertineLoaded, setVespertineLoaded] = useState(false);
+  const vespertineLoadedRef = React.useRef(false);
+  const pendingIntroCompleteRef = React.useRef(false);
+
+  // Tải và decode trước ảnh nền Vespertine giao diện chính với độ ưu tiên cao nhất ngay khi mở app
+  useEffect(() => {
+    let active = true;
+    const img = new Image();
+    img.src = 'https://i.ibb.co/vy4ykmw/vespertine.png';
+    const markLoaded = async () => {
+      if (!active) return;
+      try {
+        if ('decode' in img) {
+          await img.decode();
+        }
+      } catch (e) {}
+      if (!active) return;
+      vespertineLoadedRef.current = true;
+      setVespertineLoaded(true);
+      if (pendingIntroCompleteRef.current) {
+        pendingIntroCompleteRef.current = false;
+        setScene('main-app');
+      }
+    };
+
+    if (img.complete && img.naturalWidth > 0) {
+      markLoaded();
+    } else {
+      img.onload = markLoaded;
+      img.onerror = () => {
+        setTimeout(() => {
+          if (!active) return;
+          const retry = new Image();
+          retry.src = 'https://i.ibb.co/vy4ykmw/vespertine.png';
+          retry.onload = markLoaded;
+        }, 800);
+      };
+    }
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Dynamic TOC Image Frame Algorithm: Ẩn/hiện dựa theo khoảng cách thực tế từ dòng dưới MỤC LỤC đến cạnh trái danh sách
   const computeShowTocFrame = (): boolean => {
     if (typeof window === 'undefined') return false;
@@ -245,13 +290,27 @@ export default function App() {
     let isFinished = false;
 
     const progressInterval = setInterval(() => {
-      const realTarget = Math.round((loadedCount / totalAssets) * 100);
-      if (currentDisplayProgress < realTarget) {
+      // vespertine.png là ảnh nền giao diện chính quyết định, nếu chưa load xong thì tiến trình tối đa chỉ được lên 85%
+      const baseRatio = loadedCount / totalAssets;
+      const targetPercent = Math.round(baseRatio * 100);
+      const cappedTarget = vespertineLoadedRef.current ? targetPercent : Math.min(85, targetPercent);
+
+      if (currentDisplayProgress < cappedTarget) {
+        currentDisplayProgress += 1;
+        setInitialLoadingProgress(currentDisplayProgress);
+      } else if (vespertineLoadedRef.current && currentDisplayProgress < 100) {
         currentDisplayProgress += 1;
         setInitialLoadingProgress(currentDisplayProgress);
       }
-      // Bắt buộc load hết toàn bộ ảnh, đặc biệt là ảnh ở giao diện chính, và tiến trình đạt 100%
-      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+
+      // ĐIỀU KIỆN BẮT BUỘC: Ảnh nền Vespertine PHẢI load & decode xong hoàn toàn (vespertineLoadedRef.current === true)
+      // VÀ toàn bộ ảnh đã tải, tiến trình hiển thị đạt 100%
+      if (
+        vespertineLoadedRef.current &&
+        loadedCount >= totalAssets &&
+        currentDisplayProgress >= 100 &&
+        !isFinished
+      ) {
         isFinished = true;
         clearInterval(progressInterval);
         clearTimeout(safetyTimer);
@@ -261,9 +320,9 @@ export default function App() {
       }
     }, 14);
 
-    // Safety fallback timer sau 30s đề phòng mạng người dùng chập chờn
+    // Safety fallback timer sau 30s đề phòng mạng người dùng chập chờn, nhưng CHỈ ĐƯỢC CHUYỂN KHI VESPERTINE ĐÃ LOAD XONG
     const safetyTimer = setTimeout(() => {
-      if (!isFinished) {
+      if (vespertineLoadedRef.current && !isFinished) {
         isFinished = true;
         setInitialLoadingProgress(100);
         clearInterval(progressInterval);
@@ -1035,10 +1094,14 @@ export default function App() {
       return () => clearTimeout(t);
     }
     if (scene === 'intro-clock-multiple') {
-      // Safety fallback timer: IntroClock now handles completing and transitioning dynamically via onComplete
+      // Safety fallback timer: Chỉ chuyển sang main-app khi ảnh nền Vespertine ĐÃ LOAD VÀ DECODE XONG!
       const t = setTimeout(() => {
-        setScene('main-app');
-      }, 3500);
+        if (vespertineLoadedRef.current) {
+          setScene('main-app');
+        } else {
+          pendingIntroCompleteRef.current = true;
+        }
+      }, 5000);
       return () => clearTimeout(t);
     }
 
@@ -1166,7 +1229,17 @@ export default function App() {
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{ opacity: 0.001, transform: 'translateZ(0)', pointerEvents: 'none' }}
       />
-      <VespertineBackground />
+      <VespertineBackground 
+        onLoaded={() => {
+          vespertineLoadedRef.current = true;
+          setVespertineLoaded(true);
+          if (pendingIntroCompleteRef.current) {
+            pendingIntroCompleteRef.current = false;
+            setScene('main-app');
+          }
+        }}
+        isReady={vespertineLoaded}
+      />
 
       {/* KC1: Start Screen ("phát") */}
       {scene === 'intro-play' && (
@@ -1215,7 +1288,15 @@ export default function App() {
       {scene === 'intro-clock-multiple' && (
         <IntroClock 
           mode="multiple" 
-          onComplete={() => setScene('main-app')} 
+          onComplete={() => {
+            // ĐIỀU KIỆN TIÊN QUYẾT: Ảnh nền của giao diện chính PHẢI LOAD & DECODE XONG thì intro mới chạy xong!
+            if (vespertineLoadedRef.current) {
+              setScene('main-app');
+            } else {
+              // Nếu animation đồng hồ chạy xong mà ảnh nền chưa decode xong, giữ màn hình intro chờ cho đến khi ảnh sẵn sàng
+              pendingIntroCompleteRef.current = true;
+            }
+          }} 
         />
       )}
 
@@ -1827,7 +1908,7 @@ export default function App() {
             {/* The 100vh Main Screen View */}
             <div className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex items-center justify-center overflow-hidden snap-start snap-always">
               {/* Background Image */}
-              <VespertineBackground shiftLeft={false} />
+              <VespertineBackground shiftLeft={false} isReady={vespertineLoaded} />
 
               {/* Minimal Language Indicator / Switcher in Main App (Top Right) */}
               <div 

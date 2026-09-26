@@ -4348,6 +4348,29 @@ Chi tiết thay đổi & tính năng tích hợp:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 104: BẢO ĐẢM ẢNH NỀN VESPERTINE PHẢI LOAD & DECODE XONG THÌ INTRO MỚI KẾT THÚC
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /index.html
+  - /src/components/VespertineBackground.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. index.html:
+     - Xóa bỏ 2 liên kết `<link rel="preload">` của `vespertine-bg.png` và `vespertine-sj.png` cũ, giải phóng toàn bộ băng thông mạng lúc khởi động trang để tập trung 100% tải ảnh nền gốc `vespertine.png` (4.8MB).
+  2. Cơ chế khóa chặn (Hard Gate) trước khi kết thúc intro (App.tsx):
+     - Khởi tạo tải và gọi hàm `img.decode()` đối với ảnh `vespertine.png` với độ ưu tiên cao nhất ngay khi app mount.
+     - Màn hình LOADING ban đầu (`pre-intro`): Giới hạn thanh tiến trình tối đa 85% nếu `vespertine.png` chưa load xong. BẮT BUỘC ảnh nền `vespertine.png` phải hoàn tất tải và decode vào bộ nhớ GPU thì `pre-intro` mới được phép nhảy sang 100% và chuyển tiếp sang intro.
+     - Màn hình Intro Clock (`intro-clock-multiple`): Sự kiện kết thúc `onComplete` của dãy đồng hồ được khóa chặn chặt chẽ. Nếu hoạt ảnh đồng hồ đã chạy xong nhưng ảnh nền chưa hoàn tất decode, giao diện intro sẽ tiếp tục giữ trạng thái chờ cho đến khi ảnh nền sẵn sàng 100% mới chuyển sang `main-app`.
+  3. VespertineBackground.tsx:
+     - Bổ sung callback `onLoaded` thông qua `e.currentTarget.decode()`, đảm bảo element `<img>` trên DOM đã giải nén xong thành pixel trước khi hiển thị.
+     - Sử dụng `isReady` với nền đen và hiệu ứng chuyển mượt, loại bỏ hoàn toàn hiện tượng render ảnh theo từng dòng quét pixel (scanline) gây khó chịu cho người dùng.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
 
 
 
