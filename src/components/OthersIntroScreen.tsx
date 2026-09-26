@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppLanguage } from '../types';
 import { OthersForPhatScreen } from './OthersForPhatScreen';
+import { OthersForFriendsScreen } from './OthersForFriendsScreen';
 import { OthersFor12A2Screen } from './OthersFor12A2Screen';
 
 interface OthersIntroScreenProps {
@@ -9,12 +10,21 @@ interface OthersIntroScreenProps {
 }
 
 export const OthersIntroScreen: React.FC<OthersIntroScreenProps> = ({ onBack, language = 'vi' }) => {
-  const [activeProject, setActiveProject] = useState<'FOR_PHAT' | 'FOR_12A2' | null>(null);
+  const [activeProject, setActiveProject] = useState<'FOR_PHAT' | 'FOR_FRIENDS' | 'FOR_12A2' | null>(null);
   const isEn = language === 'en';
 
   if (activeProject === 'FOR_PHAT') {
     return (
       <OthersForPhatScreen 
+        onBack={() => setActiveProject(null)} 
+        language={language} 
+      />
+    );
+  }
+
+  if (activeProject === 'FOR_FRIENDS') {
+    return (
+      <OthersForFriendsScreen 
         onBack={() => setActiveProject(null)} 
         language={language} 
       />
@@ -77,7 +87,7 @@ export const OthersIntroScreen: React.FC<OthersIntroScreenProps> = ({ onBack, la
           </p>
         </div>
 
-        {/* Danh sách 2 option học theo định dạng typography của HVOC */}
+        {/* Danh sách các option học theo định dạng typography của HVOC */}
         <div className="w-full flex flex-col space-y-5 sm:space-y-6 md:space-y-8 text-[clamp(1.25rem,3vw,2.25rem)] text-white/95 font-archivo font-medium tracking-tight leading-snug select-none uppercase">
           
           {/* Option 01: CHO PHÁT */}
@@ -94,14 +104,28 @@ export const OthersIntroScreen: React.FC<OthersIntroScreenProps> = ({ onBack, la
             </span>
           </div>
 
-          {/* Option 02: CHO LỚP 12A2 */}
+          {/* Option 02: CHO BẠN CỦA PHÁT */}
+          <div 
+            id="others-option-for-friends"
+            onClick={() => setActiveProject('FOR_FRIENDS')}
+            className="w-fit flex items-baseline gap-3.5 sm:gap-4.5 cursor-pointer group"
+          >
+            <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.68em] shrink-0 select-none">
+              02
+            </span>
+            <span className="hover-force-italic hover:text-white cursor-pointer transition-colors">
+              {isEn ? "FOR PHAT'S FRIENDS" : 'CHO BẠN CỦA PHÁT'}
+            </span>
+          </div>
+
+          {/* Option 03: CHO LỚP 12A2 */}
           <div 
             id="others-option-for-12a2"
             onClick={() => setActiveProject('FOR_12A2')}
             className="w-fit flex items-baseline gap-3.5 sm:gap-4.5 cursor-pointer group"
           >
             <span className="font-archivo font-normal not-italic text-[#89CC04] text-[0.68em] shrink-0 select-none">
-              02
+              03
             </span>
             <span className="hover-force-italic hover:text-white cursor-pointer transition-colors">
               {isEn ? 'FOR CLASS 12A2' : 'CHO LỚP 12A2'}

@@ -4052,6 +4052,283 @@ Chi tiết giải pháp tối ưu:
      - TypeScript linter: 0 lỗi (tsc --noEmit).
      - Production build: Thành công 100%.
 
+================================================================================
+LẦN 93: THÊM MỤC "CHO BẠN CỦA PHÁT" VÀO MỤC KHÁC VÀ LƯU TRỮ 10 LIÊN KẾT MULTIMEDIA
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersIntroScreen.tsx
+  - /src/components/OthersForFriendsScreen.tsx
+  - /multimediaArchive.ts
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Thêm mục "CHO BẠN CỦA PHÁT" làm số 02 trong mục Khác (OthersIntroScreen.tsx):
+     - Mục 01: CHO PHÁT (FOR PHAT).
+     - Mục 02: CHO BẠN CỦA PHÁT (FOR PHAT'S FRIENDS) - Thêm mới với số xanh #89CC04 và hiệu ứng hover-force-italic, id "others-option-for-friends".
+     - Mục 03: CHO LỚP 12A2 (FOR CLASS 12A2) - Đổi số thứ tự từ 02 thành 03 theo đúng yêu cầu người dùng.
+     - Cập nhật state activeProject nhận giá trị 'FOR_FRIENDS'.
+  2. Tạo component màn hình mới Cho bạn của Phát (OthersForFriendsScreen.tsx):
+     - Giao diện chuẩn Boulevard1st sắc nét, hoàn toàn không bo góc (rounded-none).
+     - Đầy đủ nút "trở về" / "back" trên cả Desktop (cố định góc trên bên trái) và Mobile (đầu luồng trang cuộn).
+     - Tiêu đề chính: "CHO BẠN CỦA PHÁT" (tiếng Anh: "FOR PHAT'S FRIENDS").
+     - Dòng phụ đề: "KHO ẤN PHẨM & KỶ NIỆM BẠN BÈ" (tiếng Anh: "FRIENDS ARCHIVE & MEMORIES").
+     - Tuân thủ nghiêm ngặt chỉ thị "chưa show cái nào": Không render hiển thị bất cứ hình ảnh nào trên giao diện khi người dùng chưa yêu cầu.
+  3. Lưu trữ đầy đủ 10 liên kết multimedia mới vào kho lưu trữ (multimediaArchive.ts):
+     - [A2K28] 19_11_2025: Cập nhật đường dẫn chuẩn từ kho GitHub sang file [A2K28] 19_11_2025.webp.
+     - [A2K28] 20_10_2025: Lưu trữ [A2K28] 20_10_2026.webp.
+     - Random: Lưu trữ file Random/私はゲイの男性です.webp.
+     - brat: Lưu trữ trọn bộ 3 ấn phẩm brat1.webp, brat2.webp, brat3.webp.
+     - Poster: Lưu trữ trọn bộ 4 poster KA.webp, MA.webp, MU.webp, ĐN.webp.
+     - Xuất mảng STORED_INDIVIDUAL_PENDING_LINKS chứa cấu trúc toàn bộ 10 liên kết (cả link kho GitHub trực quan và link raw CDN) để sẵn sàng sử dụng khi cần mở rộng.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 94: CẬP NHẬT ẢNH 19/11, THÊM ẢNH 20/10, ĐƯA BRAT VÀO CHO PHÁT VÀ HIỂN THỊ RANDOM TRONG CHO BẠN CỦA PHÁT
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+  - /src/components/OthersForPhatScreen.tsx
+  - /src/components/OthersForFriendsScreen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Mục 19/11 (OthersFor12A2Screen.tsx):
+     - Thay thế triệt để ảnh có sẵn trong mục 02 (19_11_2025) bằng link mới:
+       POSTER_19_11_URL: https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp (kích thước gốc 10000x10000).
+     - Loại bỏ hoàn toàn đường dẫn cũ.
+  2. Mục 20/10 (OthersFor12A2Screen.tsx):
+     - Thêm ảnh mới vào mục 03 (20_10_2025):
+       POSTER_20_10_URL: https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp.
+     - Hiển thị khung poster phẳng chuẩn Boulevard1st sắc nét, bo góc rounded-none, bóng đổ shadow-2xl.
+  3. Đưa BRAT vào mục CHO PHÁT (OthersForPhatScreen.tsx):
+     - Thêm Dự án 06: BRAT với bộ 3 ấn phẩm brat1.webp, brat2.webp, brat3.webp (5000x5000).
+     - Hỗ trợ đầy đủ 2 chế độ hiển thị chuyên nghiệp:
+       + Instagram mode: Khung 1:1 vuông vức, lướt snap-x, mũi tên điều hướng, chỉ số 1/3, các vạch định vị (dash lines).
+       + Tuyến tính (Linear mode): Dải cuộn ngang mượt mà, hỗ trợ cuộn chuột ngang mượt mà.
+       + Thanh chuyển đổi chế độ Tuyến tính / Instagram tiêu chuẩn Boulevard1st.
+  4. Hiển thị ảnh còn lại vào mục CHO BẠN CỦA PHÁT (OthersForFriendsScreen.tsx):
+     - Thêm Dự án 01: RANDOM - 私はゲイの男性です với hình ảnh https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Random/%E7%A7%81%E3%81%AF%E3%82%B2%E3%82%A4%E3%81%AE%E7%94%B7%E6%80%A7%E3%81%A7%E3%81%99.webp (3828x2872).
+     - Đồng bộ giao diện tối giản chuẩn mực: Nút "trở về" Desktop & Mobile, header số xanh #89CC04, khung ảnh viền neutral-900 bo góc rounded-none.
+     - Giữ nguyên 4 poster (KA, MA, MU, ĐN) chưa hiển thị để chờ hướng dẫn tiếp theo của người dùng.
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 95: THIẾT KẾ BỐ CỤC 4 POSTER (KA, MA, MU, ĐN) THEO MINH HỌA DESKTOP & MOBILE
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/OthersForFriendsScreen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Thêm mục 02: POSTER trong màn hình CHO BẠN CỦA PHÁT (OthersForFriendsScreen.tsx).
+  2. Bố cục Mobile (< md) chuẩn xác theo hình minh họa đính kèm:
+     - Chia 2 cột dọc so le (Masonry 2-column grid).
+     - Cột 1 (Bên trái): Poster KA (trên) và Poster MA (dưới).
+     - Cột 2 (Bên phải): Poster MU (trên) và Poster ĐN (dưới), được đẩy trễ xuống dưới (pt-10 sm:pt-14) so le nhịp nhàng với cột 1.
+  3. Bố cục Desktop (>= md) chuẩn xác theo hình minh họa đính kèm:
+     - Dàn 4 poster thành một hàng ngang so le zic-zắc (staggered horizontal row):
+       + Poster 1 (KA): Độ cao vừa phải (md:mt-8 lg:mt-10).
+       + Poster 2 (MA): Hạ sâu xuống dưới (md:mt-24 lg:mt-32).
+       + Poster 3 (MU): Đẩy lên vị trí cao nhất (md:mt-0).
+       + Poster 4 (ĐN): Hạ ở mức trung gian (md:mt-14 lg:mt-20).
+  4. Trải nghiệm tương tác & Quy tắc thiết kế:
+     - Tuân thủ nghiêm ngặt quy tắc Boulevard1st: Các poster sắc cạnh, hoàn toàn không bo góc (rounded-none).
+     - Tỉ lệ khung hình aspect-[3611/5000] đúng chuẩn kích thước gốc của 4 tác phẩm.
+     - Hiệu ứng hover viền sáng và phóng to nhẹ mượt mà.
+     - Hỗ trợ Lightbox Modal: Khi nhấp vào bất kỳ poster nào, mở ảnh phóng to toàn màn hình chất lượng cao kèm phím ESC / nút đóng linh hoạt.
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 96: TẠO ZONE MỚI TRONG PAKVARD VÀ BÊ NGUYÊN SI MODEL 3D HỘP ĐĨA CD JEWEL CASE
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+File ảnh hưởng:
+  - /src/components/CDJewelCaseViewer.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Tạo component mới CDJewelCaseViewer (/src/components/CDJewelCaseViewer.tsx):
+     - Bê nguyên si toàn bộ mã nguồn mô hình 3D Jewel Case từ tài liệu đặc tả markdown:
+       * JewelCaseModel: Thân hộp vỏ nhựa acrylic trong suốt cao cấp (transmission: 1, IOR: 1.5, clearcoat: 1), bản lề mở nắp góc -180 độ mượt mà với useFrame Lerp (delta * 6).
+       * Khay đĩa (Jewel Tray) với trụ đỡ (pillar), chấu kẹp (hub) và 6 răng kẹp (hub teeth).
+       * Đĩa CD (Compact Disc) với vòng nhựa trong tâm, mặt đĩa kim loại phản xạ (metalness: 0.45, roughness: 0.2, DoubleSide), tự động quay nhẹ khi mở nắp.
+       * Booklet 2 mặt trước - trong và giấy lót đáy (tray card) kèm gáy 2 bên (spines).
+       * CDScene: Canvas camera fov 45, OrbitControls xoay 360 độ và thu phóng, Environment preset="city", ContactShadows đổ bóng mềm.
+  2. Mở rộng PAKVARD thêm Zone 4 (ReimaginedIntroScreen.tsx):
+     - Mở rộng ReimaginedZone từ 3 zone lên 4 zone: 'zone-main' | 'zone-chv' | 'zone-ussh' | 'zone-cd'.
+     - Điều chỉnh phạm vi chuyển zone (goToZone bounds: 0 -> 3), đồng bộ cả cử chỉ cuộn chuột (wheel) và vuốt chạm (touch swipe trên mobile).
+     - Thêm thanh điều khiển tối giản chuẩn Boulevard1st ở Zone 4:
+       * 'mở nắp' / 'đóng nắp' ('open lid' / 'close lid').
+       * 'hiện đĩa cd' / 'ẩn đĩa cd' ('show cd' / 'hide cd').
+       * Hỗ trợ nhấp đúp vào không gian 3D để đóng/mở nắp hộp trực quan.
+     - Tuân thủ nghiêm ngặt quy tắc Boulevard1st: Các phần tử đều sắc nét, hoàn toàn không bo góc (rounded-none).
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 98: CẬP NHẬT GIAO DIỆN PAKVARD, THẺ HỌC SINH CHV, #BLVD VÀ VIDEO HVOC
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /src/components/Lanyard.tsx
+  - /src/App.tsx
+  - /index.html
+  - /src/components/HvocBuuDienScreen.tsx
+  - /src/components/HvocDdo7Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Tinh chỉnh tiêu đề và Sublogo trong PAKVARD (ReimaginedIntroScreen.tsx):
+     - Bỏ chữ PAKVARD vẽ chìm trong background SVG và bỏ dòng "Reimagined by Boulevard", chỉ giữ chữ PAKVARD chuẩn chỉ ở chính giữa.
+     - Tích hợp "Sublogo" ở góc trên bên trái cố định tương tự như #BLVD cho từng zone:
+       * Zone 2 (CHV): "THẺ HỌC SINH" / "STUDENT ID CARD" (không đề cập tên trường).
+       * Zone 3 (USSH): "THƯ CHÚC MỪNG TRÚNG TUYỂN" / "CONGRATULATORY ADMISSION LETTER" (không đề cập tên trường).
+       * Zone 4 (Jewel Case): "ALBUM CONFESSIONS II - HỘP NHỰA CỨNG/JEWEL CASE" / "ALBUM CONFESSIONS II - JEWEL CASE".
+       * Nút chữ "trở về" / "back" font Archivo thường nằm ngay dưới Sublogo.
+  2. Sửa lỗi mặt sau thẻ học sinh CHV bị lộn ngược ("trồng cây chuối") (Lanyard.tsx):
+     - Điều chỉnh góc xoay khi vẽ mặt sau (BACK_UV_RECT) của thẻ ngang sang +Math.PI / 2 thay vì -Math.PI / 2, bù trừ chính xác trục tọa độ lật của UV atlas mặt sau trong phôi 3D, giúp mặt sau hiển thị xuôi chiều đứng thẳng 100%.
+  3. Thêm đoạn văn bản giới thiệu ở #BLVD (App.tsx):
+     - Bổ sung đoạn văn bản song ngữ Việt - Anh font Archivo thường, nằm chính giữa màn hình Zone 1 (#BLVD), text màu trắng kèm text-shadow viền đen dày dặn sắc sảo, chống chìm trên nền chữ #BLVD nét đậm.
+  4. Đổi 2 video HVOC sang Facebook SDK (index.html, HvocBuuDienScreen.tsx, HvocDdo7Screen.tsx):
+     - Tích hợp Facebook SDK v21.0 vào index.html với #xfbml=1.
+     - Bưu điện HVOC: Thay thế link video bằng Facebook SDK player nhúng trực tiếp Reel https://www.facebook.com/reel/712364394623580.
+     - HVOC Đường đến Ozone 7 (DDO): Tách riêng Poster (Mục 01) và Video giới thiệu (Mục 02 nhúng Reel https://www.facebook.com/reel/3717604911717834 qua Facebook SDK), đồng thời đánh số lại các mục tiếp theo (03: Khung avatar, 04: Thẻ đeo, 05: Dây đeo, 06: Layout 1, 07: Layout 2, 08: Layout 3).
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (tsc --noEmit).
+     - Production build: Thành công 100%.
+
+================================================================================
+LẦN 99: CẬP NHẬT TỈ LỆ 16:9 VÀ SCALE TOÀN DIỆN CHO 2 VIDEO HVOC (BƯU ĐIỆN & DDO 7)
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/FacebookVideoEmbed.tsx
+  - /src/index.css
+  - /src/components/HvocBuuDienScreen.tsx
+  - /src/components/HvocDdo7Screen.tsx
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Tạo component FacebookVideoEmbed (/src/components/FacebookVideoEmbed.tsx):
+     - Tích hợp phát video Facebook thích ứng cao cấp: hỗ trợ cả Facebook SDK (XFBML) và fallback qua iframe chính thức của Facebook nếu SDK bị chặn/trễ tải.
+     - Cấu hình aspect ratio chuẩn 16:9 với độ phân giải HD (width=1280&height=720).
+     - Tuân thủ quy tắc Boulevard1st: hoàn toàn không viền (border-none), không bo góc (rounded-none).
+  2. Bổ sung CSS responsive toàn cục cho Facebook Video (/src/index.css):
+     - Thiết lập `.fb-video, .fb-video > span, .fb-video iframe` có width: 100% !important, height: 100% !important, max-width: 100% !important, border: none !important, border-radius: 0px !important.
+     - Đảm bảo video luôn phủ kín khung hiển thị và co giãn mượt mà theo mọi kích cỡ màn hình.
+  3. Video Bưu điện HVOC (HvocBuuDienScreen.tsx):
+     - Chuyển `aspectRatio` của Mục 04 (VIDEO GIỚI THIỆU) từ dọc `9 / 16` sang chuẩn ngang `16 / 9`.
+     - Loại bỏ giới hạn co cụm `maxWidth: '420px'` và `data-width="420"`, mở rộng lên `maxWidth: '100%'` tương đương các item ngang khác (Mục 02, Mục 03) để video scale sắc nét, cân đối với toàn bộ trang.
+     - Nhúng qua component `FacebookVideoEmbed`.
+  4. Video Đường đến Ozone 7 - DDO 7 (HvocDdo7Screen.tsx):
+     - Xác định video giới thiệu là video ngang (horizontal 16:9).
+     - Loại bỏ giới hạn `maxWidth: '420px'` và `data-width="420"`, mở rộng lên `maxWidth: '100%'` và tỉ lệ `16 / 9`, đồng bộ với kích thước của các Layout (06, 07, 08).
+     - Nhúng qua component `FacebookVideoEmbed`.
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi.
+     - Production build: Đã kiểm tra qua compile_applet.
+
+================================================================================
+LẦN 100: BỎ CƠ CHẾ ĐỔI CHẾ ĐỘ, GIẢM OPACITY NỀN #BLVD, TINH CHỈNH 4 POSTER, LOADING CHO MỤC KHÁC, CẬP NHẬT CHO PHÁT (BRAT VÀ THẺ QUÀ TẶNG)
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /src/types.ts
+  - /src/components/OthersForFriendsScreen.tsx
+  - /src/components/OthersForPhatScreen.tsx
+  - /src/components/GiftCard3D.tsx
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Bỏ cơ chế chuyển đổi cá nhân / doanh nghiệp (App.tsx):
+     - Xóa bỏ nút gạt mode trên thanh góc trên bên trái `#main-app-mode-bar`.
+     - Tinh giản mục "Khác" / "Others" trong Mục lục (TOC): loại bỏ các dòng chú thích/điều kiện phức tạp, mọi người dùng đều có thể bấm trực tiếp vào "Khác" để khám phá ấn phẩm cá nhân.
+  2. Giảm opacity chữ #BLVD trong nền ở #BLVD (App.tsx):
+     - SVG nền `#blvd-zone-main`: thêm class `opacity-20` và đổi stroke từ `rgba(255, 255, 255, 0.85)` thành `rgba(255, 255, 255, 0.45)` giúp chữ nền chìm dịu nhẹ, làm nổi bật đoạn văn bản giới thiệu ở chính giữa.
+  3. Tinh chỉnh bộ 4 Poster KA - MA - MU - ĐN (OthersForFriendsScreen.tsx):
+     - Thu hẹp khoảng cách gap giữa các poster 50%:
+       * Mobile: từ `gap-3 sm:gap-4` xuống `gap-1.5 sm:gap-2`.
+       * Desktop: từ `gap-4 lg:gap-6` xuống `gap-2 lg:gap-3`.
+     - Mở rộng kích thước poster (container mở rộng lên max-w-6xl).
+     - Bỏ hoàn toàn badge tên ở góc dưới bên trái của mỗi poster.
+     - Bỏ hover hiệu ứng scale/đổi màu border, đặt `cursor-default`, bỏ click mở modal lightbox.
+     - Giữ nguyên triết lý Boulevard1st: không bo góc (`rounded-none`).
+  4. Bổ sung màn hình LOADING cho mục KHÁC (App.tsx, types.ts):
+     - Thêm scene `'others-loading'` vào `SceneState`.
+     - Xây dựng effect tải trước toàn bộ tư liệu/hình ảnh trong mục KHÁC (Cho Phát, Cho Bạn của Phát, Cho 12A2, icon packs).
+     - Hiển thị màn hình SVG LOADING font Archivo black chuyển động mượt từ 0% đến 100% bằng clipPath theo đúng tiến độ tải tài nguyên thực tế trước khi chuyển sang `others-intro`.
+  5. Cập nhật mục CHO PHÁT (OthersForPhatScreen.tsx, GiftCard3D.tsx):
+     - Dự án brat: Mặc định cố định ở chế độ Instagram 1:1, bỏ hoàn toàn thanh chuyển đổi chế độ bên dưới.
+     - Thẻ quà tặng 3D (GiftCard3D.tsx): Bỏ hiệu ứng hover nghiêng chuột và bóng kính di chuyển phức tạp; bỏ toàn bộ dòng chú thích và icon xung nhịp bên dưới; tuân thủ nguyên tắc Boulevard1st không bo góc (`rounded-none`); giữ cơ chế click lật mặt trước/sau 3D mượt mà.
+  6. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 101: ĐỒNG BỘ LOGO PHẦN MỀM CHO #BLVD, HVOC, MỤC KHÁC VÀ PAKVARD
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /src/components/HvocBuuDienScreen.tsx
+  - /src/components/HvocDdo7Screen.tsx
+  - /src/components/OthersForPhatScreen.tsx
+  - /src/components/OthersForFriendsScreen.tsx
+  - /src/components/OthersFor12A2Screen.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. #BLVD (App.tsx):
+     - Hiển thị logo phần mềm ở bên phải sublogo fixed góc trên bên trái:
+       * #BLVD18: Logo Affinity Designer (affinity.jpg).
+       * #BLVD17: Logo Canva (canva.webp).
+       * #blvd16: Logo Canva (canva.webp).
+  2. HVOC (HvocBuuDienScreen.tsx, HvocDdo7Screen.tsx, v.v.):
+     - Toàn bộ ấn phẩm hình ảnh sử dụng logo Canva.
+     - Các ấn phẩm video (Bưu điện HVOC reel & DDO 7 reel) chuyển sang hiển thị logo Affinity Designer.
+  3. MỤC KHÁC (OthersForPhatScreen.tsx, OthersForFriendsScreen.tsx, OthersFor12A2Screen.tsx):
+     - Chuyển toàn bộ các ấn phẩm trong mục "Cho Phát" và "Cho bạn của Phát" sang logo Canva duy nhất (loại bỏ Affinity ở Đà Lạt 16 và 17).
+     - Ở mục "Cho 12A2":
+       * Ấn phẩm "Hậu Tốt Nghiệp 2026": Giữ nguyên quy trình 3 công cụ (Canva, Edits, ibisPaint) bên trong modal, đồng thời hiển thị đủ cả 3 logo phần mềm này ở ngoài tiêu đề chính của dự án.
+       * Hai poster 19/11 và 20/10: Hiển thị logo Canva.
+  4. PAKVARD [REIMAGINED] (ReimaginedIntroScreen.tsx):
+     - Hiển thị logo phần mềm ở bên phải sublogo fixed góc trên bên trái:
+       * USSH (Thư chúc mừng trúng tuyển): Logo Affinity Designer.
+       * CHV (Thẻ học sinh) & CD (Album Confessions II): Logo Canva.
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 102: CẬP NHẬT LOGO FILMORA CHO VIDEO HVOC, THÊM (KHÔNG CHÍNH THỨC) CHO PAKVARD, LOGO CANVA CHO SPOTIFLYER, BO GÓC THẺ QUÀ TẶNG VÀ NÚT TIKTOK CHO HẬU TỐT NGHIỆP
+================================================================================
+Thời điểm: 2026-09-26 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/HvocBuuDienScreen.tsx
+  - /src/components/HvocDdo7Screen.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /src/components/TntnIntroScreen.tsx
+  - /src/components/GiftCard3D.tsx
+  - /src/components/OthersFor12A2Screen.tsx
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. HVOC (HvocBuuDienScreen.tsx, HvocDdo7Screen.tsx):
+     - Chuyển logo phần mềm cho các ấn phẩm video từ Affinity sang Filmora (filmora.webp).
+     - Giữ nguyên logo Canva cho toàn bộ ấn phẩm hình ảnh tĩnh.
+  2. PAKVARD [REIMAGINED] (ReimaginedIntroScreen.tsx):
+     - Bổ sung nhãn "(KHÔNG CHÍNH THỨC)" / "(UNOFFICIAL)" với chữ màu đỏ (text-red-500 font-semibold) vào ngay sau mỗi sublogo (Thẻ học sinh, Thư chúc mừng trúng tuyển, Album Confessions II - Jewel Case).
+     - Font size tương đương sublogo (text-sm sm:text-lg md:text-xl lg:text-2xl) và căn chỉnh cân đối theo trục dọc với logo phần mềm (Canva / Affinity).
+  3. ĐỘI TNTN (TntnIntroScreen.tsx):
+     - Thêm logo Canva (canva.webp) đặt ngay bên cạnh chữ tiêu đề "SPOTIFLYER" (cả trên giao diện mobile và desktop).
+  4. THẺ QUÀ TẶNG (GiftCard3D.tsx):
+     - Bo góc mềm mại, tự nhiên mô phỏng thẻ nhựa thực tế (rounded-[14px] sm:rounded-[16px]) trên thân thẻ, mặt trước, mặt sau và ảnh bên trong.
+  5. HẬU TỐT NGHIỆP 2026 (OthersFor12A2Screen.tsx):
+     - Thêm nút liên kết "tiktok" nằm bên trái nút "workflow" / "cách thực hiện".
+     - Ghim đường dẫn trực tiếp: https://www.tiktok.com/@becamextokyubus/video/7674864346085821716?is_from_webapp=1&sender_device=pc với target="_blank" rel="noopener noreferrer".
+  6. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
 
 
 

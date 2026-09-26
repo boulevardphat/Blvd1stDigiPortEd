@@ -65,9 +65,18 @@ export const TntnIntroScreen: React.FC<TntnIntroScreenProps> = ({ onBack, langua
         <span className="font-archivo font-normal text-[#89CC04] text-[0.72em] sm:text-[0.8em] uppercase tracking-wider mb-1 select-none">
           {isEn ? 'DECODING GAME' : 'TRÒ CHƠI GIẢI MÃ'}
         </span>
-        <h2 className="font-archivo font-bold text-2xl sm:text-3xl lg:text-[2.35rem] tracking-tight uppercase leading-[1.15] text-white select-none">
-          SPOTIFLYER
-        </h2>
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <h2 className="font-archivo font-bold text-2xl sm:text-3xl lg:text-[2.35rem] tracking-tight uppercase leading-[1.15] text-white select-none">
+            SPOTIFLYER
+          </h2>
+          <img
+            src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+            alt="Canva"
+            title="Canva"
+            className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 object-contain rounded-none select-none pointer-events-none shrink-0"
+            referrerPolicy="no-referrer"
+          />
+        </div>
         <span className="font-archivo font-medium text-white/50 text-xs sm:text-sm uppercase tracking-widest mt-1 select-none">
           {isEn ? 'RULES OF PLAY' : 'LUẬT CHƠI'}
         </span>

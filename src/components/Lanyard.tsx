@@ -379,7 +379,7 @@ function Band({
     // Keep the original baked atlas for the card edges and any untouched face.
     ctx.drawImage(baseImg, 0, 0, W, H);
 
-    const drawFitted = (img: HTMLImageElement, rect: { x: number; y: number; w: number; h: number }) => {
+    const drawFitted = (img: HTMLImageElement, rect: { x: number; y: number; w: number; h: number }, isBack: boolean = false) => {
       if (!img || !img.width || !img.height) return;
       const rx = rect.x * W;
       const ry = rect.y * H;
@@ -387,9 +387,11 @@ function Band({
       const rh = rect.h * H;
 
       if (isLandscape) {
-        // Landscape card rotation: xoay 90 độ CCW để khớp với hình học thẻ 3D xoay ngang.
-        // Tạo khung trắng ở cạnh trên thẻ: ô/lỗ xỏ nằm chính giữa khung trắng đó,
-        // ở dưới khung trắng đó là toàn bộ ảnh thẻ bình thường không bị cắt hay đục lỗ.
+        // Landscape card rotation:
+        // Mặt trước (FRONT_UV_RECT): xoay -90 độ (-Math.PI / 2) để đứng thẳng theo trục thẻ ngang.
+        // Mặt sau (BACK_UV_RECT): do hình học mặt sau lật ngược trục quanh Y trong UV atlas, xoay +90 độ (+Math.PI / 2) để mặt sau không bị lộn ngược ("trồng cây chuối").
+        const rotationAngle = isBack ? Math.PI / 2 : -Math.PI / 2;
+
         const whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO;
         const contentH = rw - whiteHeaderH;
 
@@ -398,7 +400,7 @@ function Band({
         ctx.rect(rx, ry, rw, rh);
         ctx.clip();
         ctx.translate(rx + rw / 2, ry + rh / 2);
-        ctx.rotate(-Math.PI / 2);
+        ctx.rotate(rotationAngle);
 
         // 1. Phủ toàn bộ thẻ bằng màu trắng phôi thẻ cao cấp
         ctx.fillStyle = '#FFFFFF';
@@ -472,8 +474,8 @@ function Band({
       ctx.restore();
     };
 
-    if (frontImage && frontTex?.image) drawFitted(frontTex.image, FRONT_UV_RECT);
-    if (backImage && backTex?.image) drawFitted(backTex.image, BACK_UV_RECT);
+    if (frontImage && frontTex?.image) drawFitted(frontTex.image, FRONT_UV_RECT, false);
+    if (backImage && backTex?.image) drawFitted(backTex.image, BACK_UV_RECT, true);
 
     const composite = new THREE.CanvasTexture(canvas);
     composite.colorSpace = THREE.SRGBColorSpace;

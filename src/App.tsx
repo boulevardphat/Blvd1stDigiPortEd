@@ -113,6 +113,7 @@ export default function App() {
   const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
   const [tntnLoadingProgress, setTntnLoadingProgress] = useState(0);
   const [reimaginedLoadingProgress, setReimaginedLoadingProgress] = useState(0);
+  const [othersLoadingProgress, setOthersLoadingProgress] = useState(0);
   const [activeBlvdZone, setActiveBlvdZone] = useState<'zone-blvd' | 'zone-18' | 'zone-17' | 'zone-16'>('zone-blvd');
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
   const [bookletViewMode, setBookletViewMode] = useState<'3d' | 'carousel' | 'instagram'>('3d');
@@ -326,14 +327,9 @@ export default function App() {
   };
 
   const handleOthersClick = () => {
-    // Chuyển sang chế độ cá nhân và mở trang giới thiệu Mục Khác (Others)
-    if (portfolioMode !== 'individual') {
-      setPortfolioMode('individual');
-      try {
-        localStorage.setItem('blvd_portfolio_mode', 'individual');
-      } catch (e) {}
-    }
-    setScene('others-intro');
+    // Bắt đầu chuỗi KHÁC: hiện màn hình LOADING như các mục khác trước khi mở trang giới thiệu
+    setOthersLoadingProgress(0);
+    setScene('others-loading');
   };
 
   // Quản lý tiến trình tải tài nguyên của HVOC
@@ -557,6 +553,120 @@ export default function App() {
         clearInterval(progressInterval);
         setTimeout(() => {
           setScene('reimagined-intro');
+        }, 350);
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
+
+  // Quản lý tiến trình tải toàn bộ tài nguyên của mục KHÁC (OTHERS)
+  useEffect(() => {
+    if (scene !== 'others-loading') return;
+
+    setOthersLoadingProgress(0);
+
+    const othersAssets = [
+      // Cho Phát - Đà Lạt 16 (8 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/1.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/2.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/3.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/4.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/5.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/6.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/7.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD16/8.webp',
+      // Cho Phát - Đà Lạt 17 (5 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD17/1.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD17/2.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD17/3.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD17/4.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Thuan%20Phat%2C%20Boulevard%20et%20ville%20de%20Da%20Lat/%23BLVD17/5.webp',
+      // Cho Phát - Museum of Fine Arts (6 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Museum%20of%20Fine%20Arts/1.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Museum%20of%20Fine%20Arts/2.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Museum%20of%20Fine%20Arts/3.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Museum%20of%20Fine%20Arts/4.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Museum%20of%20Fine%20Arts/5.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Museum%20of%20Fine%20Arts/6.webp',
+      // Cho Phát - Kỉ yếu 12A2 (Thẻ quà tặng & Thư mời)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/K%E1%BB%89%20y%E1%BA%BFu/M%E1%BA%B7t%20tr%C6%B0%E1%BB%9Bc%20th%E1%BA%BB%20qu%C3%A0.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/K%E1%BB%89%20y%E1%BA%BFu/M%E1%BA%B7t%20sau%20th%E1%BA%BB%20qua.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/K%E1%BB%89%20y%E1%BA%BFu/Th%C6%B0%20m%E1%BB%9Di.webp',
+      // Cho Phát - Bảo vệ môi trường
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/B%E1%BA%A3o%20v%E1%BB%87%20m%C3%B4i%20tr%C6%B0%E1%BB%9Dng/b%E1%BA%A3o%20v%E1%BB%87%20m%C3%B4i%20tr%C6%B0%E1%BB%9Dng.webp',
+      // Cho Phát - brat (3 ảnh)
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat1.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat2.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat3.webp',
+      // Cho Bạn của Phát - Random
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Random/%E7%A7%81%E3%81%AF%E3%82%B2%E3%82%A4%E3%81%AE%E7%94%B7%E6%80%A7%E3%81%A7%E3%81%99.webp',
+      // Cho Bạn của Phát - 4 Posters
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/KA.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/MA.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/MU.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/%C4%90N.webp',
+      // Cho 12A2 - Posters & Quy trình
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20%28B%C6%B0%E1%BB%9Bc%200%29.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%201).webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%202).webp',
+      // Icon packs
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/ibispaint.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/edits.webp',
+    ];
+
+    const uniqueAssets = Array.from(new Set(othersAssets));
+    const totalAssets = uniqueAssets.length;
+    let loadedCount = 0;
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    const progressInterval = setInterval(() => {
+      const realTarget = Math.round((loadedCount / totalAssets) * 100);
+      if (currentDisplayProgress < realTarget) {
+        currentDisplayProgress += 1;
+        setOthersLoadingProgress(Math.min(100, currentDisplayProgress));
+      }
+      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('others-intro');
+        }, 350);
+      }
+    }, 14);
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+    };
+
+    uniqueAssets.forEach((url) => {
+      const img = new Image();
+      img.onload = () => {
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(onAssetLoaded);
+        } else {
+          onAssetLoaded();
+        }
+      };
+      img.onerror = onAssetLoaded;
+      img.src = url;
+    });
+
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        setOthersLoadingProgress(100);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setScene('others-intro');
         }, 350);
       }
     }, 30000);
@@ -1234,6 +1344,39 @@ export default function App() {
         />
       )}
 
+      {/* --- SEPARATE OTHERS SEQUENCE --- */}
+      {/* Màn hình loading OTHERS: LOADING hiện dần từ trái sang phải từ 0% đến 100% */}
+      {scene === 'others-loading' && (
+        <div 
+          id="scene-others-loading"
+          className="absolute inset-0 flex items-center justify-center bg-black z-50 overflow-hidden select-none w-full h-full px-2 md:px-8"
+        >
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                clipPath: `inset(0 ${Math.max(0, 100 - othersLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - othersLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
+      )}
+
       {/* Trang giới thiệu Mục Khác (Others) */}
       {scene === 'others-intro' && (
         <OthersIntroScreen 
@@ -1428,27 +1571,54 @@ export default function App() {
               id="blvd-sublogo-fixed-tl"
               className="fixed top-6 left-6 md:top-8 md:left-8 z-50 select-none flex flex-col items-start justify-start gap-1.5 pointer-events-auto"
             >
-              <div className="flex items-center justify-start min-h-[36px]">
+              <div className="flex items-center justify-start min-h-[36px] gap-2.5 sm:gap-3">
                 {activeBlvdZone === 'zone-18' && (
-                  <div className="font-archivo font-normal text-white/90 text-[clamp(1.5rem,3.2vw,2.5rem)] leading-none tracking-normal transition-all duration-300">
-                    #BLVD18
-                  </div>
+                  <>
+                    <div className="font-archivo font-normal text-white/90 text-[clamp(1.5rem,3.2vw,2.5rem)] leading-none tracking-normal transition-all duration-300">
+                      #BLVD18
+                    </div>
+                    <img
+                      src="https://i.ibb.co/pBXrq6cf/affinity.jpg"
+                      alt="Affinity"
+                      title="Affinity"
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain rounded-none select-none pointer-events-none shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  </>
                 )}
                 {activeBlvdZone === 'zone-17' && (
-                  <img
-                    src="/logo_blvd17.webp"
-                    alt="Logo #BLVD17"
-                    referrerPolicy="no-referrer"
-                    className="h-[clamp(1.8rem,3.8vw,2.8rem)] w-auto object-contain brightness-125 select-none pointer-events-none transition-all duration-300"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/logo%20%23blvd17.webp";
-                    }}
-                  />
+                  <>
+                    <img
+                      src="/logo_blvd17.webp"
+                      alt="Logo #BLVD17"
+                      referrerPolicy="no-referrer"
+                      className="h-[clamp(1.8rem,3.8vw,2.8rem)] w-auto object-contain brightness-125 select-none pointer-events-none transition-all duration-300"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/logo%20%23blvd17.webp";
+                      }}
+                    />
+                    <img
+                      src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                      alt="Canva"
+                      title="Canva"
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain rounded-none select-none pointer-events-none shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  </>
                 )}
                 {activeBlvdZone === 'zone-16' && (
-                  <div className="font-arial-custom font-normal text-[#8ace00] text-[clamp(1.5rem,3.2vw,2.5rem)] leading-none tracking-normal transition-all duration-300">
-                    #blvd16
-                  </div>
+                  <>
+                    <div className="font-arial-custom font-normal text-[#8ace00] text-[clamp(1.5rem,3.2vw,2.5rem)] leading-none tracking-normal transition-all duration-300">
+                      #blvd16
+                    </div>
+                    <img
+                      src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                      alt="Canva"
+                      title="Canva"
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain rounded-none select-none pointer-events-none shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  </>
                 )}
               </div>
 
@@ -1556,14 +1726,14 @@ export default function App() {
               transform: `translate3d(0, -${activeZoneIndex * 100}%, 0)`,
             }}
           >
-            {/* ZONE 1 (Đầu tiên): Chữ #BLVD kéo dãn to tràn màn hình */}
+            {/* ZONE 1 (Đầu tiên): Chữ #BLVD kéo dãn to tràn màn hình & Đoạn văn giới thiệu chính giữa */}
             <section 
               id="blvd-zone-main"
               className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex items-center justify-center overflow-hidden"
             >
               <svg 
                 viewBox="0 0 450 100" 
-                className="w-full h-full" 
+                className="w-full h-full absolute inset-0 pointer-events-none select-none opacity-20" 
                 preserveAspectRatio="none"
               >
                 <text
@@ -1574,12 +1744,36 @@ export default function App() {
                   className="font-archivo font-black select-none pointer-events-none"
                   fontSize="105"
                   fill="none"
-                  stroke="rgba(255, 255, 255, 0.85)"
+                  stroke="rgba(255, 255, 255, 0.45)"
                   strokeWidth="1.2"
                 >
                   #BLVD
                 </text>
               </svg>
+
+              {/* Đoạn văn giới thiệu font archivo thường, nằm chính giữa màn hình, text trắng, có viền text đen */}
+              <div className="relative z-10 flex flex-col items-center justify-center max-w-3xl sm:max-w-4xl px-6 sm:px-10 md:px-14 text-center pointer-events-none select-none">
+                <p 
+                  className="font-archivo font-normal text-xs sm:text-sm md:text-base lg:text-lg text-white leading-relaxed sm:leading-loose text-justify sm:text-center"
+                  style={{
+                    textShadow: `
+                      -1.5px -1.5px 0 #000,
+                       1.5px -1.5px 0 #000,
+                      -1.5px  1.5px 0 #000,
+                       1.5px  1.5px 0 #000,
+                      -2px 0 0 #000,
+                       2px 0 0 #000,
+                       0 -2px 0 #000,
+                       0  2px 0 #000,
+                       0 2px 8px rgba(0,0,0,0.9)
+                    `,
+                  }}
+                >
+                  {language === 'vi'
+                    ? '#BLVD là một dự án thiết kế nhỏ, được Thuận Phát thực hiện đều đặn vào dịp sinh nhật hàng năm (26/09). Chỉ xuất hiện lặng lẽ trên Instagram, dự án là nơi gom nhặt những nguồn cảm hứng của Phát từ âm nhạc, nghệ thuật thị giác đến văn hóa đại chúng. Nhưng trên hết, đó là lăng kính cá nhân phản chiếu thế giới quan, cuộc sống và những thăng trầm Phát đã trải qua trong suốt một năm. Vượt lên trên một bài đăng khoe khéo "gu" thẩm mỹ hay kỹ năng thiết kế, #BLVD mang theo nhiều hơn một câu chuyện, và gửi gắm nhiều hơn một góc nhìn mới mà Phát đã tự mình gom góp được.'
+                    : "#BLVD is an intimate design project created annually to mark Thuận Phát's birthday (September 26th). Quietly residing on Instagram, the project is a collection of Phát's inspirations - from music and visual arts to pop culture. Above all, it serves as a personal lens reflecting his worldview and the events that have shaped his life over the past year. Far from being just an aesthetic showcase or a display of design skills, #BLVD tells more than just one story, and conveys more than just one newfound perspective."}
+                </p>
+              </div>
             </section>
 
             {/* ZONE 2: Zone 18 với Booklet 3D dạng gấp Z-fold (6 tờ, tỉ lệ 4:5, không gap) */}
@@ -1637,34 +1831,7 @@ export default function App() {
               {/* Background Image */}
               <VespertineBackground shiftLeft={false} />
 
-              {/* Minimal Mode Indicator / Switcher in Main App (Top Left) */}
-              <div 
-                id="main-app-mode-bar"
-                className="absolute landscape:top-[6.5%] landscape:left-[6.5%] portrait:top-6 portrait:left-6 z-30 pointer-events-auto flex items-center"
-              >
-                <button
-                  type="button"
-                  id="mode-toggle-button"
-                  onClick={() => {
-                    const next = portfolioMode === 'individual' ? 'employer-club' : 'individual';
-                    setPortfolioMode(next);
-                    try {
-                      localStorage.setItem('blvd_portfolio_mode', next);
-                    } catch (e) {}
-                  }}
-                  className="group bg-transparent border-0 p-0 text-white/70 hover:text-white transition-all cursor-pointer flex items-center select-none focus:outline-none"
-                  title={`Current mode: ${portfolioMode === 'individual' ? 'individual' : 'employer / club'}. Click to switch.`}
-                >
-                  <span className="font-archivo text-xs tracking-wider lowercase transition-all group-hover:italic">
-                    {language === 'vi'
-                      ? (portfolioMode === 'individual' ? 'cá nhân' : 'nhà tuyển dụng / clb')
-                      : (portfolioMode === 'individual' ? 'individual' : 'employer / club')
-                    }
-                  </span>
-                </button>
-              </div>
-
-              {/* Minimal Language Indicator / Switcher in Main App (Top Right - Symmetrical) */}
+              {/* Minimal Language Indicator / Switcher in Main App (Top Right) */}
               <div 
                 id="main-app-lang-bar"
                 className="absolute landscape:top-[6.5%] landscape:right-[6.5%] portrait:top-6 portrait:right-6 z-30 pointer-events-auto flex items-center"
@@ -1716,20 +1883,21 @@ export default function App() {
                       <svg 
                         width="100%" 
                         height="100%" 
-                        viewBox="0 0 400 50" 
+                        viewBox="0 0 1000 85" 
                         preserveAspectRatio="none" 
-                        className="w-full h-[clamp(1.5rem,3.5vw,4.5rem)] overflow-visible"
+                        className="w-full h-[clamp(1.2rem,3.2vw,4.2rem)] overflow-hidden"
                       >
                         <text 
-                          x="3" 
-                          y="45" 
-                          textLength="398" 
+                          x="-18" 
+                          y="68" 
+                          textLength="1036" 
                           lengthAdjust="spacingAndGlyphs" 
                           fontFamily="Archivo, sans-serif" 
-                          fontWeight="300" 
-                          fontSize="48" 
-                          fill="rgba(255, 255, 255, 0.7)" 
-                          style={{ textTransform: 'uppercase' }}
+                          fontSize="78" 
+                          fill="none"
+                          stroke="rgba(255, 255, 255, 0.95)"
+                          strokeWidth="3.2"
+                          style={{ fontVariationSettings: '"wdth" 100, "wght" 500', textTransform: 'uppercase' }}
                         >
                           DIGITAL PORTFOLIO
                         </text>
@@ -1759,20 +1927,21 @@ export default function App() {
                       <svg 
                         width="100%" 
                         height="100%" 
-                        viewBox="0 0 400 50" 
+                        viewBox="0 0 1000 85" 
                         preserveAspectRatio="none" 
-                        className="w-full h-[clamp(1.2rem,4vw,2.5rem)] overflow-visible"
+                        className="w-full h-[clamp(1.1rem,4.2vw,2.6rem)] overflow-hidden"
                       >
                         <text 
-                          x="3" 
-                          y="45" 
-                          textLength="398" 
+                          x="-18" 
+                          y="68" 
+                          textLength="1036" 
                           lengthAdjust="spacingAndGlyphs" 
                           fontFamily="Archivo, sans-serif" 
-                          fontWeight="300" 
-                          fontSize="48" 
-                          fill="rgba(255, 255, 255, 0.7)" 
-                          style={{ textTransform: 'uppercase' }}
+                          fontSize="78" 
+                          fill="none"
+                          stroke="rgba(255, 255, 255, 0.95)"
+                          strokeWidth="3.2"
+                          style={{ fontVariationSettings: '"wdth" 100, "wght" 500', textTransform: 'uppercase' }}
                         >
                           DIGITAL PORTFOLIO
                         </text>
@@ -1932,29 +2101,14 @@ export default function App() {
                     PAKVARD
                   </TocItem>
 
-                  {/* Item: Khác / Others (không đánh số) - Reactively changes according to portfolioMode */}
+                  {/* Item: Khác / Others (không đánh số) */}
                   <div 
                     onClick={handleOthersClick}
                     className="w-fit flex flex-col items-start portrait:mt-2.5 portrait:pt-1.5 cursor-pointer group"
-                    title={portfolioMode === 'individual' 
-                      ? (language === 'vi' ? 'Khả dụng ở chế độ Cá nhân. Bấm để xem.' : 'Available in Individual Mode. Click to view.') 
-                      : (language === 'vi' ? 'Bấm để chuyển sang chế độ Cá nhân và xem.' : 'Click to switch to Individual mode and view.')
-                    }
+                    title={language === 'vi' ? 'Khám phá các ấn phẩm khác' : 'Explore other works'}
                   >
-                    <span className={portfolioMode === 'individual' ? 'hover-force-italic text-white/95 hover:text-white cursor-pointer' : 'text-[#888888] group-hover:text-white hover-force-italic cursor-pointer transition-colors'}>
+                    <span className="hover-force-italic text-white/95 group-hover:text-white cursor-pointer transition-colors">
                       {language === 'vi' ? 'Khác' : 'Others'}
-                    </span>
-                    <span className="text-[13px] sm:text-xs md:text-[0.52em] font-normal text-neutral-300/90 tracking-normal mt-1 flex items-center gap-1 flex-wrap">
-                      {portfolioMode === 'individual' ? (
-                        <span>{language === 'vi' ? '(Đang hiển thị - bấm để mở)' : '(Active - click to open)'}</span>
-                      ) : (
-                        <span>
-                          {language === 'vi' ? '(Chỉ có ở chế độ cá nhân, ' : '(Only in individual mode, '}
-                          <span className="text-neutral-300 group-hover:text-white no-underline hover-force-italic font-medium">
-                            {language === 'vi' ? 'bấm để mở)' : 'click to open)'}
-                          </span>
-                        </span>
-                      )}
                     </span>
                   </div>
                 </div>

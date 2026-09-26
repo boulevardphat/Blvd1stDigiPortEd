@@ -743,6 +743,46 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
   },
 
   // =========================================================
+  // EMPLOYER / CLUB: [REIMAGINED] CONFESSIONS II IN JEWEL (4 assets)
+  // =========================================================
+  {
+    id: 'emp-reimagined-jewel-front',
+    title: 'CONFESSIONS II IN JEWEL - Front Cover',
+    project: 'CONFESSIONS II IN JEWEL',
+    category: '[REIMAGINED] CONFESSIONS II IN JEWEL',
+    mode: 'employer-club',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20CONFESSIONS%20II%20IN%20JEWEL/front.webp',
+  },
+  {
+    id: 'emp-reimagined-jewel-inside-front',
+    title: 'CONFESSIONS II IN JEWEL - Inside Front',
+    project: 'CONFESSIONS II IN JEWEL',
+    category: '[REIMAGINED] CONFESSIONS II IN JEWEL',
+    mode: 'employer-club',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20CONFESSIONS%20II%20IN%20JEWEL/inside_front.webp',
+  },
+  {
+    id: 'emp-reimagined-jewel-inside-back',
+    title: 'CONFESSIONS II IN JEWEL - Inside Back',
+    project: 'CONFESSIONS II IN JEWEL',
+    category: '[REIMAGINED] CONFESSIONS II IN JEWEL',
+    mode: 'employer-club',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20CONFESSIONS%20II%20IN%20JEWEL/inside_back.webp',
+  },
+  {
+    id: 'emp-reimagined-jewel-back-spine',
+    title: 'CONFESSIONS II IN JEWEL - Back & Spine',
+    project: 'CONFESSIONS II IN JEWEL',
+    category: '[REIMAGINED] CONFESSIONS II IN JEWEL',
+    mode: 'employer-club',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BREIMAGINED%5D%20CONFESSIONS%20II%20IN%20JEWEL/back_spine.webp',
+  },
+
+  // =========================================================
   // INDIVIDUAL: Bảo vệ môi trường (1 asset)
   // =========================================================
   {
@@ -979,7 +1019,104 @@ export const BLVD_ARCHIVE_ASSETS: ArchiveAsset[] = [
     category: '[A2K28] 19_11_2025',
     mode: 'individual',
     type: 'poster',
-    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2025.webp',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp',
+  },
+
+  // =========================================================
+  // INDIVIDUAL: [A2K28] 20_10_2025 (1 asset)
+  // =========================================================
+  {
+    id: 'ind-a2k28-20-10',
+    title: '[A2K28] 20_10_2025',
+    project: '[A2K28] 20_10_2025',
+    category: '[A2K28] 20_10_2025',
+    mode: 'individual',
+    type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp',
+  },
+
+  // =========================================================
+  // INDIVIDUAL: Random (1 asset)
+  // =========================================================
+  {
+    id: 'ind-random-watashi-wa-gay',
+    title: 'Random - 私はゲイの男性です',
+    project: 'Random',
+    category: 'Random',
+    mode: 'individual',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Random/%E7%A7%81%E3%81%AF%E3%82%B2%E3%82%A4%E3%81%AE%E7%94%B7%E6%80%A7%E3%81%A7%E3%81%99.webp',
+  },
+
+  // =========================================================
+  // INDIVIDUAL: brat (3 assets)
+  // =========================================================
+  {
+    id: 'ind-brat-1',
+    title: 'brat 1',
+    project: 'brat',
+    category: 'brat',
+    mode: 'individual',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat1.webp',
+  },
+  {
+    id: 'ind-brat-2',
+    title: 'brat 2',
+    project: 'brat',
+    category: 'brat',
+    mode: 'individual',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat2.webp',
+  },
+  {
+    id: 'ind-brat-3',
+    title: 'brat 3',
+    project: 'brat',
+    category: 'brat',
+    mode: 'individual',
+    type: 'graphic',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat3.webp',
+  },
+
+  // =========================================================
+  // INDIVIDUAL: Poster (4 assets)
+  // =========================================================
+  {
+    id: 'ind-poster-ka',
+    title: 'Poster KA',
+    project: 'Poster',
+    category: 'Poster',
+    mode: 'individual',
+    type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/KA.webp',
+  },
+  {
+    id: 'ind-poster-ma',
+    title: 'Poster MA',
+    project: 'Poster',
+    category: 'Poster',
+    mode: 'individual',
+    type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/MA.webp',
+  },
+  {
+    id: 'ind-poster-mu',
+    title: 'Poster MU',
+    project: 'Poster',
+    category: 'Poster',
+    mode: 'individual',
+    type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/MU.webp',
+  },
+  {
+    id: 'ind-poster-dn',
+    title: 'Poster ĐN',
+    project: 'Poster',
+    category: 'Poster',
+    mode: 'individual',
+    type: 'poster',
+    url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/%C4%90N.webp',
   },
 
   // =========================================================
@@ -1061,3 +1198,70 @@ export const getProjectGroups = (mode?: PortfolioMode): ProjectGroup[] => {
 
   return Array.from(groupMap.values());
 };
+
+/**
+ * TÀI NGUYÊN ĐƯỢC LƯU TRỮ THEO YÊU CẦU (CHƯA HIỂN THỊ TRÊN GIAO DIỆN)
+ */
+export const STORED_INDIVIDUAL_PENDING_LINKS = [
+  {
+    title: '[A2K28] 19_11_2025',
+    category: '[A2K28] 19_11_2025',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp',
+  },
+  {
+    title: '[A2K28] 20_10_2025',
+    category: '[A2K28] 20_10_2025',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp',
+  },
+  {
+    title: 'Random - 私はゲイの男性です',
+    category: 'Random',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/Random/%E7%A7%81%E3%81%AF%E3%82%B2%E3%82%A4%E3%81%AE%E7%94%B7%E6%80%A7%E3%81%A7%E3%81%99.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Random/%E7%A7%81%E3%81%AF%E3%82%B2%E3%82%A4%E3%81%AE%E7%94%B7%E6%80%A7%E3%81%A7%E3%81%99.webp',
+  },
+  {
+    title: 'brat 1',
+    category: 'brat',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/brat/brat1.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat1.webp',
+  },
+  {
+    title: 'brat 2',
+    category: 'brat',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/brat/brat2.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat2.webp',
+  },
+  {
+    title: 'brat 3',
+    category: 'brat',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/brat/brat3.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat3.webp',
+  },
+  {
+    title: 'Poster KA',
+    category: 'Poster',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/Poster/KA.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/KA.webp',
+  },
+  {
+    title: 'Poster MA',
+    category: 'Poster',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/Poster/MA.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/MA.webp',
+  },
+  {
+    title: 'Poster MU',
+    category: 'Poster',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/Poster/MU.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/MU.webp',
+  },
+  {
+    title: 'Poster ĐN',
+    category: 'Poster',
+    githubUrl: 'https://github.com/boulevardphat/Kho-multimedia-c-a-Blvd/blob/main/blvdarchive/Boulevard1st/Individual/Poster/%C4%90N.webp',
+    rawUrl: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/Poster/%C4%90N.webp',
+  },
+];
+

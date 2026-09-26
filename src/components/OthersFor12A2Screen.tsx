@@ -25,7 +25,10 @@ interface OthersFor12A2ScreenProps {
 const FB_REEL_HAU_TOT_NGHIEP_URL = 'https://www.facebook.com/reel/1364142485827244';
 
 // 2. 19_11_2025: Poster kỷ niệm
-const POSTER_19_11_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2025.webp';
+const POSTER_19_11_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp';
+
+// 3. 20_10_2025: Poster kỷ niệm
+const POSTER_20_10_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp';
 
 // 3. Icon pack công cụ thực hiện
 const ICON_CANVA = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp';
@@ -420,13 +423,37 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
           {/* ========================================================= */}
           <div id="project-hau-tot-nghiep-2026" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
-              <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
                   01
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   {isEn ? 'POST-GRADUATION 2026' : 'HẬU TỐT NGHIỆP 2026'}
                 </span>
+                {/* Tool icons: 3 logo phần mềm thực hiện ngoài giao diện */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src={ICON_CANVA}
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                  <img 
+                    src={ICON_EDITS}
+                    alt="Edits"
+                    title="Edits"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                  <img 
+                    src={ICON_IBISPAINT}
+                    alt="ibisPaint"
+                    title="ibisPaint"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
             </div>
 
@@ -435,7 +462,17 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
               <FacebookReelPlayer reelUrl={FB_REEL_HAU_TOT_NGHIEP_URL} />
 
               {/* Thanh tool ở dưới khung FB Reel (không khung, font archivo thường) */}
-              <div className="flex items-center justify-center gap-4 mt-5 select-none">
+              <div className="flex items-center justify-center gap-6 mt-5 select-none">
+                <a
+                  href="https://www.tiktok.com/@becamextokyubus/video/7674864346085821716?is_from_webapp=1&sender_device=pc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="link-hau-tot-nghiep-tiktok"
+                  className="font-archivo font-normal normal-case text-sm md:text-base tracking-normal text-white/50 hover:text-white transition-colors duration-200 cursor-pointer pointer-events-auto bg-transparent border-none p-0 outline-none rounded-none no-underline"
+                  title="TikTok video"
+                >
+                  tiktok
+                </a>
                 <button
                   type="button"
                   id="btn-open-workflow-modal"
@@ -453,13 +490,23 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
           {/* ========================================================= */}
           <div id="project-19-11" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
-              <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
                   02
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   19_11_2025
                 </span>
+                {/* Tool icon: Canva */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src={ICON_CANVA}
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
             </div>
 
@@ -477,18 +524,40 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
           </div>
 
           {/* ========================================================= */}
-          {/* MỤC 03: 20_10_2025 (Chỉ để lại đề mục theo yêu cầu) */}
+          {/* MỤC 03: 20_10_2025 */}
           {/* ========================================================= */}
           <div id="project-20-10" className="w-full flex flex-col items-start bg-transparent select-none">
-            <div className="w-full flex items-baseline text-white border-none">
-              <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
                   03
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   20_10_2025
                 </span>
+                {/* Tool icon: Canva */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src={ICON_CANVA}
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
+            </div>
+
+            {/* Poster dàn phẳng */}
+            <div className="w-full max-w-[720px] mx-auto overflow-hidden bg-black rounded-none border border-neutral-900 flex items-center justify-center shadow-2xl">
+              <img 
+                src={POSTER_20_10_URL}
+                alt="20_10_2025"
+                referrerPolicy="no-referrer"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-auto object-contain select-none pointer-events-none rounded-none"
+              />
             </div>
           </div>
 

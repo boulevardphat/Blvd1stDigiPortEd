@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AppLanguage } from '../types';
 import Lanyard from './Lanyard';
 import { DdoPanoramicStrap } from './DdoPanoramicStrap';
+import { FacebookVideoEmbed } from './FacebookVideoEmbed';
 import ddo7Strap from '../assets/lanyard/ddo7-strap.png';
 
 interface HvocDdo7ScreenProps {
@@ -24,7 +25,7 @@ interface GalleryImageItem {
 const DDO7_LAYOUTS: GalleryImageItem[] = [
   {
     id: 'ddo7-layout-1',
-    number: '05',
+    number: '06',
     titleVi: 'LAYOUT 1',
     titleEn: 'LAYOUT 1',
     subtextVi: 'MỞ ĐẦU',
@@ -34,7 +35,7 @@ const DDO7_LAYOUTS: GalleryImageItem[] = [
   },
   {
     id: 'ddo7-layout-2',
-    number: '06',
+    number: '07',
     titleVi: 'LAYOUT 2',
     titleEn: 'LAYOUT 2',
     subtextVi: 'CHÍNH',
@@ -44,7 +45,7 @@ const DDO7_LAYOUTS: GalleryImageItem[] = [
   },
   {
     id: 'ddo7-layout-3',
-    number: '07',
+    number: '08',
     titleVi: 'LAYOUT 3',
     titleEn: 'LAYOUT 3',
     subtextVi: 'KẾT THÚC',
@@ -56,6 +57,20 @@ const DDO7_LAYOUTS: GalleryImageItem[] = [
 
 export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language = 'vi' }) => {
   const isEn = language === 'en';
+
+  // Kích hoạt Facebook SDK parser khi màn hình được render
+  useEffect(() => {
+    const parseFB = () => {
+      const fb = (window as unknown as { FB?: { XFBML?: { parse?: () => void } } }).FB;
+      if (fb?.XFBML?.parse) {
+        fb.XFBML.parse();
+      }
+    };
+
+    parseFB();
+    const timer = setTimeout(parseFB, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div 
@@ -101,15 +116,15 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
         {/* Danh sách các phần tử được dàn phẳng theo chuẩn Boulevard1st */}
         <div className="w-full flex flex-col gap-12 sm:gap-16 md:gap-20">
           
-          {/* 01. POSTER / VIDEO GIỚI THIỆU */}
+          {/* 01. POSTER */}
           <div id="gallery-item-ddo7-poster" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">01</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
-                  POSTER / {isEn ? 'INTRO VIDEO' : 'VIDEO GIỚI THIỆU'}
+                  POSTER
                 </span>
-                {/* Tool icons: Canva bé và Filmora (vì có video) */}
+                {/* Tool icons: Canva */}
                 <div className="flex items-center gap-1.5 shrink-0 select-none">
                   <img 
                     src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
@@ -118,25 +133,11 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
-                  <img 
-                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp"
-                    alt="Filmora"
-                    title="Filmora"
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
-                  />
                 </div>
-                <span className="font-archivo font-light text-xs sm:text-sm text-white/50 normal-case tracking-normal">
-                  {isEn ? 'click poster to watch video' : 'bấm vô poster để xem video'}
-                </span>
               </div>
             </div>
-            <a 
-              href="https://www.facebook.com/share/v/18x5EhavfH/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title={isEn ? 'Click poster to watch video' : 'Bấm vô poster để xem video'}
-              className="w-full relative overflow-hidden bg-transparent border-none rounded-none flex items-center justify-center cursor-pointer group transition-opacity hover:opacity-95"
+            <div 
+              className="w-full relative overflow-hidden bg-transparent border-none rounded-none flex items-center justify-center cursor-default"
               style={{ maxWidth: '560px', margin: '0 auto' }}
             >
               <img
@@ -145,17 +146,52 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
                 referrerPolicy="no-referrer"
                 loading="lazy"
                 decoding="async"
-                className="w-full h-auto object-contain select-none"
+                className="w-full h-auto object-contain select-none pointer-events-none"
                 style={{ aspectRatio: '1414 / 2000' }}
               />
-            </a>
+            </div>
           </div>
 
-          {/* 02. KHUNG AVATAR */}
-          <div id="gallery-item-ddo7-avatar" className="w-full flex flex-col items-start bg-transparent select-none">
+          {/* 02. VIDEO GIỚI THIỆU (Facebook SDK Reel) */}
+          <div id="gallery-item-ddo7-video" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">02</span>
+                <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
+                  {isEn ? 'INTRODUCTORY VIDEO' : 'VIDEO GIỚI THIỆU'}
+                </span>
+                {/* Tool icons: Filmora cho video */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp"
+                    alt="Filmora"
+                    title="Filmora"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              </div>
+            </div>
+            <div 
+              className="w-full relative overflow-hidden bg-black border-none rounded-none flex flex-col items-center justify-center cursor-default"
+              style={{
+                maxWidth: '100%',
+                aspectRatio: '16 / 9',
+              }}
+            >
+              <FacebookVideoEmbed 
+                url="https://www.facebook.com/reel/3717604911717834"
+                title={isEn ? 'INTRODUCTORY VIDEO' : 'VIDEO GIỚI THIỆU'}
+                aspectRatio="16 / 9"
+              />
+            </div>
+          </div>
+
+          {/* 03. KHUNG AVATAR */}
+          <div id="gallery-item-ddo7-avatar" className="w-full flex flex-col items-start bg-transparent select-none">
+            <div className="w-full flex items-baseline pb-2.5 mb-3 text-white border-none">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">03</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   {isEn ? 'AVATAR FRAME' : 'KHUNG AVATAR'}
                 </span>
@@ -187,11 +223,11 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
             </div>
           </div>
 
-          {/* 03. THẺ ĐEO (React Bits Lanyard tương tác vật lý rapier) */}
+          {/* 04. THẺ ĐEO (React Bits Lanyard tương tác vật lý rapier) */}
           <div id="gallery-item-ddo7-thedeo" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-1 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">03</span>
+                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">04</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   {isEn ? 'EVENT BADGE' : 'THẺ ĐEO'}
                 </span>
@@ -227,11 +263,11 @@ export const HvocDdo7Screen: React.FC<HvocDdo7ScreenProps> = ({ onBack, language
             </div>
           </div>
 
-          {/* 04. DÂY ĐEO (Panoramic Strap trượt ngang tự động & mở rộng cuộn tay) */}
+          {/* 05. DÂY ĐEO (Panoramic Strap trượt ngang tự động & mở rộng cuộn tay) */}
           <div id="gallery-item-ddo7-daydeo" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-2.5 mb-1 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">04</span>
+                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">05</span>
                 <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                   {isEn ? 'LANYARD STRAP' : 'DÂY ĐEO'}
                 </span>

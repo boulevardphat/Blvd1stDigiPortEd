@@ -3,13 +3,14 @@ import { AppLanguage } from '../types';
 import Lanyard from './Lanyard';
 import { CHV_MAJOR_BADGES, ChvMajorBadge, REIMAGINED_PROJECTS } from '../data/chvBadges';
 import { UsshDocumentViewer, UsshFoldState } from './UsshDocumentViewer';
+import { CDJewelCaseViewer } from './CDJewelCaseViewer';
 
 interface ReimaginedIntroScreenProps {
   onBack: () => void;
   language?: AppLanguage;
 }
 
-export type ReimaginedZone = 'zone-main' | 'zone-chv' | 'zone-ussh';
+export type ReimaginedZone = 'zone-main' | 'zone-chv' | 'zone-ussh' | 'zone-cd';
 
 export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
   onBack,
@@ -20,15 +21,16 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
   const [selectedMajor, setSelectedMajor] = useState<ChvMajorBadge>(CHV_MAJOR_BADGES[0]);
   const [usshMode, setUsshMode] = useState<'3d' | 'flat'>('3d');
   const [usshFoldState, setUsshFoldState] = useState<UsshFoldState>('half');
+  const [cdCaseOpen, setCdCaseOpen] = useState(false);
 
-  const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-chv', 'zone-ussh'];
+  const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-chv', 'zone-ussh', 'zone-cd'];
   const activeZone = REIMAGINED_ZONES[activeZoneIndex];
 
   const isTransitioningRef = useRef(false);
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const goToZone = useCallback((targetIndex: number) => {
-    const nextIdx = Math.max(0, Math.min(2, targetIndex));
+    const nextIdx = Math.max(0, Math.min(3, targetIndex));
     setActiveZoneIndex(nextIdx);
     isTransitioningRef.current = true;
     if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
@@ -58,7 +60,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
 
       if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
         if (e.deltaY > 0) {
-          if (activeZoneIndex < 2) {
+          if (activeZoneIndex < 3) {
             e.preventDefault();
             goToZone(activeZoneIndex + 1);
           }
@@ -109,7 +111,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
 
       if ((isIntentionalSwipe || isQuickFlick) && Math.abs(diffY) > Math.abs(diffX) * 1.1) {
         if (diffY > 0) {
-          if (activeZoneIndex < 2) {
+          if (activeZoneIndex < 3) {
             goToZone(activeZoneIndex + 1);
           }
         } else {
@@ -134,19 +136,88 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
       id="scene-reimagined-pure-black"
       className="absolute inset-0 bg-black z-50 select-none overflow-hidden overscroll-none text-white"
     >
-      {/* Nút 'trở về' / 'back' tối giản, cố định góc trên bên trái xuyên suốt mọi zone */}
-      <button
-        type="button"
-        id="reimagined-back-to-toc-button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onBack();
-        }}
-        className="fixed top-6 left-6 md:top-8 md:left-8 z-50 font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/60 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none pointer-events-auto"
-        title={isEn ? 'Back to table of contents' : 'Quay về mục lục'}
-      >
-        {isEn ? 'back' : 'trở về'}
-      </button>
+      {/* Nút back và Sublogo ở góc trên bên trái: Zone 1 chỉ có nút back, các zone 2, 3, 4 có Sublogo như #BLVD kèm nút back bên dưới */}
+      {activeZone === 'zone-main' ? (
+        <button
+          type="button"
+          id="reimagined-back-to-toc-button-main"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
+          className="fixed top-6 left-6 md:top-8 md:left-8 z-50 font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/60 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none pointer-events-auto"
+          title={isEn ? 'Back to table of contents' : 'Quay về mục lục'}
+        >
+          {isEn ? 'back' : 'trở về'}
+        </button>
+      ) : (
+        <div 
+          id="reimagined-sublogo-fixed-tl"
+          className="fixed top-6 left-6 md:top-8 md:left-8 z-50 select-none flex flex-col items-start justify-start gap-1.5 pointer-events-auto"
+        >
+          <div className="flex items-center justify-start min-h-[28px] sm:min-h-[36px] gap-2.5 sm:gap-3 flex-wrap">
+            {activeZone === 'zone-chv' && (
+              <>
+                <div className="font-archivo font-normal text-white/90 text-sm sm:text-lg md:text-xl lg:text-2xl leading-none tracking-normal uppercase transition-all duration-300 flex items-center gap-1.5 sm:gap-2">
+                  <span>{isEn ? 'STUDENT ID CARD' : 'THẺ HỌC SINH'}</span>
+                  <span className="text-red-500 font-semibold">{isEn ? '(UNOFFICIAL)' : '(KHÔNG CHÍNH THỨC)'}</span>
+                </div>
+                <img
+                  src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                  alt="Canva"
+                  title="Canva"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 object-contain rounded-none select-none pointer-events-none shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+              </>
+            )}
+            {activeZone === 'zone-ussh' && (
+              <>
+                <div className="font-archivo font-normal text-white/90 text-sm sm:text-lg md:text-xl lg:text-2xl leading-none tracking-normal uppercase transition-all duration-300 flex items-center gap-1.5 sm:gap-2">
+                  <span>{isEn ? 'CONGRATULATORY ADMISSION LETTER' : 'THƯ CHÚC MỪNG TRÚNG TUYỂN'}</span>
+                  <span className="text-red-500 font-semibold">{isEn ? '(UNOFFICIAL)' : '(KHÔNG CHÍNH THỨC)'}</span>
+                </div>
+                <img
+                  src="https://i.ibb.co/pBXrq6cf/affinity.jpg"
+                  alt="Affinity"
+                  title="Affinity"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 object-contain rounded-none select-none pointer-events-none shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+              </>
+            )}
+            {activeZone === 'zone-cd' && (
+              <>
+                <div className="font-archivo font-normal text-white/90 text-sm sm:text-lg md:text-xl lg:text-2xl leading-none tracking-normal uppercase transition-all duration-300 flex items-center gap-1.5 sm:gap-2">
+                  <span>{isEn ? 'ALBUM CONFESSIONS II - JEWEL CASE' : 'ALBUM CONFESSIONS II - HỘP NHỰA CỨNG/JEWEL CASE'}</span>
+                  <span className="text-red-500 font-semibold">{isEn ? '(UNOFFICIAL)' : '(KHÔNG CHÍNH THỨC)'}</span>
+                </div>
+                <img
+                  src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                  alt="Canva"
+                  title="Canva"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 object-contain rounded-none select-none pointer-events-none shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+              </>
+            )}
+          </div>
+
+          {/* Nút chữ back / trở về font archivo thường, nằm ngay dưới sub logo */}
+          <button
+            type="button"
+            id="reimagined-back-to-toc-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onBack();
+            }}
+            className="font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/60 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none"
+            title={isEn ? 'Back to table of contents' : 'Quay về mục lục'}
+          >
+            {isEn ? 'back' : 'trở về'}
+          </button>
+        </div>
+      )}
 
       {/* Nút 'đặt lại thu phóng' (Desktop) ở góc dưới bên phải khi ở Zone USSH */}
       {activeZone === 'zone-ussh' && (
@@ -256,7 +327,26 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </div>
       )}
 
-      {/* CONTAINER TRƯỢT 3 ZONE DỌC TỪNG ZONE MỘT (chuẩn #blvd) */}
+      {/* Thanh điều khiển hộp đĩa CD (mở nắp / đóng nắp) ở Zone 4 */}
+      {activeZone === 'zone-cd' && (
+        <div 
+          id="reimagined-cd-controls-bar"
+          className="fixed bottom-6 md:bottom-8 inset-x-0 z-50 flex items-center justify-center gap-6 md:gap-8 select-none pointer-events-auto"
+        >
+          <button
+            type="button"
+            id="btn-cd-toggle-lid"
+            onClick={() => setCdCaseOpen(!cdCaseOpen)}
+            className={`font-archivo font-normal normal-case text-sm md:text-base tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none ${
+              cdCaseOpen ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
+            }`}
+          >
+            {isEn ? (cdCaseOpen ? 'close lid' : 'open lid') : (cdCaseOpen ? 'đóng nắp' : 'mở nắp')}
+          </button>
+        </div>
+      )}
+
+      {/* CONTAINER TRƯỢT 4 ZONE DỌC TỪNG ZONE MỘT (chuẩn #blvd) */}
       <div 
         id="reimagined-zones-slider"
         className="w-full h-full will-change-transform transition-transform duration-650 ease-[cubic-bezier(0.2,0.9,0.3,1)] flex flex-col"
@@ -265,42 +355,18 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         }}
       >
         {/* ========================================================================= */}
-        {/* ZONE 1 (Đầu tiên): Chữ PAKVARD (không ngoặc vuông, giảm opacity)          */}
-        {/* và khối văn bản giới thiệu concept ở chính giữa màn hình (font Archivo)   */}
+        {/* ZONE 1 (Đầu tiên): Khối văn bản giới thiệu concept ở chính giữa màn hình  */}
         {/* ========================================================================= */}
         <section 
           id="reimagined-zone-main"
           className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex items-center justify-center overflow-hidden cursor-pointer"
           onClick={() => goToZone(1)}
         >
-          {/* Typographic backdrop: bê nguyên khung viewBox="0 0 450 100" từ #BLVD sang và dãn chữ theo khung đó */}
-          <svg 
-            viewBox="0 0 450 100" 
-            className="w-full h-full absolute inset-0 pointer-events-none select-none" 
-            preserveAspectRatio="none"
-          >
-            <text
-              x="50%"
-              y="50%"
-              dominantBaseline="central"
-              textAnchor="middle"
-              className="font-archivo font-black select-none pointer-events-none"
-              fontSize="105"
-              fill="none"
-              stroke="rgba(255, 255, 255, 0.16)"
-              strokeWidth="1.2"
-              textLength="435"
-              lengthAdjust="spacingAndGlyphs"
-            >
-              PAKVARD
-            </text>
-          </svg>
-
           {/* Khối văn bản ở chính giữa màn hình dưới font Archivo */}
           <div className="relative z-10 flex flex-col items-center justify-center max-w-3xl px-6 md:px-12 text-center pointer-events-none select-none">
-            {/* Dòng 1: PAKVARD - Reimagined by Boulevard */}
-            <h1 className="font-archivo font-medium text-sm sm:text-base md:text-lg tracking-tight text-white mb-3 md:mb-4">
-              PAKVARD - Reimagined by Boulevard
+            {/* Dòng 1: PAKVARD */}
+            <h1 className="font-archivo font-medium text-base sm:text-lg md:text-xl tracking-tight text-white mb-3 md:mb-4 uppercase">
+              PAKVARD
             </h1>
 
             {/* Dòng 2: Giới thiệu concept */}
@@ -364,6 +430,24 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               onFoldStateChange={setUsshFoldState}
               frontUrl={REIMAGINED_PROJECTS.hcmusshLetter.frontUrl}
               backUrl={REIMAGINED_PROJECTS.hcmusshLetter.backUrl}
+            />
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* ZONE 4: CD JEWEL CASE - Mô hình 3D Hộp đĩa CD Jewel Case + Đĩa CD        */}
+        {/* ========================================================================= */}
+        <section 
+          id="reimagined-zone-cd"
+          className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex flex-col items-center justify-center overflow-hidden"
+        >
+          <div 
+            id="cd-jewel-case-container"
+            className="w-full h-full flex items-center justify-center relative select-none"
+          >
+            <CDJewelCaseViewer
+              open={cdCaseOpen}
+              onToggleOpen={() => setCdCaseOpen(!cdCaseOpen)}
             />
           </div>
         </section>

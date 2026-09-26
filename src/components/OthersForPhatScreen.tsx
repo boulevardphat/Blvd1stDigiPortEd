@@ -50,6 +50,13 @@ const YEARBOOK_INVITATION_URL = 'https://raw.githubusercontent.com/boulevardphat
 // 5. Bảo vệ môi trường
 const BVMT_POSTER_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/B%E1%BA%A3o%20v%E1%BB%87%20m%C3%B4i%20tr%C6%B0%E1%BB%9Dng/b%E1%BA%A3o%20v%E1%BB%87%20m%C3%B4i%20tr%C6%B0%E1%BB%9Dng.webp';
 
+// 6. brat (3 ảnh vuông 1:1)
+const BRAT_IMAGES = [
+  { id: 'brat-1', num: '01', url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat1.webp' },
+  { id: 'brat-2', num: '02', url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat2.webp' },
+  { id: 'brat-3', num: '03', url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/brat/brat3.webp' },
+];
+
 export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack, language = 'vi' }) => {
   const isEn = language === 'en';
 
@@ -70,6 +77,10 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
   const [mfaSlideIndex, setMfaSlideIndex] = useState(0);
   const mfaCarouselRef = useRef<HTMLDivElement>(null);
   const mfaLinearRef = useRef<HTMLDivElement>(null);
+
+  // --- STATE DỰ ÁN 06: BRAT ---
+  const [bratSlideIndex, setBratSlideIndex] = useState(0);
+  const bratCarouselRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
   // XỬ LÝ ĐIỀU HƯỚNG CAROUSEL BLVD16
@@ -135,6 +146,28 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
       behavior: 'smooth',
     });
     setMfaSlideIndex(target);
+  };
+
+  // ============================================================================
+  // XỬ LÝ ĐIỀU HƯỚNG CAROUSEL BRAT
+  // ============================================================================
+  const handleBratScroll = () => {
+    if (!bratCarouselRef.current) return;
+    const { scrollLeft, clientWidth } = bratCarouselRef.current;
+    if (clientWidth > 0) {
+      const idx = Math.round(scrollLeft / clientWidth);
+      setBratSlideIndex(Math.max(0, Math.min(idx, BRAT_IMAGES.length - 1)));
+    }
+  };
+
+  const scrollBratTo = (index: number) => {
+    if (!bratCarouselRef.current) return;
+    const target = Math.max(0, Math.min(index, BRAT_IMAGES.length - 1));
+    bratCarouselRef.current.scrollTo({
+      left: target * bratCarouselRef.current.clientWidth,
+      behavior: 'smooth',
+    });
+    setBratSlideIndex(target);
   };
 
   // Hỗ trợ cuộn ngang bằng con lăn chuột cho dải linear
@@ -228,13 +261,6 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                     src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
                     alt="Canva"
                     title="Canva"
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
-                  />
-                  <img 
-                    src="https://i.ibb.co/pBXrq6cf/affinity.jpg"
-                    alt="Affinity"
-                    title="Affinity"
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
@@ -401,13 +427,6 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                     src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
                     alt="Canva"
                     title="Canva"
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
-                  />
-                  <img 
-                    src="https://i.ibb.co/pBXrq6cf/affinity.jpg"
-                    alt="Affinity"
-                    title="Affinity"
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
@@ -841,6 +860,100 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                 decoding="async"
                 className="w-full h-auto object-contain select-none pointer-events-none rounded-none"
               />
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* DỰ ÁN 06: BRAT */}
+          {/* ========================================================= */}
+          <div id="project-brat" className="w-full flex flex-col items-start bg-transparent select-none">
+            {/* Header Mục 06 */}
+            <div className="w-full flex items-baseline justify-between pb-3 mb-6 text-white border-none flex-wrap gap-2">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
+                  06
+                </span>
+                <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
+                  BRAT
+                </span>
+              </div>
+            </div>
+
+            {/* Nội dung ảnh brat: Mặc định Instagram 1:1, không có thanh chuyển đổi */}
+            <div className="w-full flex flex-col items-center">
+              <div className="relative overflow-hidden bg-black border border-white/20 shadow-2xl flex items-center justify-center rounded-none group w-[min(88vw,440px)] aspect-square">
+                <div
+                  ref={bratCarouselRef}
+                  onScroll={handleBratScroll}
+                  className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar select-none"
+                  style={{
+                    scrollbarWidth: 'none',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {BRAT_IMAGES.map((img) => (
+                    <div
+                      key={img.id}
+                      className="w-full h-full min-w-full shrink-0 snap-start snap-always relative bg-black flex items-center justify-center overflow-hidden"
+                    >
+                      <img
+                        src={img.url}
+                        alt={`brat ${img.num}`}
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover select-none pointer-events-none rounded-none"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Nút điều hướng Trái (<) */}
+                <button
+                  type="button"
+                  onClick={() => scrollBratTo(bratSlideIndex - 1)}
+                  disabled={bratSlideIndex === 0}
+                  className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-9 md:h-9 bg-black/75 border border-white/30 text-white flex items-center justify-center font-archivo text-base md:text-lg transition-all duration-200 rounded-none cursor-pointer opacity-0 group-hover:opacity-80 hover:!opacity-100 ${
+                    bratSlideIndex === 0 ? 'pointer-events-none !opacity-0' : 'hover:bg-white hover:text-black active:scale-95'
+                  }`}
+                  title={isEn ? 'Previous' : 'Trước'}
+                >
+                  ‹
+                </button>
+
+                {/* Nút điều hướng Phải (>) */}
+                <button
+                  type="button"
+                  onClick={() => scrollBratTo(bratSlideIndex + 1)}
+                  disabled={bratSlideIndex === BRAT_IMAGES.length - 1}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-9 md:h-9 bg-black/75 border border-white/30 text-white flex items-center justify-center font-archivo text-base md:text-lg transition-all duration-200 rounded-none cursor-pointer opacity-0 group-hover:opacity-80 hover:!opacity-100 ${
+                    bratSlideIndex === BRAT_IMAGES.length - 1 ? 'pointer-events-none !opacity-0' : 'hover:bg-white hover:text-black active:scale-95'
+                  }`}
+                  title={isEn ? 'Next' : 'Tiếp'}
+                >
+                  ›
+                </button>
+
+                {/* Chỉ số trang góc trên bên phải */}
+                <div className="absolute top-3 right-3 px-2 py-0.5 bg-black/70 backdrop-blur-sm text-[11px] font-archivo font-medium text-white/90 rounded-none z-10 border border-white/10 select-none">
+                  {bratSlideIndex + 1} / {BRAT_IMAGES.length}
+                </div>
+              </div>
+
+              {/* Thanh gạch định vị (Dash lines) dưới ảnh */}
+              <div className="mt-4 flex items-center justify-center gap-1.5 select-none">
+                {BRAT_IMAGES.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => scrollBratTo(idx)}
+                    className={`h-[2px] transition-all duration-200 rounded-none cursor-pointer border-none p-0 outline-none ${
+                      idx === bratSlideIndex ? 'w-6 bg-white' : 'w-2 bg-white/30 hover:bg-white/60'
+                    }`}
+                    title={`Slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 

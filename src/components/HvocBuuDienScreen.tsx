@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { FacebookVideoEmbed } from './FacebookVideoEmbed';
 
 interface HvocBuuDienScreenProps {
   onBack: () => void;
@@ -17,6 +18,7 @@ interface GalleryItem {
   crop?: boolean;
   linkUrl?: string;
   isVideo?: boolean;
+  fbReelUrl?: string;
 }
 
 const BUU_DIEN_IMAGES: GalleryItem[] = [
@@ -49,18 +51,30 @@ const BUU_DIEN_IMAGES: GalleryItem[] = [
     number: '04',
     titleVi: 'VIDEO GIỚI THIỆU',
     titleEn: 'INTRODUCTORY VIDEO',
-    subtextVi: '(bấm vào hình để tiếp tục)',
-    subtextEn: '(click on image to continue)',
     url: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BHVOC%5D%20B%C6%B0u%20%C4%91i%E1%BB%87n%20HVOC/%E1%BA%A2nh%20b%C3%ACa%20Facebook.webp',
     aspectRatio: '16 / 9',
     crop: true,
-    linkUrl: 'https://www.facebook.com/share/v/19qxDLrBbK/',
     isVideo: true,
+    fbReelUrl: 'https://www.facebook.com/reel/712364394623580',
   },
 ];
 
 export const HvocBuuDienScreen: React.FC<HvocBuuDienScreenProps> = ({ onBack, language = 'vi' }) => {
   const isEn = language === 'en';
+
+  // Kích hoạt Facebook SDK parser khi màn hình được render
+  useEffect(() => {
+    const parseFB = () => {
+      const fb = (window as unknown as { FB?: { XFBML?: { parse?: () => void } } }).FB;
+      if (fb?.XFBML?.parse) {
+        fb.XFBML.parse();
+      }
+    };
+
+    parseFB();
+    const timer = setTimeout(parseFB, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div 
@@ -121,20 +135,21 @@ export const HvocBuuDienScreen: React.FC<HvocBuuDienScreenProps> = ({ onBack, la
                   <span className="font-archivo font-bold text-sm sm:text-base tracking-wide uppercase text-white">
                     {isEn ? item.titleEn : item.titleVi}
                   </span>
-                  {/* Tool icons: Canva bé và Filmora nếu có video */}
+                  {/* Tool icons: Filmora cho video, Canva cho ảnh */}
                   <div className="flex items-center gap-1.5 shrink-0 select-none">
-                    <img 
-                      src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
-                      alt="Canva"
-                      title="Canva"
-                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
-                      referrerPolicy="no-referrer"
-                    />
-                    {item.isVideo && (
+                    {item.isVideo ? (
                       <img 
                         src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/filmora.webp"
                         alt="Filmora"
                         title="Filmora"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <img 
+                        src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                        alt="Canva"
+                        title="Canva"
                         className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
                         referrerPolicy="no-referrer"
                       />
@@ -148,8 +163,22 @@ export const HvocBuuDienScreen: React.FC<HvocBuuDienScreenProps> = ({ onBack, la
                 </div>
               </div>
 
-              {/* Khung chứa ảnh: Không viền, không bo góc, không hiệu ứng hover */}
-              {item.linkUrl ? (
+              {/* Khung chứa ảnh hoặc video Facebook SDK: Không viền, không bo góc, không hiệu ứng hover */}
+              {item.fbReelUrl ? (
+                <div 
+                  className="w-full relative overflow-hidden bg-black border-none rounded-none flex flex-col items-center justify-center cursor-default"
+                  style={{
+                    maxWidth: '100%',
+                    aspectRatio: item.aspectRatio || '16 / 9',
+                  }}
+                >
+                  <FacebookVideoEmbed 
+                    url={item.fbReelUrl}
+                    title={isEn ? item.titleEn : item.titleVi}
+                    aspectRatio={item.aspectRatio || '16 / 9'}
+                  />
+                </div>
+              ) : item.linkUrl ? (
                 <a
                   href={item.linkUrl}
                   target="_blank"
