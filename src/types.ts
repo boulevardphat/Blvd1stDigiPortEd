@@ -22,4 +22,6 @@ export type SceneState =
   | 'tntn-loading'
   | 'tntn-intro'
   | 'reimagined-loading'
-  | 'reimagined-intro';
+  | 'reimagined-intro'
+  | 'others-loading'
+  | 'others-intro';

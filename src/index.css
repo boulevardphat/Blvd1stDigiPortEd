@@ -170,3 +170,14 @@ hotfx-split-flap {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* Responsive Facebook Video Embed (Boulevard1st: sharp edges, no border, fully scalable) */
+.fb-video,
+.fb-video > span,
+.fb-video iframe {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+  border-radius: 0px !important;
+}
