@@ -253,7 +253,7 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                   01
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
-                  {isEn ? 'THUAN PHAT, BOULEVARD ET VILLE DE DA LAT (#BLVD16)' : 'THUẬN PHÁT, BOULEVARD VÀ ĐÀ LẠT (#BLVD16)'}
+                  {isEn ? 'THUAN PHAT, BOULEVARD ET VILLE DE DA LAT (#BLVD16)' : 'THUAN PHAT, BOULEVARD ET VILLE DE DA LAT (#BLVD16)'}
                 </span>
                 {/* Tool icons */}
                 <div className="flex items-center gap-1.5 shrink-0 select-none">
@@ -419,7 +419,7 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                   02
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
-                  {isEn ? 'THUAN PHAT, BOULEVARD ET VILLE DE DA LAT (#BLVD17)' : 'THUẬN PHÁT, BOULEVARD VÀ ĐÀ LẠT (#BLVD17)'}
+                  {isEn ? 'THUAN PHAT, BOULEVARD ET VILLE DE DA LAT (#BLVD17)' : 'THUAN PHAT, BOULEVARD ET VILLE DE DA LAT (#BLVD17)'}
                 </span>
                 {/* Tool icons */}
                 <div className="flex items-center gap-1.5 shrink-0 select-none">
@@ -585,7 +585,7 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                   03
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
-                  {isEn ? 'MUSEUM OF FINE ARTS' : 'BẢO TÀNG NGHỆ THUẬT (MUSEUM OF FINE ARTS)'}
+                  {isEn ? 'HCMC MUSEUM OF FINE ARTS' : 'BẢO TÀNG MỸ THUẬT THÀNH PHỐ HỒ CHÍ MINH'}
                 </span>
                 {/* Tool icons */}
                 <div className="flex items-center gap-1.5 shrink-0 select-none">
