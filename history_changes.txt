@@ -4371,6 +4371,26 @@ Chi tiết thay đổi & tính năng tích hợp:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 105: ĐỒNG BỘ TOÀN BỘ CÁC DỰ ÁN TRONG MỤC CHO PHÁT CHỈ SỬ DỤNG LOGO CANVA
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/OthersForPhatScreen.tsx
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Loại bỏ các icon phần mềm khác (ibisPaint) khỏi các dự án trong màn hình "CHO PHÁT" (OthersForPhatScreen.tsx):
+     - Dự án 03 (BẢO TÀNG MỸ THUẬT THÀNH PHỐ HỒ CHÍ MINH): Loại bỏ icon ibisPaint, chỉ giữ lại logo Canva.
+     - Dự án 04 (KỈ YẾU 12A2): Loại bỏ icon ibisPaint, chỉ giữ lại logo Canva.
+  2. Bổ sung logo Canva vào dự án 06 (BRAT):
+     - Thêm icon Canva chuẩn pack vào header của dự án BRAT.
+  3. Kết quả:
+     - 100% tất cả các dự án thuộc mục "CHO PHÁT" (01. Đà Lạt #BLVD16, 02. Đà Lạt #BLVD17, 03. Bảo tàng Mỹ thuật TP.HCM, 04. Kỉ yếu 12A2, 05. Bảo vệ môi trường, 06. BRAT) đều chỉ hiển thị duy nhất logo công cụ Canva theo đúng yêu cầu người dùng.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+
 
 
 

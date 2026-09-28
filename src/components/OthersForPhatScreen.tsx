@@ -596,13 +596,6 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
-                  <img 
-                    src="https://i.ibb.co/N66hJX5h/ibispaint.png"
-                    alt="ibisPaint"
-                    title="ibisPaint"
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
-                  />
                 </div>
               </div>
             </div>
@@ -778,13 +771,6 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                     className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
-                  <img 
-                    src="https://i.ibb.co/N66hJX5h/ibispaint.png"
-                    alt="ibisPaint"
-                    title="ibisPaint"
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
-                  />
                 </div>
               </div>
             </div>
@@ -876,6 +862,16 @@ export const OthersForPhatScreen: React.FC<OthersForPhatScreenProps> = ({ onBack
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   BRAT
                 </span>
+                {/* Tool icons */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
             </div>
 
