@@ -267,7 +267,7 @@ export const IntroClock: React.FC<IntroClockProps> = ({ mode = 'normal', onCompl
         className="font-archivo font-normal text-[clamp(1.4rem,4.2vw,3.8rem)] tracking-[0.05em] select-none pointer-events-none tabular-nums whitespace-nowrap absolute -left-[9999px] -top-[9999px] opacity-0"
         aria-hidden="true"
       >
-        DIGITAL PORTFOLIO ED.
+        DIGITAL ARCHIVE ED.
       </div>
 
       {mode === 'multiple' ? (
@@ -277,7 +277,7 @@ export const IntroClock: React.FC<IntroClockProps> = ({ mode = 'normal', onCompl
           return (
             <ClockDisplay 
               key={i} 
-              text="DIGITAL PORTFOLIO ED." 
+              text="DIGITAL ARCHIVE ED." 
               visible={isVisible}
             />
           );

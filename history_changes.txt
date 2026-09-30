@@ -4390,6 +4390,181 @@ Chi tiết thay đổi & tính năng tích hợp:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 106: ĐỔI "PORTFOLIO" SANG "ARCHIVE" TRÊN TOÀN BỘ GIAO DIỆN DỰ ÁN
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /src/components/IntroClock.tsx
+  - /src/components/OthersIntroScreen.tsx
+  - /index.html
+  - /history_changes.txt
+Chi tiết thay đổi & tính năng tích hợp:
+  1. Giao diện chính (src/App.tsx):
+     - Landscape Logo (#safezone-overlay-landscape): Đổi text SVG phụ đề từ "DIGITAL PORTFOLIO" sang "DIGITAL ARCHIVE".
+     - Portrait Logo (#safezone-overlay-portrait): Đổi text SVG phụ đề từ "DIGITAL PORTFOLIO" sang "DIGITAL ARCHIVE".
+     - Duy trì tuyệt đối layout vector: Giữ nguyên viewBox 0 0 400 50, textLength="398", lengthAdjust="spacingAndGlyphs" để dãn chữ tràn đều theo chiều ngang dưới thương hiệu Boulevard1st.
+  2. Màn hình đồng hồ lật Intro (src/components/IntroClock.tsx):
+     - Cập nhật text chuỗi split flap từ "DIGITAL PORTFOLIO ED." sang "DIGITAL ARCHIVE ED.".
+     - Cập nhật phần tử đo kích thước font ẩn (probeRef).
+  3. Màn hình Mục Khác (src/components/OthersIntroScreen.tsx):
+     - Cập nhật dòng phụ đề tiếng Anh từ "INDIVIDUAL PORTFOLIO ARCHIVE" thành "INDIVIDUAL ARCHIVE".
+  4. Thẻ tiêu đề trang Web (index.html):
+     - Cập nhật <title> từ "Boulevard1st - Digital Portfolio" thành "Boulevard1st - Digital Archive".
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 107: TÍNH TOÁN & CĂN CHỈNH CHÍNH XÁC ĐỘ DÀI VÀ CĂN LỀ CHO "DIGITAL ARCHIVE"
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Phân tích nguyên nhân gốc rễ (Root Cause):
+  1. Dòng trên ("Boulevard1st") là thẻ HTML <h1> với font Archivo Black, tracking-tighter (-0.05em), chiều rộng do font engine của trình duyệt dựng từ 12 ký tự.
+  2. Dòng dưới ("DIGITAL ARCHIVE") là thẻ SVG <text> dùng textLength + lengthAdjust="spacingAndGlyphs" để dãn chữ lấp đầy chiều ngang.
+  3. Cặp thông số cũ (x="3", textLength="398") vốn được vi chỉnh cho dòng chữ cũ "DIGITAL PORTFOLIO" (17 ký tự, kết thúc bằng chữ 'O' tròn rộng).
+  4. Khi chuyển sang "DIGITAL ARCHIVE" (15 ký tự, kết thúc bằng chữ 'E'):
+     - Chữ 'E' có right-side bearing và glyph width khác chữ 'O'.
+     - Độ dài tự nhiên của "DIGITAL ARCHIVE" ở font-size 48 là 408px (so với 471px của "DIGITAL PORTFOLIO").
+     - Khi giữ nguyên x="3" và textLength="398", chữ 'D' bị thừa ra bên trái 4px so với 'B', và chữ 'E' bị hụt sâu vào trong tới 27px so với nét 't' ở trên.
+Chi tiết giải pháp căn chỉnh:
+  1. Trong hệ tọa độ viewBox 400 (src/App.tsx):
+     - Chỉnh `x`: Từ `3` lên `5.2` (dịch sang phải ~2.2 viewBox units ~ 4.3px), đưa nét thẳng đứng của chữ 'D' gióng thẳng tắp với mép trái chữ 'B'.
+     - Chỉnh `textLength`: Từ `398` lên `410` (kéo dãn tổng độ phủ lên tọa độ 5.2 + 410 = 415.2, bù đắp chính xác 27px hụt ở bên phải), đưa nét ngoài cùng của chữ 'E' chạm sát đường dóng mép phải chữ 't'.
+  2. Áp dụng đồng bộ cho cả giao diện Landscape và Portrait.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 108: VI CHỈNH TRIỆT ĐỂ LỆCH MÉP CHỮ D VÀ ĐỘ DÃN DÒNG DƯỚI (x=3.8, textLength=426)
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết căn chỉnh:
+  1. Phân tích ảnh chụp thực tế lần 2 (turn 107):
+     - Mép trái chữ 'D' khi đặt x=5.2 bị thụt lùi vào trong ~2px so với gạch đứng chữ 'B'.
+     - Mép phải chữ 'E' khi đặt textLength=410 (kết thúc ở 415.2) vẫn còn hụt ~14px so với nét gạch ngang chữ 't'.
+  2. Tinh chỉnh chính xác tọa độ vector (viewBox 400):
+     - Chỉnh `x`: Từ `5.2` về `3.8` (dịch trái 1.4 viewBox units), đặt đường gióng đứng của chữ 'D' nằm trùng khít 100% với nét đứng của chữ 'B'.
+     - Chỉnh `textLength`: Tăng từ `410` lên `426` (tổng độ phủ đạt tọa độ 3.8 + 426 = 429.8, dịch phải thêm 14.6 units), kéo nét gạch ngoài cùng của chữ 'E' chạm sát và căn thẳng tắp với mép phải ngoài cùng của chữ 't'.
+  3. Áp dụng đồng bộ cho cả giao diện Landscape và Portrait trong src/App.tsx.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 109: CÂN BẰNG TRIỆT ĐỂ HAI ĐẦU CHỮ (KHẮC PHỤC CHỖ THỤT CHỖ LÒI)
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết căn chỉnh:
+  1. Phân tích ảnh chụp thực tế lần 3 (turn 108):
+     - Mép trái: Chữ 'D' khi đặt x=3.8 vẫn còn thụt nhẹ (~1px) vào bên trong nét đứng chữ 'B'.
+     - Mép phải: Chữ 'E' khi đặt textLength=426 (kết thúc ở 429.8) lại bị lòi ra ngoài mép phải chữ 't' khoảng 5-6px.
+     - Hiện tượng "chỗ thụt chỗ lòi" xảy ra do toàn bộ dải text bị thiên lệch sang bên phải và độ dài tổng bị dãn dư một chút.
+  2. Giải hệ phương trình tuyến tính dựa trên 3 điểm đo thực tế:
+     - Tọa độ bắt đầu tối ưu: `x = 3.3` (dịch trái 0.5 units đưa nét 'D' ăn khớp thẳng đứng 100% với cạnh trái 'B').
+     - Tọa độ kết thúc tối ưu: `424.5` (thu hồi 5.3 units bị lòi ở bên phải).
+     - Chiều dài dãn tối ưu: `textLength = 424.5 - 3.3 = 421.2`.
+  3. Áp dụng đồng bộ cho cả giao diện Landscape và Portrait trong src/App.tsx.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 110: GIỮ ĐỘ STRETCH, THU NHỎ FONT SIZE VÀ CĂN GIỮA DƯỚI LOGO BOULEVARD1ST
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thay đổi theo chỉ định người dùng:
+  1. Giữ nguyên độ typographic stretch đặc trưng của "DIGITAL ARCHIVE" trong viewBox SVG 400x50:
+     - Sử dụng `textAnchor="middle"` tại `x="200"` (trục giữa viewBox đối xứng hoàn hảo 100%).
+     - Dãn chữ bằng `textLength="380"` kết hợp `lengthAdjust="spacingAndGlyphs"` với font Archivo Light 300, `fontSize="42"`, `y="36"`.
+  2. Thu nhỏ font size / kích thước tổng thể và căn giữa:
+     - Chiều rộng SVG giảm từ `100%` xuống `w-[60%] sm:w-[62%]` (khoảng 60% bề ngang của Boulevard1st), tạo bố cục phụ đề sang trọng, tinh tế.
+     - Chiều cao điều chỉnh gọn gàng: `h-[clamp(0.9rem,1.8vw,2.4rem)]` (landscape) và `h-[clamp(0.75rem,2.2vw,1.4rem)]` (portrait).
+     - Khoảng cách trên: `mt-1 sm:mt-1.5` nằm ngay ngắn bên dưới logo.
+     - Căn giữa tuyệt đối: Container `w-full flex justify-center` căn dòng chữ "DIGITAL ARCHIVE" đối xứng chuẩn xác 100% ở giữa màn hình và ngay dưới thương hiệu Boulevard1st, loại bỏ vĩnh viễn tình trạng lệch mép trái/phải.
+  3. Áp dụng đồng bộ cho cả hai giao diện Landscape và Portrait.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 111: ĐIỀU CHỈNH GAP MOBILE, TĂNG 30% FONT SIZE & STRETCH DỌC 15% CHO DIGITAL ARCHIVE
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thay đổi theo 3 yêu cầu:
+  1. Giảm gap trên mobile ~35%:
+     - Desktop giữ nguyên khoảng cách `mt-1 sm:mt-1.5`.
+     - Mobile (portrait): Đổi thành `-mt-1 sm:-mt-0.5`, bù trừ khoảng cách dư do leading-none của h1, kéo dòng "DIGITAL ARCHIVE" sát lại logo ~35% cho cân xứng thị giác với desktop.
+  2. Tăng font size tổng thể lên ~30% ở cả 2 giao diện:
+     - Bề rộng SVG mở rộng từ `w-[60%] sm:w-[62%]` lên `w-[78%] sm:w-[80%]` (landscape) và `w-[80%]` (portrait).
+  3. Kéo dãn (stretch) thêm ~15% theo chiều dọc:
+     - Tăng chiều cao của SVG vector lên hệ số 1.5x (bao gồm 1.3x do tăng kích cỡ và 1.15x do stretch dọc):
+       * Landscape: `h-[clamp(1.35rem,2.7vw,3.6rem)]` (tăng từ clamp 0.9rem - 2.4rem).
+       * Portrait: `h-[clamp(1.125rem,3.3vw,2.1rem)]` (tăng từ clamp 0.75rem - 1.4rem).
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 112: CÂN CHỈNH KHOẢNG CÁCH GAP GIỮA 2 DÒNG (THU GỌN DESKTOP, GIÃN THOÁNG MOBILE)
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết điều chỉnh khoảng cách (gap):
+  1. Desktop (Landscape):
+     - Trước đó: `mt-1 sm:mt-1.5` tạo khoảng hở thừa khá lớn ("quá thưa") bên dưới `Boulevard1st`.
+     - Điều chỉnh: Đổi sang `-mt-1 lg:-mt-1.5`, kéo dòng `DIGITAL ARCHIVE` áp sát lên vừa khít, gọn gàng và liền mạch như một khối typography thống nhất.
+  2. Mobile (Portrait):
+     - Trước đó: `-mt-1 sm:-mt-0.5` kết hợp font size lớn khiến các chữ cái của `DIGITAL ARCHIVE` chạm sát sạt vào mép dưới `Boulevard1st` ("quá sát").
+     - Điều chỉnh: Đổi sang `mt-1.5 sm:mt-2`, nới rộng khoảng trống vừa vặn để dòng phụ đề có khoảng đệm thở tự nhiên, thanh thoát và không còn bị dính chữ.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 113: ĐỒNG BỘ TUYỆT ĐỐI KHOẢNG CÁCH GAP VÀ LINE-HEIGHT MOBILE THEO DESKTOP
+================================================================================
+Thời điểm: 2026-09-28 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết đồng bộ:
+  1. Đồng bộ Typography & Line-height:
+     - Chuyển `h1#logo-text-portrait` từ `leading-none` sang `leading-[0.85]` giống hệt desktop, loại bỏ khoảng đệm thừa ở chân chữ.
+  2. Đồng bộ khoảng cách Gap:
+     - Thay đổi margin từ `mt-1.5 sm:mt-2` sang `-mt-0.5 sm:-mt-1`.
+     - Kéo dòng "DIGITAL ARCHIVE" trên mobile áp sát vào bên dưới logo "Boulevard1st" với tỉ lệ khoảng cách tương đồng và chuẩn xác 100% như trên desktop đã ưng ý.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+
+
+
+
+
+
+
+
 
 
 

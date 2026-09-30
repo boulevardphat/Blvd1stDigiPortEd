@@ -83,7 +83,7 @@ export const OthersIntroScreen: React.FC<OthersIntroScreenProps> = ({ onBack, la
             {isEn ? 'OTHERS' : 'KHÁC'}
           </h1>
           <p className="font-archivo font-normal text-xs sm:text-sm text-neutral-400 uppercase tracking-widest">
-            {isEn ? 'INDIVIDUAL PORTFOLIO ARCHIVE' : 'KHO ẤN PHẨM CÁ NHÂN & KỶ NIỆM'}
+            {isEn ? 'INDIVIDUAL ARCHIVE' : 'KHO ẤN PHẨM CÁ NHÂN & KỶ NIỆM'}
           </p>
         </div>
 

@@ -1958,26 +1958,27 @@ export default function App() {
                     >
                       Boulevard1st
                     </h1>
-                    <div className="w-full flex justify-center -mt-[2%] relative z-0">
+                    <div className="w-full flex justify-center -mt-1 lg:-mt-1.5 relative z-0">
                       <svg 
                         width="100%" 
                         height="100%" 
                         viewBox="0 0 400 50" 
                         preserveAspectRatio="none" 
-                        className="w-full h-[clamp(1.5rem,3.5vw,4.5rem)] overflow-visible"
+                        className="w-[78%] sm:w-[80%] h-[clamp(1.35rem,2.7vw,3.6rem)] overflow-visible"
                       >
                         <text 
-                          x="3" 
-                          y="45" 
-                          textLength="398" 
+                          x="200" 
+                          y="36" 
+                          textAnchor="middle" 
+                          textLength="380" 
                           lengthAdjust="spacingAndGlyphs" 
                           fontFamily="Archivo, sans-serif" 
                           fontWeight="300" 
-                          fontSize="48" 
+                          fontSize="42" 
                           fill="rgba(255, 255, 255, 0.7)" 
                           style={{ textTransform: 'uppercase' }}
                         >
-                          DIGITAL PORTFOLIO
+                          DIGITAL ARCHIVE
                         </text>
                       </svg>
                     </div>
@@ -1996,31 +1997,32 @@ export default function App() {
                   <div className="flex flex-col w-full relative">
                     <h1 
                       id="logo-text-portrait"
-                      className="font-archivo text-white font-black text-[clamp(2.5rem,11.5vw,6rem)] leading-none tracking-tighter select-none whitespace-nowrap relative z-10"
+                      className="font-archivo text-white font-black text-[clamp(2.5rem,11.5vw,6rem)] leading-[0.85] tracking-tighter select-none whitespace-nowrap relative z-10"
                     >
                       Boulevard1st
                     </h1>
                     
-                    <div className="w-full flex justify-center mt-[-2%] relative z-0">
+                    <div className="w-full flex justify-center -mt-0.5 sm:-mt-1 relative z-0">
                       <svg 
                         width="100%" 
                         height="100%" 
                         viewBox="0 0 400 50" 
                         preserveAspectRatio="none" 
-                        className="w-full h-[clamp(1.2rem,4vw,2.5rem)] overflow-visible"
+                        className="w-[80%] h-[clamp(1.125rem,3.3vw,2.1rem)] overflow-visible"
                       >
                         <text 
-                          x="3" 
-                          y="45" 
-                          textLength="398" 
+                          x="200" 
+                          y="36" 
+                          textAnchor="middle" 
+                          textLength="380" 
                           lengthAdjust="spacingAndGlyphs" 
                           fontFamily="Archivo, sans-serif" 
                           fontWeight="300" 
-                          fontSize="48" 
+                          fontSize="42" 
                           fill="rgba(255, 255, 255, 0.7)" 
                           style={{ textTransform: 'uppercase' }}
                         >
-                          DIGITAL PORTFOLIO
+                          DIGITAL ARCHIVE
                         </text>
                       </svg>
                     </div>
