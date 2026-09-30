@@ -13,6 +13,7 @@ import { TntnIntroScreen, TNTN_CHV_LOGO_URL, CDTTBP_VII_TNTN_LOGO_URL } from './
 import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
 import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
 import { OthersIntroScreen } from './components/OthersIntroScreen';
+import { HvkFlipbookScreen } from './components/HvkFlipbookScreen';
 import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS } from './data/chvBadges';
 import { AppLanguage, PortfolioMode, SceneState } from './types';
 
@@ -36,6 +37,10 @@ const TOC_DIGIT_DATA: Record<number, { viewBox: string; d: string }> = {
   5: {
     viewBox: "39 0 586 700",
     d: "M343 700Q243 700 175.50 670.50Q108 641 73.50 588.50Q39 536 39 466L215 466Q215 492 227 514Q239 536 263 549Q287 562 322 562Q357 562 380.50 548.50Q404 535 416 512Q428 489 428 460Q428 430 416 407Q404 384 380.50 370.50Q357 357 323 357Q290 357 271 367Q252 377 242.50 388.50Q233 400 227 407L69 385L98 0L574 0L574 170L247 170L239 274Q239 274 256.50 263Q274 252 307 240.50Q340 229 386 229Q459 229 512.50 257Q566 285 595.50 337.50Q625 390 625 463Q625 528 590.50 582Q556 636 493 668Q430 700 343 700"
+  },
+  6: {
+    viewBox: "51 0 483 712",
+    d: "M303 712Q244 712 197.5 695Q151 678 118 639.5Q85 601 68 536.5Q51 472 51 377Q51 270 67.5 198Q84 126 115.5 83Q147 40 193 21Q239 2 298 2Q373 2 420 30.5Q467 59 489 107Q511 155 511 216L387 216Q387 180 377.5 154.5Q368 129 347 115.5Q326 102 293 102Q244 102 219 128.5Q194 155 185.5 204Q177 253 176 321Q182 313 201.5 298.5Q221 284 253 272Q285 260 326 260Q398 260 444 289.5Q490 319 512 370Q534 421 534 486L534 486Q534 555 504 606Q474 657 422 684.5Q370 712 303 712ZM297 612Q335 612 359.5 595Q384 578 396 549Q408 520 408 485Q408 448 396 419.5Q384 391 359.5 374.5Q335 358 297 358Q259 358 234 374.5Q209 391 197 419.5Q185 448 185 486Q185 521 197 550Q209 579 234 595.5Q259 612 297 612Z"
   }
 };
 
@@ -43,8 +48,9 @@ const TOC_DEFAULT_LINES: Record<number, number> = {
   1: 1,
   2: 2,
   3: 2,
-  4: 1,
+  4: 2,
   5: 1,
+  6: 1,
 };
 
 function TocItem({
@@ -111,6 +117,7 @@ export default function App() {
   const [initialLoadingProgress, setInitialLoadingProgress] = useState(0);
   const [blvdLoadingProgress, setBlvdLoadingProgress] = useState(0);
   const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
+  const [hvkLoadingProgress, setHvkLoadingProgress] = useState(0);
   const [tntnLoadingProgress, setTntnLoadingProgress] = useState(0);
   const [reimaginedLoadingProgress, setReimaginedLoadingProgress] = useState(0);
   const [othersLoadingProgress, setOthersLoadingProgress] = useState(0);
@@ -127,11 +134,15 @@ export default function App() {
   });
   const [language, setLanguage] = useState<AppLanguage>(() => {
     try {
-      const saved = localStorage.getItem('blvd_language');
+      const saved = localStorage.getItem('blvd_language_v2');
       if (saved === 'vi' || saved === 'en') return saved;
     } catch (e) {}
     return 'vi';
   });
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
   const [isBasicInfoOpen, setIsBasicInfoOpen] = useState(false);
   const [phoneCopied, setPhoneCopied] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
@@ -146,7 +157,7 @@ export default function App() {
   useEffect(() => {
     let active = true;
     const img = new Image();
-    img.src = 'https://i.ibb.co/vy4ykmw/vespertine.png';
+    img.src = '/vespertine.webp';
     const markLoaded = async () => {
       if (!active) return;
       try {
@@ -171,7 +182,7 @@ export default function App() {
         setTimeout(() => {
           if (!active) return;
           const retry = new Image();
-          retry.src = 'https://i.ibb.co/vy4ykmw/vespertine.png';
+          retry.src = '/vespertine.webp';
           retry.onload = markLoaded;
         }, 800);
       };
@@ -258,7 +269,7 @@ export default function App() {
     const mainAppImages = [
       'https://i.ibb.co/tP3rK5bg/ultrayoung.jpg',
       'https://i.ibb.co/Nd6BpwZ2/young.jpg',
-      'https://i.ibb.co/vy4ykmw/vespertine.png',
+      '/vespertine.webp',
       'https://i.ibb.co/ccfZG4Zk/n-n-blvd18.webp',
       'https://i.ibb.co/RTw2phXD/canva.jpg',
       'https://i.ibb.co/pBXrq6cf/affinity.jpg',
@@ -363,6 +374,12 @@ export default function App() {
     setBookletViewMode('3d');
     setZone16ViewMode('carousel');
     setScene('blvd-loading');
+  };
+
+  const handleHvkClick = () => {
+    // Bắt đầu chuỗi HVK: hiện màn hình LOADING trước khi mở Flipbook
+    setHvkLoadingProgress(0);
+    setScene('hvk-loading');
   };
 
   const handleHvocClick = () => {
@@ -474,6 +491,44 @@ export default function App() {
         }, 350);
       }
     }, 30000);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
+
+  // Quản lý tiến trình tải của HVK Flipbook
+  useEffect(() => {
+    if (scene !== 'hvk-loading') return;
+
+    setHvkLoadingProgress(0);
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    const progressInterval = setInterval(() => {
+      currentDisplayProgress += 4;
+      setHvkLoadingProgress(Math.min(100, currentDisplayProgress));
+      if (currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('hvk-intro');
+        }, 250);
+      }
+    }, 16);
+
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        setHvkLoadingProgress(100);
+        setTimeout(() => {
+          setScene('hvk-intro');
+        }, 200);
+      }
+    }, 1500);
 
     return () => {
       clearInterval(progressInterval);
@@ -1341,6 +1396,47 @@ export default function App() {
         />
       )}
 
+      {/* --- SEPARATE HẢI VÂN KHÁNH FLIPBOOK SEQUENCE --- */}
+      {/* Màn hình loading HVK */}
+      {scene === 'hvk-loading' && (
+        <div 
+          id="scene-hvk-loading"
+          className="absolute inset-0 flex items-center justify-center bg-black z-50 overflow-hidden select-none w-full h-full px-2 md:px-8"
+        >
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                clipPath: `inset(0 ${Math.max(0, 100 - hvkLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - hvkLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
+      )}
+
+      {/* Trang Flipbook Hải Vân Khánh */}
+      {scene === 'hvk-intro' && (
+        <HvkFlipbookScreen 
+          onBack={() => setScene('main-app')} 
+          language={language}
+        />
+      )}
+
       {/* --- SEPARATE TNTN SEQUENCE --- */}
       {/* Màn hình loading TNTN: LOADING hiện dần từ trái sang phải từ 0% đến 100% như HVOC và #blvd */}
       {scene === 'tntn-loading' && (
@@ -1922,6 +2018,7 @@ export default function App() {
                     const next = language === 'vi' ? 'en' : 'vi';
                     setLanguage(next);
                     try {
+                      localStorage.setItem('blvd_language_v2', next);
                       localStorage.setItem('blvd_language', next);
                     } catch (e) {}
                   }}
@@ -2160,23 +2257,30 @@ export default function App() {
                     {language === 'vi' ? 'Thông tin cơ bản' : 'Basic Information'}
                   </TocItem>
 
-                  {/* Item 02: TNTN */}
-                  <TocItem digit={2} onClick={handleTntnClick}>
+                  {/* Item 02: Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh */}
+                  <TocItem digit={2} onClick={handleHvkClick}>
+                    {language === 'vi' 
+                      ? 'Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh' 
+                      : 'Hai Van Khanh Services Trading Co., LTD'}
+                  </TocItem>
+
+                  {/* Item 03: TNTN */}
+                  <TocItem digit={3} onClick={handleTntnClick}>
                     {language === 'vi' ? 'Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương' : 'TNTN Team - Hung Vuong for the gifted'}
                   </TocItem>
 
-                  {/* Item 03: Olympia */}
-                  <TocItem digit={3} onClick={handleHvocClick}>
+                  {/* Item 04: Olympia */}
+                  <TocItem digit={4} onClick={handleHvocClick}>
                     {language === 'vi' ? 'Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương' : 'Hung Vuong Olympia Club - Hung Vuong for the gifted'}
                   </TocItem>
 
-                  {/* Item 04: #BLVD */}
-                  <TocItem digit={4} onClick={handleBlvdClick}>
+                  {/* Item 05: #BLVD */}
+                  <TocItem digit={5} onClick={handleBlvdClick}>
                     #BLVD
                   </TocItem>
 
-                  {/* Item 05: PAKVARD */}
-                  <TocItem digit={5} onClick={handleReimaginedClick}>
+                  {/* Item 06: PAKVARD */}
+                  <TocItem digit={6} onClick={handleReimaginedClick}>
                     PAKVARD
                   </TocItem>
 

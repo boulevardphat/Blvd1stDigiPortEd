@@ -4557,6 +4557,101 @@ Chi tiết đồng bộ:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 114: TỐI ƯU ẢNH NỀN NỘI BỘ (/vespertine.webp) & THÊM MỤC 02 FLIPBOOK HẢI VÂN KHÁNH
+================================================================================
+Thời điểm: 2026-09-30 (Turn hiện tại)
+Files ảnh hưởng:
+  - /index.html
+  - /src/types.ts
+  - /src/components/VespertineBackground.tsx
+  - /src/components/HvkFlipbookScreen.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Tối ưu tốc độ tải ảnh nền giao diện chính:
+     - Chuyển toàn bộ đường dẫn ảnh nền `https://i.ibb.co/vy4ykmw/vespertine.png` sang file nội bộ có sẵn trong mã nguồn `/vespertine.webp` (2.7MB trong public/):
+       * Cập nhật thẻ `<link rel="preload" as="image" href="/vespertine.webp" fetchpriority="high" />` trong index.html.
+       * Cập nhật decode preload sớm và retry loader trong src/App.tsx.
+       * Cập nhật thẻ `<img>` trong src/components/VespertineBackground.tsx.
+     - Kết quả: Tải ảnh tức thì từ server nội bộ / local cache mà không bị phụ thuộc vào CDN bên thứ ba, loại bỏ độ trễ mạng.
+  2. Cập nhật mục lục (Table of Contents) thêm mục 02:
+     - Thêm mục 02 ở giữa mục 1 và 2 cũ:
+       * Tiêu đề: "Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh" (tiếng Anh: "Hai Van Khanh Services Trading Co., LTD").
+     - Tịnh tiến các mục sau đó:
+       * Mục 03: Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương (cũ là 02).
+       * Mục 04: Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương (cũ là 03).
+       * Mục 05: #BLVD (cũ là 04).
+       * Mục 06: PAKVARD (cũ là 05).
+       * Khác: Khác / Others (không đánh số).
+     - Bổ sung vector glyph chuẩn xác cho chữ số 6 từ font Archivo Bold trong `TOC_DIGIT_DATA[6]` và cấu hình `TOC_DEFAULT_LINES[6]`.
+  3. Xây dựng Flipbook Viewer chuyên nghiệp (HvkFlipbookScreen.tsx):
+     - Màn hình chuyển cảnh SVG Brutalist Loading đồng bộ (`scene-hvk-loading` -> `scene-hvk-intro`).
+     - Hỗ trợ xem dạng trang đôi (2-page spread book với sống sách và bóng 3D chân thực) trên màn hình lớn và trang đơn trên mobile.
+     - Lật trang mượt mà bằng nút bấm điều hướng (‹ ›), bàn phím (mũi tên trái/phải/Space), thanh chọn nhanh trang và phóng to/thu nhỏ (Zoom 75% - 140%).
+     - Tích hợp 6 trang hồ sơ năng lực mẫu doanh nghiệp được thiết kế chỉn chu: Trang bìa, Tổng quan pháp lý, Tầm nhìn sứ mệnh, Danh mục ngành nghề thương mại dịch vụ, Quy trình hợp tác 4 bước, và Thông tin liên hệ.
+     - Nút "Tải tệp PDF" (Load PDF): Cho phép người dùng trực tiếp chọn file `.pdf` từ thiết bị để xem ngay lập tức bằng trình xem PDF tích hợp, sẵn sàng cho việc truyền file PDF chính thức sau này.
+     - Tuân thủ nguyên tắc Boulevard1st: `rounded-none` tuyệt đối trên toàn bộ giao diện và các nút bấm.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 115: XÓA TOÀN BỘ GIAO DIỆN HẢI VÂN KHÁNH, ĐỂ MÀN HÌNH ĐEN XÌ CHỜ THIẾT KẾ
+================================================================================
+Thời điểm: 2026-09-30 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/HvkFlipbookScreen.tsx
+  - /history_changes.txt
+Chi tiết thay đổi theo lệnh người dùng:
+  1. Xóa toàn bộ nội dung mẫu, thanh công cụ, các trang hồ sơ doanh nghiệp và hiệu ứng trong `src/components/HvkFlipbookScreen.tsx`.
+  2. Đưa toàn bộ màn hình Hải Vân Khánh về không gian đen xì nguyên bản (`bg-black` / `#000000`) thuần túy, sạch sẽ, để dành thiết kế sau theo định hướng của người dùng.
+  3. Giữ duy nhất nút "trở về / back" tối giản chuẩn Boulevard1st ở góc trên bên trái (`#btn-hvk-back-desktop` và `#btn-hvk-back-mobile`) cùng phím tắt `Escape` để quay lại mục lục.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 116: NHÚNG TRỰC TIẾP FLIPLINK HỒ SƠ CÔNG TY HẢI VÂN KHÁNH VÀO NỀN ĐEN
+================================================================================
+Thời điểm: 2026-09-30 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/HvkFlipbookScreen.tsx
+  - /history_changes.txt
+Chi tiết thay đổi:
+  1. Loại bỏ toàn bộ giao diện chữ mẫu và thanh công cụ cũ, chuyển toàn bộ không gian về nền đen xì tuyền chuẩn Boulevard1st (`bg-black`).
+  2. Nhúng trực tiếp đường link Flipbook chính thức của bạn:
+     `https://go.fliplink.me/view/HOSOCONGTYHVK` vào `<iframe>` toàn màn hình.
+     - Cấu hình thuộc tính: `allow="fullscreen; clipboard-write"`, `allowFullScreen`, `loading="eager"`, viền phẳng không bo góc (`rounded-none`).
+     - Tích hợp hiệu ứng chuyển cảnh mượt mà với placeholder loading tối giản trong lúc iframe tải dữ liệu.
+  3. Bố trí nút "trở về / back" tinh gọn, sắc cạnh ở góc trên bên trái, nổi nhẹ trên nền đen (`bg-black/60 backdrop-blur-sm border border-white/10`) để người dùng dễ dàng quay về Mục lục bất cứ lúc nào.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 117: THIẾT LẬP NGÔN NGỮ MẶC ĐỊNH LÀ TIẾNG VIỆT
+================================================================================
+Thời điểm: 2026-09-30 (Turn hiện tại)
+Files ảnh hưởng:
+  - /index.html
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thay đổi:
+  1. Cập nhật thẻ HTML gốc trong index.html:
+     - Đổi từ `<html lang="en">` sang `<html lang="vi">` để trình duyệt nhận diện chính xác trang sử dụng Tiếng Việt ngay từ đầu.
+  2. Đồng bộ khởi tạo state ngôn ngữ trong src/App.tsx:
+     - Mặc định khởi tạo `language = 'vi'` (Tiếng Việt).
+     - Sử dụng key lưu trữ mới `blvd_language_v2` để ghi đè các giá trị cũ trong localStorage trình duyệt, đảm bảo ứng dụng luôn mở mặc định bằng Tiếng Việt.
+     - Thêm hook `useEffect` tự động đồng bộ `document.documentElement.lang = language` khi chuyển đổi.
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+
+
+
+
 
 
 

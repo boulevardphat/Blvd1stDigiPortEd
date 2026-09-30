@@ -21,7 +21,7 @@ export const VespertineBackground = ({
     >
       {/* Ảnh Vespertine gốc nguyên bản */}
       <img
-        src="https://i.ibb.co/vy4ykmw/vespertine.png" 
+        src="/vespertine.webp" 
         alt="Vespertine background"
         referrerPolicy="no-referrer"
         loading="eager"

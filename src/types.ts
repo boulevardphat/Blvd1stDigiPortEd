@@ -19,6 +19,8 @@ export type SceneState =
   | 'blvd-black'
   | 'hvoc-loading'
   | 'hvoc-intro'
+  | 'hvk-loading'
+  | 'hvk-intro'
   | 'tntn-loading'
   | 'tntn-intro'
   | 'reimagined-loading'
