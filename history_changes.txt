@@ -4648,6 +4648,58 @@ Chi tiết thay đổi:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 118: CẬP NHẬT TÀI NGUYÊN MẶT TRƯỚC / MẶT SAU #BLVD18 & BỔ SUNG LOGO CANVA
+================================================================================
+Thời điểm: 2026-10-05 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/ZFoldBooklet.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thay đổi:
+  1. Cập nhật đường dẫn tài nguyên #BLVD18:
+     - Mặt trước (Front): 6 file với đuôi `_compressed.webp` theo đường dẫn mới:
+       `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/Front/row-1-column-{1..6}_compressed.webp`.
+     - Mặt sau (Back): 6 file riêng biệt tương ứng trong thư mục `Back/` thay vì dùng chung với mặt trước:
+       `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/Back/row-1-column-{1..6}_compressed.webp`.
+     - Ánh xạ hình học 3D Z-Fold: Tờ 0 (Front 1, Back 6), Tờ 1 (Front 2, Back 5), Tờ 2 (Front 3, Back 4), Tờ 3 (Front 4, Back 3), Tờ 4 (Front 5, Back 2), Tờ 5 (Front 6, Back 1) để khi xoay 180° mặt sau đọc liền mạch từ Col 1 đến Col 6.
+  2. Đồng bộ các chế độ xem phái sinh (Carousel, Instagram):
+     - Chế độ Carousel: Thiết lập `showDualCarousel={true}` cho Zone 18, hiển thị 2 hàng song song liền mạch: Hàng trên là 6 trang Mặt trước (Col 1 -> Col 6), Hàng dưới là 6 trang Mặt sau (Col 1 -> Col 6).
+     - Chế độ Instagram: Bổ sung mảng `BLVD18_INSTAGRAM_PAGES` gồm đầy đủ 12 trang theo thứ tự đọc (6 trang Front Col 1-6 và 6 trang Back Col 1-6).
+  3. Bổ sung logo Canva bên cạnh logo Affinity ở #BLVD18:
+     - Thêm icon Canva (`canva.webp` / `canva.jpg`) kế bên icon Affinity tại header góc trên bên trái của Zone 18 (`#blvd-sublogo-fixed-tl`), đồng bộ phong cách với Zone 17 và Zone 16.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 119: TỔNG RÀ SOÁT, DỌN DẸP VÀ TỐI ƯU TOÀN DIỆN TOÀN BỘ MÃ NGUỒN
+================================================================================
+Thời điểm: 2026-10-05 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/IntroClock.tsx
+  - /src/components/Lanyard.tsx
+  - /src/components/VespertineBackground.tsx
+  - /src/components/ZFoldBooklet.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết dọn dẹp và tối ưu:
+  1. Loại bỏ toàn bộ code rác & dead logic:
+     - /src/components/IntroClock.tsx: Loại bỏ toàn bộ class ClockAudio cũ (90 dòng tạo âm thanh Web Audio API không còn dùng sau khi tắt tiếng tích tắc) và các event listener tương tác thừa (`click`, `touchstart`, biến `currentTickStep`, `isTock`), giúp giải phóng bộ nhớ và tăng tốc độ khởi tạo.
+     - /src/components/ZFoldBooklet.tsx: Loại bỏ hook cũ `useDragScroll` (66 dòng code thừa đã được thay thế hoàn toàn bởi `ZoomableCarouselContainer`) và biến `carouselRef`.
+     - /src/App.tsx: Loại bỏ state `portfolioMode` / `setPortfolioMode` và key localStorage không còn sử dụng.
+  2. Dọn sạch các import không sử dụng (Unused Imports & Types):
+     - /src/App.tsx: Xóa `motion`, `BLVD18_INSTAGRAM_PAGES`, `PortfolioMode`.
+     - /src/components/Lanyard.tsx: Xóa `useThree`.
+     - /src/components/VespertineBackground.tsx: Xóa `import React from 'react'`.
+     - /src/components/ZFoldBooklet.tsx: Xóa `useMemo`.
+  3. Kiểm định chất lượng toàn diện (Strict Typecheck & Zero Unused):
+     - Chạy kiểm tra nghiêm ngặt `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`: Đạt 0 lỗi, 100% sạch sẽ.
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+
+
 
 
 

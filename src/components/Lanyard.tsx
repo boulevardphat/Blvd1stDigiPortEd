@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';

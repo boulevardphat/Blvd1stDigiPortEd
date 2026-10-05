@@ -4,7 +4,6 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
 import { IntroClock } from './components/IntroClock';
 import { VespertineBackground } from './components/VespertineBackground';
 import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD17_INSTAGRAM_PAGES, BLVD16_PAGES, Zone16Carousel } from './components/ZFoldBooklet';
@@ -15,7 +14,7 @@ import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
 import { OthersIntroScreen } from './components/OthersIntroScreen';
 import { HvkFlipbookScreen } from './components/HvkFlipbookScreen';
 import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS } from './data/chvBadges';
-import { AppLanguage, PortfolioMode, SceneState } from './types';
+import { AppLanguage, SceneState } from './types';
 
 const TOC_DIGIT_DATA: Record<number, { viewBox: string; d: string }> = {
   1: {
@@ -125,13 +124,6 @@ export default function App() {
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
   const [bookletViewMode, setBookletViewMode] = useState<'3d' | 'carousel' | 'instagram'>('3d');
   const [zone16ViewMode, setZone16ViewMode] = useState<'carousel' | 'instagram'>('carousel');
-  const [portfolioMode, setPortfolioMode] = useState<PortfolioMode>(() => {
-    try {
-      const saved = localStorage.getItem('blvd_portfolio_mode');
-      if (saved === 'employer-club' || saved === 'individual') return saved;
-    } catch (e) {}
-    return 'employer-club';
-  });
   const [language, setLanguage] = useState<AppLanguage>(() => {
     try {
       const saved = localStorage.getItem('blvd_language_v2');
@@ -1759,6 +1751,16 @@ export default function App() {
                       className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain rounded-none select-none pointer-events-none shrink-0"
                       referrerPolicy="no-referrer"
                     />
+                    <img
+                      src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                      alt="Canva"
+                      title="Canva"
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain rounded-none select-none pointer-events-none shrink-0"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "https://i.ibb.co/RTw2phXD/canva.jpg";
+                      }}
+                    />
                   </>
                 )}
                 {activeBlvdZone === 'zone-17' && (
@@ -1961,6 +1963,7 @@ export default function App() {
                 mode={bookletViewMode} 
                 pages={BLVD18_PAGES} 
                 aspectRatio="4/5" 
+                showDualCarousel={true}
               />
             </section>
 

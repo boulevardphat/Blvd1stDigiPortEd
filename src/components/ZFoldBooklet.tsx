@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export interface BookletPage {
   front: string;
@@ -13,31 +13,49 @@ export interface BookletPage {
 // Mặt trước đọc từ trái sang phải: Col 1 -> Col 6
 // Mặt sau khi xoay 180 độ đọc từ trái sang phải: Col 1 -> Col 6
 // Khi xoay 180 độ, tờ số 5 (phải) thành mép trái người xem, nên mặt sau tờ 5 là Col 1, tờ 4 là Col 2, ..., tờ 0 là Col 6.
+const BLVD18_BASE_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18';
+
 export const BLVD18_PAGES: BookletPage[] = [
   {
-    front: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-1.webp',
-    back: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-6.webp',
+    front: `${BLVD18_BASE_URL}/Front/row-1-column-1_compressed.webp`,
+    back: `${BLVD18_BASE_URL}/Back/row-1-column-6_compressed.webp`,
   },
   {
-    front: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-2.webp',
-    back: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-5.webp',
+    front: `${BLVD18_BASE_URL}/Front/row-1-column-2_compressed.webp`,
+    back: `${BLVD18_BASE_URL}/Back/row-1-column-5_compressed.webp`,
   },
   {
-    front: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-3.webp',
-    back: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-4.webp',
+    front: `${BLVD18_BASE_URL}/Front/row-1-column-3_compressed.webp`,
+    back: `${BLVD18_BASE_URL}/Back/row-1-column-4_compressed.webp`,
   },
   {
-    front: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-4.webp',
-    back: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-3.webp',
+    front: `${BLVD18_BASE_URL}/Front/row-1-column-4_compressed.webp`,
+    back: `${BLVD18_BASE_URL}/Back/row-1-column-3_compressed.webp`,
   },
   {
-    front: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-5.webp',
-    back: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-2.webp',
+    front: `${BLVD18_BASE_URL}/Front/row-1-column-5_compressed.webp`,
+    back: `${BLVD18_BASE_URL}/Back/row-1-column-2_compressed.webp`,
   },
   {
-    front: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-6.webp',
-    back: 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD18/row-1-column-1.webp',
+    front: `${BLVD18_BASE_URL}/Front/row-1-column-6_compressed.webp`,
+    back: `${BLVD18_BASE_URL}/Back/row-1-column-1_compressed.webp`,
   },
+];
+
+// [#BLVD] #BLVD18 Instagram: 12 ảnh (6 trang mặt trước + 6 trang mặt sau theo thứ tự đọc)
+export const BLVD18_INSTAGRAM_PAGES: string[] = [
+  `${BLVD18_BASE_URL}/Front/row-1-column-1_compressed.webp`,
+  `${BLVD18_BASE_URL}/Front/row-1-column-2_compressed.webp`,
+  `${BLVD18_BASE_URL}/Front/row-1-column-3_compressed.webp`,
+  `${BLVD18_BASE_URL}/Front/row-1-column-4_compressed.webp`,
+  `${BLVD18_BASE_URL}/Front/row-1-column-5_compressed.webp`,
+  `${BLVD18_BASE_URL}/Front/row-1-column-6_compressed.webp`,
+  `${BLVD18_BASE_URL}/Back/row-1-column-1_compressed.webp`,
+  `${BLVD18_BASE_URL}/Back/row-1-column-2_compressed.webp`,
+  `${BLVD18_BASE_URL}/Back/row-1-column-3_compressed.webp`,
+  `${BLVD18_BASE_URL}/Back/row-1-column-4_compressed.webp`,
+  `${BLVD18_BASE_URL}/Back/row-1-column-5_compressed.webp`,
+  `${BLVD18_BASE_URL}/Back/row-1-column-6_compressed.webp`,
 ];
 
 // [#BLVD] #BLVD17: 4 tờ 1:1
@@ -103,74 +121,6 @@ export function preloadBookletImages(urls: string[]) {
       img.src = url;
     }
   });
-}
-
-// ============================================================================
-// HOOK HỖ TRỢ KÉO CUỘN (DRAG-TO-SCROLL) & CON LĂN CHUỘT NGANG TRÊN DESKTOP
-// ============================================================================
-function useDragScroll() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    let isDown = false;
-    let startX = 0;
-    let scrollLeft = 0;
-
-    const onMouseDown = (e: MouseEvent) => {
-      isDown = true;
-      startX = e.pageX - el.offsetLeft;
-      scrollLeft = el.scrollLeft;
-      el.style.cursor = 'grabbing';
-    };
-
-    const onMouseLeave = () => {
-      isDown = false;
-      el.style.cursor = 'grab';
-    };
-
-    const onMouseUp = () => {
-      isDown = false;
-      el.style.cursor = 'grab';
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      el.scrollLeft = scrollLeft - walk;
-    };
-
-    // Cho phép lăn chuột dọc cuộn dải ảnh ngang tự nhiên và mượt mà
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        const canScrollLeft = el.scrollLeft > 0 && e.deltaY < 0;
-        const canScrollRight = el.scrollLeft < (el.scrollWidth - el.clientWidth - 1) && e.deltaY > 0;
-        if (canScrollLeft || canScrollRight) {
-          e.preventDefault();
-          el.scrollLeft += e.deltaY * 1.2;
-        }
-      }
-    };
-
-    el.addEventListener('mousedown', onMouseDown);
-    el.addEventListener('mouseleave', onMouseLeave);
-    el.addEventListener('mouseup', onMouseUp);
-    el.addEventListener('mousemove', onMouseMove);
-    el.addEventListener('wheel', onWheel, { passive: false });
-
-    return () => {
-      el.removeEventListener('mousedown', onMouseDown);
-      el.removeEventListener('mouseleave', onMouseLeave);
-      el.removeEventListener('mouseup', onMouseUp);
-      el.removeEventListener('mousemove', onMouseMove);
-      el.removeEventListener('wheel', onWheel);
-    };
-  }, []);
-
-  return ref;
 }
 
 // ============================================================================
@@ -827,8 +777,6 @@ export const ZFoldBooklet: React.FC<ZFoldBookletProps> = ({
   const lastMousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const totalDragDistRef = useRef<number>(0);
 
-  const carouselRef = useDragScroll();
-
   // Kích thước chuẩn tỉ lệ
   const isSquare = aspectRatio === '1/1';
   const panelWidth = isSquare ? 160 : 140; // px
@@ -1022,17 +970,27 @@ export const ZFoldBooklet: React.FC<ZFoldBookletProps> = ({
   // ==========================================================================
   if (mode === 'instagram') {
     if (showDualCarousel) {
-      // Zone 17: Hiện theo trình tự ảnh từ 1 đến 9 (1.webp -> 8.webp + logo #blvd17)
+      if (aspectRatio === '1/1') {
+        // Zone 17: Hiện theo trình tự ảnh từ 1 đến 9 (1.webp -> 8.webp + logo #blvd17)
+        return (
+          <InstagramViewer
+            id={`${id}-instagram`}
+            images={BLVD17_INSTAGRAM_PAGES}
+            aspectRatio={aspectRatio}
+          />
+        );
+      }
+      // Zone 18: 12 ảnh (6 trang mặt trước + 6 trang mặt sau theo thứ tự đọc)
       return (
         <InstagramViewer
           id={`${id}-instagram`}
-          images={BLVD17_INSTAGRAM_PAGES}
+          images={BLVD18_INSTAGRAM_PAGES}
           aspectRatio={aspectRatio}
         />
       );
     }
 
-    // Zone 18 (hoặc booklet chuẩn): 6 trang mặt trước
+    // Booklet chuẩn
     return (
       <InstagramViewer
         id={`${id}-instagram`}
@@ -1046,18 +1004,13 @@ export const ZFoldBooklet: React.FC<ZFoldBookletProps> = ({
   // RENDER CAROUSEL MODE
   // ==========================================================================
   if (mode === 'carousel') {
-    // Nếu là Zone 17 (showDualCarousel = true): hiện cả 2 mặt thành 2 hàng trên/dưới
-    // Hàng trên: mặt trước [2, 4, 6, 8]
-    // Hàng dưới: mặt sau [7, 5, 3, 1]
+    // Nếu showDualCarousel = true: hiện cả 2 mặt thành 2 hàng trên/dưới
+    // Hàng trên: mặt trước
+    // Hàng dưới: mặt sau (lấy theo thứ tự câu chuyện từ trái sang phải)
     if (showDualCarousel) {
       const frontPages = pages.map((p) => p.front);
-      // Mặt dưới lấy theo thứ tự câu chuyện của mặt sau [1, 3, 5, 7] (đảo phải sang trái ngược lại)
-      const backStoryPages = [
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/1.webp',
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/3.webp',
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/5.webp',
-        'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5B%23BLVD%5D%20%23BLVD17/7.webp',
-      ];
+      // Mặt dưới lấy theo thứ tự câu chuyện của mặt sau (đảo phải sang trái ngược lại từ 3D booklet)
+      const backStoryPages = [...pages].reverse().map((p) => p.back);
 
       return (
         <ZoomableCarouselContainer
@@ -1068,20 +1021,22 @@ export const ZFoldBooklet: React.FC<ZFoldBookletProps> = ({
             className="flex flex-col items-center justify-center gap-2"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            {/* HÀNG TRÊN: Mặt trước (2, 4, 6, 8) - gap-0 liền mạch */}
+            {/* HÀNG TRÊN: Mặt trước - gap-0 liền mạch */}
             <div className="flex items-center gap-0 w-max shrink-0">
               {frontPages.map((url, idx) => (
                 <div
                   key={`front-${idx}`}
                   className="shrink-0 relative overflow-hidden bg-[#111] border-y border-white/20 transition-all duration-200 ease-out"
                   style={{
-                    width: 'calc(clamp(110px, 16vw, 170px) * var(--carousel-scale, 1))',
-                    aspectRatio: '1 / 1',
+                    width: isSquare
+                      ? 'calc(clamp(110px, 16vw, 170px) * var(--carousel-scale, 1))'
+                      : 'calc(clamp(90px, 13vw, 145px) * var(--carousel-scale, 1))',
+                    aspectRatio: isSquare ? '1 / 1' : '4 / 5',
                   }}
                 >
                   <img
                     src={url}
-                    alt={`BLVD17 Front ${idx + 1}`}
+                    alt={`Front ${idx + 1}`}
                     referrerPolicy="no-referrer"
                     loading="eager"
                     decoding="async"
@@ -1091,20 +1046,22 @@ export const ZFoldBooklet: React.FC<ZFoldBookletProps> = ({
               ))}
             </div>
 
-            {/* HÀNG DƯỚI: Mặt dưới (7, 5, 3, 1) - nằm ngay dưới hàng trên - gap-0 liền mạch */}
+            {/* HÀNG DƯỚI: Mặt dưới - nằm ngay dưới hàng trên - gap-0 liền mạch */}
             <div className="flex items-center gap-0 w-max shrink-0">
               {backStoryPages.map((url, idx) => (
                 <div
                   key={`back-${idx}`}
                   className="shrink-0 relative overflow-hidden bg-[#111] border-y border-white/20 transition-all duration-200 ease-out"
                   style={{
-                    width: 'calc(clamp(110px, 16vw, 170px) * var(--carousel-scale, 1))',
-                    aspectRatio: '1 / 1',
+                    width: isSquare
+                      ? 'calc(clamp(110px, 16vw, 170px) * var(--carousel-scale, 1))'
+                      : 'calc(clamp(90px, 13vw, 145px) * var(--carousel-scale, 1))',
+                    aspectRatio: isSquare ? '1 / 1' : '4 / 5',
                   }}
                 >
                   <img
                     src={url}
-                    alt={`BLVD17 Back ${idx + 1}`}
+                    alt={`Back ${idx + 1}`}
                     referrerPolicy="no-referrer"
                     loading="eager"
                     decoding="async"
