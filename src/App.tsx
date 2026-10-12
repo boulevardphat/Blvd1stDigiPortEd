@@ -8,6 +8,7 @@ import { IntroClock } from './components/IntroClock';
 import { VespertineBackground } from './components/VespertineBackground';
 import { ZFoldBooklet, BLVD18_PAGES, BLVD17_PAGES, BLVD17_INSTAGRAM_PAGES, BLVD16_PAGES, Zone16Carousel } from './components/ZFoldBooklet';
 import { HvocIntroScreen, HVOC_LOGO_URL } from './components/HvocIntroScreen';
+import { UsshYhrIntroScreen, USSH_YHR_LOGO_URL } from './components/UsshYhrIntroScreen';
 import { TntnIntroScreen, TNTN_CHV_LOGO_URL, CDTTBP_VII_TNTN_LOGO_URL } from './components/TntnIntroScreen';
 import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
 import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
@@ -40,6 +41,10 @@ const TOC_DIGIT_DATA: Record<number, { viewBox: string; d: string }> = {
   6: {
     viewBox: "51 0 483 712",
     d: "M303 712Q244 712 197.5 695Q151 678 118 639.5Q85 601 68 536.5Q51 472 51 377Q51 270 67.5 198Q84 126 115.5 83Q147 40 193 21Q239 2 298 2Q373 2 420 30.5Q467 59 489 107Q511 155 511 216L387 216Q387 180 377.5 154.5Q368 129 347 115.5Q326 102 293 102Q244 102 219 128.5Q194 155 185.5 204Q177 253 176 321Q182 313 201.5 298.5Q221 284 253 272Q285 260 326 260Q398 260 444 289.5Q490 319 512 370Q534 421 534 486L534 486Q534 555 504 606Q474 657 422 684.5Q370 712 303 712ZM297 612Q335 612 359.5 595Q384 578 396 549Q408 520 408 485Q408 448 396 419.5Q384 391 359.5 374.5Q335 358 297 358Q259 358 234 374.5Q209 391 197 419.5Q185 448 185 486Q185 521 197 550Q209 579 234 595.5Q259 612 297 612Z"
+  },
+  7: {
+    viewBox: "46 0 490 686",
+    d: "M279 686L147 686Q147 602 168 522Q188 441 223 367Q258 293 301 228Q344 163 389 111L46 111L46 0L536 0L536 80Q502 121 466 170Q430 219 397 274Q363 329 337 388Q310 447 295 510Q279 572 279 635L279 686Z"
   }
 };
 
@@ -48,8 +53,9 @@ const TOC_DEFAULT_LINES: Record<number, number> = {
   2: 2,
   3: 2,
   4: 2,
-  5: 1,
+  5: 2,
   6: 1,
+  7: 1,
 };
 
 function TocItem({
@@ -116,6 +122,7 @@ export default function App() {
   const [initialLoadingProgress, setInitialLoadingProgress] = useState(0);
   const [blvdLoadingProgress, setBlvdLoadingProgress] = useState(0);
   const [hvocLoadingProgress, setHvocLoadingProgress] = useState(0);
+  const [usshYhrLoadingProgress, setUsshYhrLoadingProgress] = useState(0);
   const [hvkLoadingProgress, setHvkLoadingProgress] = useState(0);
   const [tntnLoadingProgress, setTntnLoadingProgress] = useState(0);
   const [reimaginedLoadingProgress, setReimaginedLoadingProgress] = useState(0);
@@ -271,6 +278,7 @@ export default function App() {
       'https://i.ibb.co/v4h21FLG/filmora.png',
       'https://i.ibb.co/TD9mb1pB/avatar.jpg',
       HVOC_LOGO_URL,
+      USSH_YHR_LOGO_URL,
       TNTN_CHV_LOGO_URL,
       CDTTBP_VII_TNTN_LOGO_URL,
     ];
@@ -366,6 +374,12 @@ export default function App() {
     setBookletViewMode('3d');
     setZone16ViewMode('carousel');
     setScene('blvd-loading');
+  };
+
+  const handleUsshYhrClick = () => {
+    // Bắt đầu chuỗi USSH YHR: hiện màn hình LOADING trước khi mở trang giới thiệu CLB Nguồn Nhân Lực Trẻ
+    setUsshYhrLoadingProgress(0);
+    setScene('ussh-yhr-loading');
   };
 
   const handleHvkClick = () => {
@@ -483,6 +497,87 @@ export default function App() {
         }, 350);
       }
     }, 30000);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(safetyTimer);
+    };
+  }, [scene]);
+
+  // Quản lý tiến trình tải tài nguyên của CLB Nguồn Nhân Lực Trẻ USSH (YHR)
+  useEffect(() => {
+    if (scene !== 'ussh-yhr-loading') return;
+
+    setUsshYhrLoadingProgress(0);
+
+    const usshAssets = [
+      USSH_YHR_LOGO_URL,
+      // Logo Chiết Tự
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/logo%20chi%E1%BA%BFt%20t%E1%BB%B1%20cho%20yhr.webp',
+      // Icons công cụ
+      'https://i.ibb.co/pBXrq6cf/affinity.jpg',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/ibispaint.webp',
+      // Toàn bộ 4 ảnh thành phẩm
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BYHR%5D%20CHI%E1%BA%BET%20T%E1%BB%B0/%5BYHR%5D%20B%C3%8CA%20CH%C3%8DNH%20BOOKLET_SLIDE.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BYHR%5D%20CHI%E1%BA%BET%20T%E1%BB%B0/%5BYHR%5D%20KHUNG%20N%E1%BB%98I%20DUNG%20BOOKLET_SLIDE.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BYHR%5D%20CHI%E1%BA%BET%20T%E1%BB%B0/%5BYHR%5D%20POSTER%20B%E1%BB%94%20TR%E1%BB%A2.webp',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Employer/%5BYHR%5D%20CHI%E1%BA%BET%20T%E1%BB%B0/%5BYHR%5D%20POSTER%20CH%C3%8DNH.webp',
+    ];
+
+    const uniqueAssets = Array.from(new Set(usshAssets));
+    const totalAssets = uniqueAssets.length;
+    let loadedCount = 0;
+    let currentDisplayProgress = 0;
+    let isFinished = false;
+
+    // Tween làm mượt tiến trình 0 -> 100% dựa trên số lượng ảnh thực tế tải về
+    const progressInterval = setInterval(() => {
+      const realTarget = Math.round((loadedCount / totalAssets) * 100);
+      if (currentDisplayProgress < realTarget) {
+        currentDisplayProgress += 1;
+        setUsshYhrLoadingProgress(Math.min(100, currentDisplayProgress));
+      }
+
+      // Chỉ khi load hết 100% tài nguyên ảnh và progress chạy đến 100 thì giao diện loading mới kết thúc
+      if (loadedCount >= totalAssets && currentDisplayProgress >= 100 && !isFinished) {
+        isFinished = true;
+        clearInterval(progressInterval);
+        clearTimeout(safetyTimer);
+        setTimeout(() => {
+          setScene('ussh-yhr-intro');
+        }, 300);
+      }
+    }, 14);
+
+    const onAssetLoaded = () => {
+      loadedCount++;
+    };
+
+    uniqueAssets.forEach((url) => {
+      const img = new Image();
+      img.onload = () => {
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(onAssetLoaded);
+        } else {
+          onAssetLoaded();
+        }
+      };
+      img.onerror = onAssetLoaded;
+      img.src = url;
+    });
+
+    // Safety fallback tối đa 35 giây phòng trường hợp mạng yếu hoặc lỗi connection
+    const safetyTimer = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        setUsshYhrLoadingProgress(100);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setScene('ussh-yhr-intro');
+        }, 350);
+      }
+    }, 35000);
 
     return () => {
       clearInterval(progressInterval);
@@ -1232,11 +1327,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(0, 0, 0, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - initialLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - initialLoadingProgress)}% 0 0)`,
               }}
@@ -1365,11 +1464,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(255, 255, 255, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - hvocLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - hvocLoadingProgress)}% 0 0)`,
               }}
@@ -1383,6 +1486,51 @@ export default function App() {
       {/* Trang giới thiệu HVOC */}
       {scene === 'hvoc-intro' && (
         <HvocIntroScreen 
+          onBack={() => setScene('main-app')} 
+          language={language}
+        />
+      )}
+
+      {/* --- SEPARATE CLB NGUỒN NHÂN LỰC TRẺ USSH (YHR) SEQUENCE --- */}
+      {/* Màn hình loading USSH YHR */}
+      {scene === 'ussh-yhr-loading' && (
+        <div 
+          id="scene-ussh-yhr-loading"
+          className="absolute inset-0 flex items-center justify-center bg-black z-50 overflow-hidden select-none w-full h-full px-2 md:px-8"
+        >
+          <svg 
+            viewBox="0 0 1000 120" 
+            className="w-full h-full max-h-[85vh]" 
+            preserveAspectRatio="none"
+          >
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="central"
+              textAnchor="middle"
+              className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
+              fontSize="115"
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.95)"
+              strokeWidth="3.2"
+              style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
+                clipPath: `inset(0 ${Math.max(0, 100 - usshYhrLoadingProgress)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${Math.max(0, 100 - usshYhrLoadingProgress)}% 0 0)`,
+              }}
+            >
+              LOADING
+            </text>
+          </svg>
+        </div>
+      )}
+
+      {/* Trang giới thiệu CLB Nguồn Nhân Lực Trẻ USSH */}
+      {scene === 'ussh-yhr-intro' && (
+        <UsshYhrIntroScreen 
           onBack={() => setScene('main-app')} 
           language={language}
         />
@@ -1406,11 +1554,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(255, 255, 255, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - hvkLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - hvkLoadingProgress)}% 0 0)`,
               }}
@@ -1447,11 +1599,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(255, 255, 255, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - tntnLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - tntnLoadingProgress)}% 0 0)`,
               }}
@@ -1488,11 +1644,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(255, 255, 255, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - reimaginedLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - reimaginedLoadingProgress)}% 0 0)`,
               }}
@@ -1529,11 +1689,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(255, 255, 255, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - othersLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - othersLoadingProgress)}% 0 0)`,
               }}
@@ -1570,11 +1734,15 @@ export default function App() {
               dominantBaseline="central"
               textAnchor="middle"
               className="font-archivo font-black select-none pointer-events-none tracking-tight"
+              fontFamily="Archivo, sans-serif"
+              fontWeight="900"
               fontSize="115"
               fill="none"
               stroke="rgba(255, 255, 255, 0.95)"
               strokeWidth="3.2"
               style={{
+                fontFamily: '"Archivo", sans-serif',
+                fontWeight: 900,
                 clipPath: `inset(0 ${Math.max(0, 100 - blvdLoadingProgress)}% 0 0)`,
                 WebkitClipPath: `inset(0 ${Math.max(0, 100 - blvdLoadingProgress)}% 0 0)`,
               }}
@@ -2260,30 +2428,37 @@ export default function App() {
                     {language === 'vi' ? 'Thông tin cơ bản' : 'Basic Information'}
                   </TocItem>
 
-                  {/* Item 02: Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh */}
-                  <TocItem digit={2} onClick={handleHvkClick}>
+                  {/* Item 02: CLB Nguồn Nhân Lực Trẻ USSH (Young Human Resources Club - HCMUSSH) */}
+                  <TocItem digit={2} onClick={handleUsshYhrClick}>
+                    {language === 'vi' 
+                      ? 'CLB Nguồn Nhân Lực Trẻ USSH' 
+                      : 'Young Human Resources Club - HCMUSSH'}
+                  </TocItem>
+
+                  {/* Item 03: Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh */}
+                  <TocItem digit={3} onClick={handleHvkClick}>
                     {language === 'vi' 
                       ? 'Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh' 
                       : 'Hai Van Khanh Services Trading Co., LTD'}
                   </TocItem>
 
-                  {/* Item 03: TNTN */}
-                  <TocItem digit={3} onClick={handleTntnClick}>
+                  {/* Item 04: TNTN */}
+                  <TocItem digit={4} onClick={handleTntnClick}>
                     {language === 'vi' ? 'Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương' : 'TNTN Team - Hung Vuong for the gifted'}
                   </TocItem>
 
-                  {/* Item 04: Olympia */}
-                  <TocItem digit={4} onClick={handleHvocClick}>
+                  {/* Item 05: Olympia */}
+                  <TocItem digit={5} onClick={handleHvocClick}>
                     {language === 'vi' ? 'Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương' : 'Hung Vuong Olympia Club - Hung Vuong for the gifted'}
                   </TocItem>
 
-                  {/* Item 05: #BLVD */}
-                  <TocItem digit={5} onClick={handleBlvdClick}>
+                  {/* Item 06: #BLVD */}
+                  <TocItem digit={6} onClick={handleBlvdClick}>
                     #BLVD
                   </TocItem>
 
-                  {/* Item 06: PAKVARD */}
-                  <TocItem digit={6} onClick={handleReimaginedClick}>
+                  {/* Item 07: PAKVARD */}
+                  <TocItem digit={7} onClick={handleReimaginedClick}>
                     PAKVARD
                   </TocItem>
 

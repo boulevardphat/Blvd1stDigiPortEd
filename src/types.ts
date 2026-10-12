@@ -19,6 +19,8 @@ export type SceneState =
   | 'blvd-black'
   | 'hvoc-loading'
   | 'hvoc-intro'
+  | 'ussh-yhr-loading'
+  | 'ussh-yhr-intro'
   | 'hvk-loading'
   | 'hvk-intro'
   | 'tntn-loading'

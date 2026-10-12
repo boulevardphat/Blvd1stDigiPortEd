@@ -4698,22 +4698,259 @@ Chi tiết dọn dẹp và tối ưu:
      - TypeScript linter: 0 lỗi (`npm run lint`).
      - Production build: Thành công 100% (`npm run build`).
 
+================================================================================
+LẦN 120: THÊM MỤC 02 CLB NGUỒN NHÂN LỰC TRẺ USSH VÀO MỤC LỤC & ĐỒNG BỘ FONT ARCHIVO CHO MÀN HÌNH LOADING
+================================================================================
+Thời điểm: 2026-10-12 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/types.ts
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /src/components/HvkFlipbookScreen.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Phân tích nguyên nhân font loading HVK & khắc phục triệt để:
+     - Làm rõ 2 nguyên nhân:
+       a) Bên trong iframe Fliplink: Go.fliplink.me là dịch vụ sách lật của bên thứ 3 nhúng qua iframe; màn hình loading / thanh tiến trình bên trong iframe do Fliplink quản lý nên dùng font hệ thống mặc định của Fliplink, trình duyệt chặn can thiệp qua Cross-Origin Iframe.
+       b) Màn hình SVG LOADING trước khi vào trang: Các thẻ `<text>` SVG của Tailwind v4 đôi khi không tự nhận biến CSS `var(--font-archivo)` trên một số engine SVG nếu thiếu thuộc tính SVG trực tiếp.
+     - Khắc phục: Khai báo tường minh `fontFamily="Archivo, sans-serif"`, `fontWeight="900"` cùng inline style `fontFamily: '"Archivo", sans-serif'` trên toàn bộ các thẻ SVG `<text>` "LOADING" trong App.tsx (HVK, HVOC, USSH YHR, TNTN, PAKVARD, Others, BLVD, Pre-intro) và màn hình chờ của HvkFlipbookScreen.
+  2. Bổ sung Mục 02 CLB Nguồn Nhân Lực Trẻ USSH (Young Human Resources Club - HCMUSSH):
+     - Thêm component mới `/src/components/UsshYhrIntroScreen.tsx`:
+       * Đồng bộ hoàn toàn bố cục 2 cột, typography và phong cách Brutalist với HvocIntroScreen.
+       * Cột trái: Logo chính thức `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/logo%20ussh%20yhr.png`, tiêu đề "CLB NGUỒN NHÂN LỰC TRẺ / TRƯỜNG ĐH KHXH&NV, ĐHQG-HCM" (tiếng Anh: "YOUNG HUMAN RESOURCES CLUB / HCMUSSH"), đoạn văn bản giới thiệu chỉn chu căn đều 2 bên.
+       * Cột phải: Danh mục hoạt động đồng bộ với HVOC ("01 - HOẠT ĐỘNG ĐANG CẬP NHẬT" / "01 - ACTIVITIES UPDATING").
+       * Nút "trở về" / "back" chuẩn xác ở góc trên bên trái màn hình cho desktop và đầu trang cho mobile.
+       * Triệt để tuân thủ quy tắc Boulevard1st: `rounded-none` 100%.
+  3. Cập nhật thứ tự Mục lục (Table of Contents):
+     - Mục 01: Thông tin cơ bản (Basic Information).
+     - Mục 02: CLB Nguồn Nhân Lực Trẻ USSH (Young Human Resources Club - HCMUSSH).
+     - Mục 03: Công ty TNHH Thương Mại Dịch Vụ Hải Vân Khánh.
+     - Mục 04: Đội Thanh niên Tình nguyện - Trường THPT Chuyên Hùng Vương.
+     - Mục 05: Câu lạc bộ Olympia - Trường THPT Chuyên Hùng Vương.
+     - Mục 06: #BLVD.
+     - Mục 07: PAKVARD.
+     - Khác: Khác / Others (không đánh số).
+     - Bổ sung vector glyph chuẩn xác cho chữ số 7 từ font Archivo Bold trong `TOC_DIGIT_DATA[7]` (`viewBox="46 0 490 686"`) và cấu hình `TOC_DEFAULT_LINES[7] = 1`.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Strict Unused check: 0 unused locals, 0 unused parameters.
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 121: TINH CHỈNH BỐ CỤC YHR KHÔNG CHIA CỘT, CẬP NHẬT LỜI GIỚI THIỆU & THÊM CANVA EMBODIED MOODBOARD CHIẾT TỰ (KHẢM TÍCH)
+================================================================================
+Thời điểm: 2026-10-12 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Tinh chỉnh bố cục CLB Nguồn Nhân Lực Trẻ USSH (YHR):
+     - Chuyển toàn bộ cấu trúc trang từ dạng chia 2 cột trái phải sang luồng đọc tuần tự một cột dọc (vertical layout, max-w-4xl căn giữa màn hình) giúp trải nghiệm đọc mượt mà, tối ưu trên cả desktop lẫn thiết bị di động.
+     - Triệt để tuân thủ quy tắc Boulevard1st: Toàn bộ component sử dụng `rounded-none`, không bo góc bất kỳ phần tử nào.
+  2. Cập nhật lời giới thiệu chỉn chu:
+     - "Là tổ chức trực thuộc Trung tâm Hỗ trợ người học và Khởi nghiệp (CSSE), Câu lạc bộ Nguồn Nhân Lực Trẻ đã có nhiều đóng góp tích cực trong công tác định hướng nghề nghiệp và hỗ trợ người học tại trường ĐH KHXH&NV, ĐHQG-HCM và các trường đại học, cao đẳng khác trên địa bàn TP.HCM từ năm 2010."
+     - Phiên bản tiếng Anh: "As an organization operating under the Center for Student Services and Entrepreneurship (CSSE), the Young Human Resources Club has made substantial contributions to career orientation and student support at the University of Social Sciences and Humanities, Vietnam National University Ho Chi Minh City (HCMUSSH), as well as numerous other universities and colleges across Ho Chi Minh City since 2010."
+     - Căn đều văn bản hai bên (text-justify, inter-word), font Archivo Light thanh lịch.
+  3. Thêm chương trình giả định "CHIẾT TỰ" trong khuôn khổ "KHẢM TÍCH":
+     - Đặt ngay bên dưới lời giới thiệu, phân cách bằng viền kẻ mảnh tinh tế.
+     - Header định danh mục: "01 - CHƯƠNG TRÌNH GIẢ ĐỊNH 'CHIẾT TỰ'" kèm icon Canva chính thức và dòng phụ đề "Trong khuôn khổ chương trình 'KHẢM TÍCH' • Moodboard Poster".
+     - Nhúng Canva Moodboard chính thức với tỉ lệ vuông 1:1 chuẩn xác (`aspect-square`), loại bỏ bo góc hoàn toàn (`rounded-none` thay vì border-radius 8px mặc định từ mã Canva), tối ưu hiển thị mượt mà.
+     - Bổ sung liên kết nguồn bản thiết kế Canva có gạch chân tinh tế với thuộc tính bảo mật `rel="noopener noreferrer"`.
+  4. Dọn dẹp & Tối ưu hóa:
+     - Loại bỏ các biến/hook ResizeObserver và state đo đạc chiều rộng không còn cần thiết (`useState`, `useRef`, `useEffect`).
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 122: CHUYỂN BỐ CỤC YHR THÀNH 3 ZONE CHUẨN #BLVD (ZONE 1 GIỚI THIỆU, ZONE 2 MOODBOARD FULL MÀN HÌNH KHUNG ĐEN GÓC TRÁI, ZONE 3 SẢN PHẨM CHÍNH THỨC)
+================================================================================
+Thời điểm: 2026-10-12 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Tái cấu trúc cơ chế trượt đa Zone chuẩn mực như #BLVD (`#scene-ussh-yhr-zones`):
+     - Bao gồm 3 Zone trượt dọc với cơ chế chống trượt lố mượt mà (debounce chuyển cảnh 650ms, ease-[cubic-bezier(0.2,0.9,0.3,1)]):
+       + 1 lần cuộn chuột/trackpad = sang đúng 1 zone.
+       + 1 lần vuốt cảm ứng mobile/tablet = sang đúng 1 zone.
+       + Phím mũi tên (ArrowDown/ArrowUp, PageDown/PageUp) = chuyển zone chuẩn xác.
+     - Thanh điều hướng zone ở cạnh dưới màn hình (`giới thiệu` | `moodboard` | `sản phẩm chính thức` / `introduction` | `moodboard` | `official products`) với typography Archivo chuẩn #BLVD.
+  2. Bố cục chi tiết từng Zone:
+     - Zone 1: Giới thiệu CLB Nguồn Nhân Lực Trẻ USSH (YHR):
+       + Logo chính thức USSH YHR và tiêu đề định danh trang trọng.
+       + Lời giới thiệu chỉn chu về CLB trực thuộc CSSE từ năm 2010.
+       + Góc trên bên trái: nút "trở về" / "back" tối giản, tinh tế.
+     - Zone 2: Moodboard full màn hình (Full-screen Canva embed):
+       + Khung nhúng Canva iframe moodboard poster chương trình CHIẾT TỰ (KHẢM TÍCH) phủ toàn màn hình (`w-full h-full`, không viền, `rounded-none`).
+       + Góc trên bên trái: đóng khung đen (`bg-black/95 border border-white/20`, `rounded-none`) hiển thị thông tin chương trình "CHIẾT TỰ (KHẢM TÍCH)", icon Canva và nút "trở về" / "back" bên trong.
+       + Tuyệt đối không thêm chú thích hoặc thông tin thừa thãi ngoài yêu cầu.
+     - Zone 3: Các sản phẩm chính thức:
+       + Khung đen định danh ở góc trên bên trái kèm nút "trở về".
+       + Trưng bày 4 sản phẩm chính thức trong một thanh gallery carousel ngang sắc nét, vừa vặn khung nhìn:
+         1. [YHR] BÌA CHÍNH BOOKLET_SLIDE.webp
+         2. [YHR] KHUNG NỘI DUNG BOOKLET_SLIDE.webp
+         3. [YHR] POSTER BỔ TRỢ.webp
+         4. [YHR] POSTER CHÍNH.webp
+       + Hỗ trợ nút Previous/Next và chỉ số sản phẩm `01` `02` `03` `04` để chuyển đổi mượt mà.
+  3. Kiểm thử chất lượng:
+     - Triệt để tuân thủ quy tắc Boulevard1st: Toàn bộ component sử dụng `rounded-none`, không bo góc.
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Strict Unused check: 0 unused locals, 0 unused parameters (`npx tsc --noEmit --noUnusedLocals --noUnusedParameters`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 123: HOÀN THIỆN TOÀN BỘ 6 ĐIỂM TINH CHỈNH GIAO DIỆN YHR (CHIẾT TỰ)
+================================================================================
+Thời điểm: 2026-10-12 (Turn hiện tại)
+Files ảnh hưởng:
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Loại bỏ hoàn toàn các nút mũi tên trái/phải điều hướng trên toàn bộ các zone, giữ giao diện tối giản chuẩn Boulevard1st.
+  2. Xử lý toolbar điều hướng cạnh dưới:
+     - Đảm bảo tương tác click chuyển zone tức thì (`z-[60]`, `pointer-events-auto`).
+     - Khi sang Zone 2 (Moodboard Canva nền sáng), chữ tự động chuyển sang màu đen (`text-black font-medium` cho mục active, `text-black/50 hover:text-black/90` cho mục inactive), hoàn toàn không đóng khung và không có gạch chân (underline) theo đúng chỉ đạo.
+     - Khi ở Zone 1 và Zone 3 (nền tối), chữ giữ nguyên màu trắng.
+  3. Đổi tên mục "sản phẩm chính thức" thành "thành phẩm" (En: "finished products").
+  4. Loại bỏ hoàn toàn chú thích "KHẢM TÍCH" sau "CHIẾT TỰ", chỉ giữ duy nhất tên chương trình "CHIẾT TỰ".
+  5. Bổ sung logo Chiết Tự vào khung đen góc trên bên trái:
+     - URL: `https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/logo%20chi%E1%BA%BFt%20t%E1%BB%B0%20cho%20yhr.webp`
+     - Tỉ lệ 1:1 vuông vức (`aspect-square`), độ rộng khớp bằng chiều ngang các phần tử khác trong khung (`w-full`) tạo sự ngăn nắp, tinh tế.
+     - Thứ tự trong khung đen từ trên xuống dưới:
+       + 1. Nút "trở về" / "back".
+       + 2. Logo Chiết Tự (1:1).
+       + 3. Tên chương trình "CHIẾT TỰ" cùng 3 logo công cụ: Affinity, Canva, ibisPaint.
+     - Giữ nguyên size và style của các thành phần có sẵn.
+  6. Mục "Thành phẩm" (Zone 3) tái thiết kế chuẩn xác theo bố cục hình ảnh người dùng cung cấp:
+     - Loại bỏ thao tác kéo cuộn và chuyển đổi 1-2-3-4 gây bất ổn định.
+     - Bố cục 3 cột đồng bộ chiều cao (`max-w-6xl`, căn giữa màn hình):
+       + Cột 1 (Bên trái): 2 ảnh landscape xếp chồng lên nhau theo chiều dọc (Bìa chính ở trên, Khung nội dung ở dưới).
+       + Cột 2 (Ở giữa): Poster bổ trợ (dọc, full chiều cao cột).
+       + Cột 3 (Bên phải): Poster chính (dọc, full chiều cao cột).
+     - Cả 3 cột khớp đều chiều cao trên và dưới, sắc cạnh (`rounded-none`).
+  7. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Strict Unused check: 0 unused locals, 0 unused parameters.
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 124: TINH CHỈNH 4 ĐIỂM CHI TIẾT THEO YÊU CẦU CHO MÀN HÌNH YHR (CHIẾT TỰ)
+================================================================================
+Thời điểm: Turn 124
+Mô tả yêu cầu người dùng:
+  1. Bỏ shadow khi hover toolbar ở zone 2.
+  2. Khắc phục logo chiết tự không hiện (URL chính xác: https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/logo%20chi%E1%BA%BFt%20t%E1%BB%B1%20cho%20yhr.webp).
+  3. Ở mục thành phẩm (Zone 3): không kéo, scale theo tabsize để hiển thị trọn vẹn; riêng ở Zone 3 logo chiết tự, title và icon tạm biến mất, chỉ chừa lại đúng nút trở về.
+  4. Đảm bảo nút trở về ở cả 3 zone phải ở cùng vị trí cố định giống với các phần khác của website.
+Files ảnh hưởng:
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Toolbar ở Zone 2:
+     - Thiết lập triệt để `shadow-none hover:shadow-none focus:shadow-none drop-shadow-none hover:drop-shadow-none [text-shadow:none] hover:[text-shadow:none] filter-none hover:filter-none focus:outline-none focus:ring-0` trên cả container và từng nút bấm.
+     - Loại bỏ hoàn toàn bất kỳ hiệu ứng đổ bóng nào khi hover chuột trên nền sáng ở Zone 2.
+  2. Sửa URL Logo Chiết Tự:
+     - Thay thế ký tự encoding `%E1%BB%B0` (chữ Ự in hoa gây lỗi 404 trên GitHub) thành `%E1%BB%B1` (chữ ự in thường chuẩn xác: `logo%20chi%E1%BA%BFt%20t%E1%BB%B1%20cho%20yhr.webp`).
+     - Logo hiển thị hoàn hảo ở tỉ lệ 1:1, vừa vặn độ rộng khung.
+  3. Bố cục Thành phẩm (Zone 3):
+     - Loại bỏ hoàn toàn thuộc tính kéo cuộn (`overflow-x-auto`, no drag), thay bằng `overflow-hidden`.
+     - Tự động scale tỉ lệ theo tabsize / kích thước màn hình: `max-w-[min(94vw,calc((var(--vh,1vh)*100-8.5rem)*2.4))]` và `h-[min(calc(var(--vh,1vh)*100-8.5rem),calc(94vw/2.4))]`.
+     - Toàn bộ 4 ảnh (3 cột) hiển thị trọn vẹn cùng lúc trên màn hình mà không cần kéo hay cuộn.
+     - Riêng ở Zone 3: Khung logo chiết tự, tiêu đề "CHIẾT TỰ" và 3 icon tạm ẩn, chỉ chừa lại duy nhất nút trở về.
+  4. Đồng bộ vị trí nút trở về ở cả 3 Zone:
+     - Nút trở về ở Zone 1, Zone 2 và Zone 3 được ghim cố định tại đúng vị trí pixel chuẩn: `fixed top-6 left-6 md:top-8 md:left-8 z-50` đồng nhất với toàn bộ các phần khác của Boulevard1st (Reimagined, #BLVD, HVOC...).
+     - Ở Zone 2, khung đen sử dụng `top-6 left-6 md:top-8 md:left-8` kết hợp `-m-3 sm:-m-3.5` và `p-3 sm:p-3.5` để nút "trở về" bên trong khung không bị dịch chuyển dù chỉ 1 pixel khi chuyển qua lại giữa các zone.
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
+
+================================================================================
+LẦN 125: TINH CHỈNH 4 YÊU CẦU NÂNG CAO CHO MÀN HÌNH YHR (CHIẾT TỰ)
+================================================================================
+Thời điểm: Turn 125
+Mô tả yêu cầu người dùng:
+  1. Bỏ shadow toolbar ở zone 2.
+  2. Ở mục thành phẩm: chiều rộng 2 ảnh ngang + gap giữa 2 ảnh ngang = chiều rộng của ảnh dọc. Riêng sang mobile thì cả 4 ảnh sẽ trình bày theo chiều dọc, scale để chiều rộng cả 4 cái bằng nhau.
+  3. Ở mobile, phần "island" chứa logo chiết tự redesign thành chiều ngang và giảm scale để chừa không gian cho moodboard, lấy size của nút trở về làm gốc.
+  4. Chú ý phải load hết ảnh thì giao diện loading mới kết thúc.
+Files ảnh hưởng:
+  - /src/App.tsx
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Bỏ shadow toolbar ở Zone 2:
+     - Gán class cưỡng bức `!shadow-none !drop-shadow-none !filter-none` trên container `#yhr-bottom-zone-switcher`.
+     - Từng nút gán `!shadow-none hover:!shadow-none focus:!shadow-none !drop-shadow-none hover:!drop-shadow-none [text-shadow:none] hover:[text-shadow:none]`.
+     - Tuyệt đối không xuất hiện viền mờ hay bóng đổ nào khi tương tác trên nền moodboard Canva.
+  2. Bố cục Thành phẩm (Zone 3):
+     - Desktop / Tablet:
+       * Cột 1 gồm 2 ảnh landscape 16:9 xếp cạnh nhau theo chiều ngang bên trong một khung `aspect-[3/4]` tương ứng với ảnh dọc:
+         `width(2 ảnh ngang) + gap = width(ảnh dọc Poster bổ trợ/Poster chính)`.
+       * Cả 3 khối (khối 2 ảnh ngang, Poster bổ trợ, Poster chính) có cùng chiều rộng bằng nhau và cùng chiều cao bằng nhau (`aspect-[3/4]`).
+     - Mobile:
+       * Cả 4 ảnh chuyển sang hiển thị theo chiều dọc (`flex-col`), scale cùng chiều rộng (`w-full max-w-[310px]`), cân đối và sắc nét.
+       * Cho phép cuộn dọc mượt mà bên trong màn hình mà không phá vỡ thao tác vuốt chuyển zone của toàn app.
+  3. Redesign "Island" Zone 2 trên Mobile:
+     - Trên Desktop: Giữ nguyên bố cục dọc (`flex-col`, `w-44 sm:w-48`) với vị trí nút trở về đồng bộ tuyệt đối với các phân hệ khác.
+     - Trên Mobile: Chuyển sang chiều ngang (`flex-row`), thu gọn scale, lấy size và vị trí của nút trở về làm gốc toạ độ và gốc kích thước (`-m-2 p-2`), phân tách bằng vạch mỏng tinh tế, logo Chiết Tự thu nhỏ (`w-5 h-5`), text và icon công cụ nằm cùng hàng ngang thanh mảnh, giải phóng tối đa không gian hiển thị cho moodboard Canva.
+  4. Tiến trình tải tài nguyên ảnh YHR hoàn tất 100%:
+     - Bổ sung toàn bộ tài nguyên vào `usshAssets` trong `App.tsx`: Logo CLB, Logo Chiết Tự, 3 icons công cụ (Affinity, Canva, ibisPaint) và cả 4 ảnh ấn phẩm thành phẩm kích thước gốc.
+     - Sử dụng cơ chế lắng nghe sự kiện giải mã ảnh (`img.decode()`) kết hợp tiến trình tween mượt mà: CHỈ KHI TOÀN BỘ ẢNH ĐƯỢC TẢI VÀ GIẢI MÃ HOÀN TẤT THÌ MÀN HÌNH LOADING MỚI KẾT THÚC VÀ MỞ MÀN HÌNH YHR.
+  5. Đảm bảo nguyên tắc Boulevard1st:
+     - Giữ nguyên các góc vuông phẳng (`rounded-none`), không bo góc bất kỳ component nào.
+  6. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (`npm run lint`).
+     - Production build: Thành công 100% (`npm run build`).
 
 
+================================================================================
+LẦN 126: TINH CHỈNH GIAO DIỆN DESKTOP CHO YHR (CHIẾT TỰ) THEO FEEDBACK NGƯỜI DÙNG
+================================================================================
+Thời điểm: Turn 126
+Mô tả yêu cầu người dùng:
+  1. Logo Chiết Tự trên Desktop: cho scale ngang các element xung quanh như trước (khớp chiều rộng w-full aspect-square với khung đảo).
+  2. Ở mục thành phẩm (Desktop): 2 ảnh ngang nằm TRÊN - DƯỚI (không phải trái - phải cạnh nhau), chiều rộng của 2 ảnh ngang bằng chiều rộng của ảnh dọc (Poster bổ trợ / Poster chính).
+Files ảnh hưởng:
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Island Logo Chiết Tự trên Desktop:
+     - Giữ nguyên thiết kế responsive: trên Mobile là dải ngang nhỏ gọn (w-5 h-5), trên Desktop chuyển sang tỉ lệ sm:w-full aspect-square khớp hoàn toàn chiều ngang với khung sm:w-48 và các element lân cận (nút trở về và tên chương trình).
+  2. Bố cục Thành phẩm Desktop (Zone 3):
+     - Thay đổi từ xếp ngang (side-by-side) sang xếp chồng TRÊN - DƯỚI theo chiều dọc (flex-col justify-between) cho 2 ảnh ngang 16:9 (Bìa chính ở trên, Khung nội dung ở dưới).
+     - Chiều rộng của cả 2 ảnh ngang bằng 100% độ rộng Cột 1 (w-full), khớp chuẩn xác với chiều rộng của Cột 2 (Poster bổ trợ, 3:4) và Cột 3 (Poster chính, 3:4).
+     - Duy trì responsive chuẩn Boulevard1st, không bo góc (rounded-none).
+  3. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (npm run lint).
+     - Production build: Thành công 100% (npm run build).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+================================================================================
+LẦN 127: TÁCH BIỆT HOÀN TOÀN DESKTOP & MOBILE CHO LOGO CHIẾT TỰ VÀ ĐỒNG BỘ MỌI GAP THÀNH PHẨM
+================================================================================
+Thời điểm: Turn 127
+Mô tả yêu cầu người dùng:
+  1. Tách biệt hoàn toàn desktop và mobile cho đảo logo Chiết Tự: logo desktop không được bé tí mà phải to, rõ nét, scale ngang các element xung quanh trong khung độc lập.
+  2. Tất cả các gap (khoảng cách) giữa các ảnh trong mục thành phẩm (Zone 3) phải hoàn toàn bằng nhau.
+Files ảnh hưởng:
+  - /src/components/UsshYhrIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Tách biệt hoàn toàn Desktop và Mobile cho Island Logo Chiết Tự (Zone 2):
+     - Không sử dụng các class responsive gộp chung (tránh co cụm kích thước do breakpoint hay flex-child).
+     - Khối Mobile (flex sm:hidden): Dạng thanh ngang mỏng, thanh thoát, chiều cao nhỏ gọn không che lấp moodboard, logo kích thước vừa vặn cho thanh ngang (w-5 h-5 aspect-square).
+     - Khối Desktop (hidden sm:flex): Khung dọc riêng biệt (w-56 md:w-64), logo Chiết Tự chiếm trọn chiều ngang khung (w-full aspect-square, kích thước 190-216px to rõ nét), phía dưới là CHIẾT TỰ và 3 icon công cụ dàn đều hai bên (w-full flex justify-between).
+  2. Đồng bộ hóa toàn bộ gap giữa các ảnh trong mục Thành Phẩm (Zone 3):
+     - Desktop:
+       + Khai báo thống nhất biến gap chung: style={{ '--product-gap': 'clamp(14px, 1.6vw, 24px)' }}.
+       + Gap giữa Cột 1 và Cột 2 = var(--product-gap).
+       + Gap giữa Cột 2 và Cột 3 = var(--product-gap).
+       + Gap giữa Ảnh ngang 1 (Bìa chính) và Ảnh ngang 2 (Khung nội dung) trong Cột 1 = đúng bằng var(--product-gap) (loại bỏ hoàn toàn justify-between gây chênh lệch khoảng cách).
+       + Cả 3 cột và các ảnh đều có độ rộng bằng nhau (flex-1 aspect-[16/9] và aspect-[3/4]).
+     - Mobile:
+       + Gap giữa cả 4 ảnh theo chiều dọc đồng nhất tuyệt đối ở mức 16px (--product-gap-mobile: 16px).
+       + Cả 4 ảnh có chiều rộng bằng nhau (w-full max-w-[310px]).
+  3. Boulevard1st Compliance:
+     - Toàn bộ component và hình ảnh tuân thủ nghiêm ngặt nguyên tắc rounded-none.
+  4. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (npm run lint).
+     - Production build: Thành công 100% (npm run build).

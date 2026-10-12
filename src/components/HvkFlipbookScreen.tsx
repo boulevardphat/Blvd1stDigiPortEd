@@ -47,7 +47,10 @@ export const HvkFlipbookScreen: React.FC<HvkFlipbookScreenProps> = ({
       {/* Loading placeholder trong lúc nhúng iframe từ Fliplink */}
       {!iframeLoaded && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black pointer-events-none">
-          <span className="font-archivo text-xs sm:text-sm text-neutral-500 tracking-widest uppercase animate-pulse">
+          <span 
+            className="font-archivo font-medium text-xs sm:text-sm text-neutral-500 tracking-widest uppercase animate-pulse"
+            style={{ fontFamily: '"Archivo", sans-serif' }}
+          >
             LOADING FLIPBOOK...
           </span>
         </div>
