@@ -276,6 +276,7 @@ export default function App() {
       'https://i.ibb.co/N66hJX5h/ibispaint.png',
       'https://i.ibb.co/7JyGd3tX/google-AIstudio.png',
       'https://i.ibb.co/v4h21FLG/filmora.png',
+      'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/capcut.webp',
       'https://i.ibb.co/TD9mb1pB/avatar.jpg',
       HVOC_LOGO_URL,
       USSH_YHR_LOGO_URL,
@@ -2648,6 +2649,19 @@ export default function App() {
                       <img 
                         src="https://i.ibb.co/v4h21FLG/filmora.png" 
                         alt="Filmora" 
+                        className="w-full h-full object-cover rounded-none select-none pointer-events-none"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+
+                    {/* CapCut */}
+                    <div 
+                      className="w-6 h-6 sm:w-7 sm:h-7 bg-neutral-900 flex items-center justify-center shrink-0 rounded-none border border-neutral-700 hover:scale-105 transition-transform overflow-hidden" 
+                      title="CapCut"
+                    >
+                      <img 
+                        src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/capcut.webp" 
+                        alt="CapCut" 
                         className="w-full h-full object-cover rounded-none select-none pointer-events-none"
                         referrerPolicy="no-referrer"
                       />

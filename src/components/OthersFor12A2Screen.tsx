@@ -21,21 +21,25 @@ interface OthersFor12A2ScreenProps {
 // ============================================================================
 // DỮ LIỆU ĐƯỜNG DẪN DỰ ÁN & TÀI NGUYÊN
 // ============================================================================
-// 1. Hậu Tốt nghiệp 2026: Facebook Reel (16:9)
+// 1. 20_10_2026: Tri ân các bạn nữ trong lớp (Facebook Reel 16:9)
+const FB_REEL_20_10_2026_URL = 'https://www.facebook.com/reel/1515267950631828';
+
+// 2. Hậu Tốt nghiệp 2026: Facebook Reel (16:9)
 const FB_REEL_HAU_TOT_NGHIEP_URL = 'https://www.facebook.com/reel/1364142485827244';
 
-// 2. 19_11_2025: Poster kỷ niệm
+// 3. 19_11_2025: Poster kỷ niệm
 const POSTER_19_11_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2019_11_2025/%5BA2K28%5D%2019_11_2025.webp';
 
-// 3. 20_10_2025: Poster kỷ niệm
+// 4. 20_10_2025: Poster kỷ niệm
 const POSTER_20_10_URL = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%2020_10_2025/%5BA2K28%5D%2020_10_2026.webp';
 
-// 3. Icon pack công cụ thực hiện
+// 5. Icon pack công cụ thực hiện
 const ICON_CANVA = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp';
+const ICON_CAPCUT = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/capcut.webp';
 const ICON_IBISPAINT = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/ibispaint.webp';
 const ICON_EDITS = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/edits.webp';
 
-// 4. Ảnh minh họa quy trình từ GitHub
+// 6. Ảnh minh họa quy trình từ GitHub
 const WORKFLOW_STEP_0_IMG = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20%28B%C6%B0%E1%BB%9Bc%200%29.webp';
 const WORKFLOW_STEP_1_IMG = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%201).webp';
 const WORKFLOW_STEP_2_IMG = 'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/Individual/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026/%5BA2K28%5D%20H%E1%BA%ADu%20T%E1%BB%91t%20nghi%E1%BB%87p%202026%20(B%C6%B0%E1%BB%9Bc%202).webp';
@@ -67,9 +71,10 @@ const STEP_DIGIT_DATA: Record<number, { viewBox: string; d: string }> = {
  */
 interface FacebookReelPlayerProps {
   reelUrl: string;
+  title?: string;
 }
 
-const FacebookReelPlayer: React.FC<FacebookReelPlayerProps> = ({ reelUrl }) => {
+const FacebookReelPlayer: React.FC<FacebookReelPlayerProps> = ({ reelUrl, title = 'Facebook Reel' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [useIframeFallback, setUseIframeFallback] = useState(false);
 
@@ -135,7 +140,7 @@ const FacebookReelPlayer: React.FC<FacebookReelPlayerProps> = ({ reelUrl }) => {
       {useIframeFallback ? (
         <iframe
           src={iframeSrc}
-          title="Hậu Tốt nghiệp 2026 Reel"
+          title={title}
           className="w-full h-full border-0 rounded-none"
           style={{ border: 'none', overflow: 'hidden' }}
           scrolling="no"
@@ -419,13 +424,65 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
         <div className="w-full flex flex-col gap-16 sm:gap-20 md:gap-24">
 
           {/* ========================================================= */}
-          {/* MỤC 01: HẬU TỐT NGHIỆP 2026 (Facebook Reel 16:9 SDK) */}
+          {/* MỤC 01: TRI ÂN CÁC BẠN NỮ TRONG LỚP (20/10/2026) */}
+          {/* ========================================================= */}
+          <div id="project-20-10-2026" className="w-full flex flex-col items-start bg-transparent select-none">
+            <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
+                  01
+                </span>
+                <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
+                  {isEn ? "TRIBUTE TO FEMALE CLASSMATES (20/10/2026)" : "TRI ÂN CÁC BẠN NỮ TRONG LỚP (20/10/2026)"}
+                </span>
+                {/* Tool icons: Canva, CapCut */}
+                <div className="flex items-center gap-1.5 shrink-0 select-none">
+                  <img 
+                    src={ICON_CANVA}
+                    alt="Canva"
+                    title="Canva"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                  <img 
+                    src={ICON_CAPCUT}
+                    alt="CapCut"
+                    title="CapCut"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain rounded-none select-none pointer-events-none"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Khung video FB Reel 16:9 co giãn responsive theo kích thước tab */}
+            <div className="w-full flex flex-col items-center">
+              <FacebookReelPlayer reelUrl={FB_REEL_20_10_2026_URL} title="Tri ân 20/10/2026 Reel" />
+
+              {/* Thanh tool ở dưới khung FB Reel */}
+              <div className="flex items-center justify-center gap-6 mt-5 select-none">
+                <a
+                  href={FB_REEL_20_10_2026_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="link-20-10-facebook"
+                  className="font-archivo font-normal normal-case text-sm md:text-base tracking-normal text-white/50 hover:text-white transition-colors duration-200 cursor-pointer pointer-events-auto bg-transparent border-none p-0 outline-none rounded-none no-underline"
+                  title="Facebook Reel"
+                >
+                  facebook reel
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* MỤC 02: HẬU TỐT NGHIỆP 2026 (Facebook Reel 16:9 SDK) */}
           {/* ========================================================= */}
           <div id="project-hau-tot-nghiep-2026" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
-                  01
+                  02
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   {isEn ? 'POST-GRADUATION 2026' : 'HẬU TỐT NGHIỆP 2026'}
@@ -459,7 +516,7 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
 
             {/* Khung video tỉ lệ 16:9 co giãn responsive theo kích thước tab */}
             <div className="w-full flex flex-col items-center">
-              <FacebookReelPlayer reelUrl={FB_REEL_HAU_TOT_NGHIEP_URL} />
+              <FacebookReelPlayer reelUrl={FB_REEL_HAU_TOT_NGHIEP_URL} title="Hậu Tốt nghiệp 2026 Reel" />
 
               {/* Thanh tool ở dưới khung FB Reel (không khung, font archivo thường) */}
               <div className="flex items-center justify-center gap-6 mt-5 select-none">
@@ -486,13 +543,13 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
           </div>
 
           {/* ========================================================= */}
-          {/* MỤC 02: 19_11_2025 */}
+          {/* MỤC 03: 19_11_2025 */}
           {/* ========================================================= */}
           <div id="project-19-11" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
-                  02
+                  03
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   19_11_2025
@@ -524,13 +581,13 @@ export const OthersFor12A2Screen: React.FC<OthersFor12A2ScreenProps> = ({ onBack
           </div>
 
           {/* ========================================================= */}
-          {/* MỤC 03: 20_10_2025 */}
+          {/* MỤC 04: 20_10_2025 */}
           {/* ========================================================= */}
           <div id="project-20-10" className="w-full flex flex-col items-start bg-transparent select-none">
             <div className="w-full flex items-baseline pb-3 mb-6 text-white border-none">
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                 <span className="font-archivo font-normal text-[#89CC04] text-xs sm:text-sm">
-                  03
+                  04
                 </span>
                 <span className="font-archivo font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase text-white">
                   20_10_2025

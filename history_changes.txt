@@ -4954,3 +4954,65 @@ Chi tiết thực hiện:
   4. Kiểm thử chất lượng:
      - TypeScript linter: 0 lỗi (npm run lint).
      - Production build: Thành công 100% (npm run build).
+
+
+================================================================================
+LẦN 128: THÊM DỰ ÁN 20/10/2026 CHO LỚP 12A2, BADGE MỚI NHẤT & KÌ CÔNG, THÊM CAPCUT VÀO THÔNG TIN CƠ BẢN
+================================================================================
+Thời điểm: Turn 128
+Mô tả yêu cầu người dùng:
+  1. Thêm 1 project mới ở Khác - Lớp 12A2: Facebook Reel https://www.facebook.com/reel/1515267950631828.
+  2. Tên: Tri ân các bạn nữ trong lớp nhân ngày phụ nữ Việt Nam 20/10 năm 2026.
+  3. Logo tools: Canva, CapCut (https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/capcut.webp).
+  4. Thêm logo CapCut vào phần công cụ sử dụng của phần thông tin cơ bản.
+  5. Đưa project này lên cao nhất của mục lớp 12a2.
+  6. Project 20/10 có badge MỚI NHẤT nằm giữa STT và Title, project Hậu tốt nghiệp có badge KÌ CÔNG nằm giữa STT và Title.
+
+Files ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+  - /src/App.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Thêm Project 20/10/2026 lên vị trí cao nhất (Mục 01) của mục Cho Lớp 12A2:
+     - STT: 01 (text-[#89CC04]).
+     - Badge 'MỚI NHẤT': Đặt giữa STT và Title, font-archivo font-bold, uppercase, bg-[#89CC04] text-black, rounded-none.
+     - Tiêu đề: TRI ÂN CÁC BẠN NỮ TRONG LỚP (20/10/2026) / TRIBUTE TO FEMALE CLASSMATES (20/10/2026).
+     - Tool icons: Canva + CapCut (ICON_CANVA, ICON_CAPCUT).
+     - Video Player: FacebookReelPlayer với URL https://www.facebook.com/reel/1515267950631828 tỉ lệ 16:9 co giãn responsive.
+     - Link Facebook Reel trực tiếp phía dưới video (không khung, font archivo).
+  2. Cập nhật các project tiếp theo trong mục 12A2:
+     - Mục 02: HẬU TỐT NGHIỆP 2026 (đổi từ STT 01 sang 02), thêm badge 'KÌ CÔNG' (bg-neutral-800 text-[#89CC04] border border-[#89CC04]/60, rounded-none) nằm giữa STT và Title.
+     - Mục 03: 19_11_2025 (đổi từ STT 02 sang 03).
+     - Mục 04: 20_10_2025 (đổi từ STT 03 sang 04).
+  3. Bổ sung logo CapCut vào phần Thông tin cơ bản (App.tsx):
+     - Thêm icon CapCut (https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/capcut.webp) vào danh sách 'Công cụ sử dụng' (Row 4 của Basic Info modal).
+     - Đưa ảnh CapCut vào danh sách mainAppImages preload để tải sẵn mượt mà.
+  4. Boulevard1st Compliance:
+     - Toàn bộ badge, icon box và container đều tuân thủ triệt để nguyên tắc rounded-none.
+  5. Kiểm thử chất lượng:
+     - TypeScript linter: 0 lỗi (npm run lint).
+     - Production build: Thành công 100% (npm run build).
+
+
+================================================================================
+LẦN 129: BỎ 2 BADGE 'MỚI NHẤT' VÀ 'KÌ CÔNG' Ở MỤC 12A2 (GIỮ NGUYÊN GIAO DIỆN TỐI GIẢN GỐC)
+================================================================================
+Thời điểm: Turn 129 (Tiếp nối yêu cầu tinh chỉnh giao diện 12A2)
+Yêu cầu:
+  - Bỏ 2 cái badge (MỚI NHẤT ở Mục 01 và KÌ CÔNG ở Mục 02) theo phản hồi người dùng 'không có từ đầu đẹp hơn'.
+Files ảnh hưởng:
+  - /src/components/OthersFor12A2Screen.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Trong OthersFor12A2Screen.tsx:
+     - Mục 01 (TRI ÂN CÁC BẠN NỮ TRONG LỚP): Xóa thẻ span badge 'MỚI NHẤT' / 'LATEST' nằm giữa STT '01' và Title. Cấu trúc hiển thị trở về dạng tinh giản chuẩn: STT (01) -> Tiêu đề (TRI ÂN CÁC BẠN NỮ TRONG LỚP (20/10/2026)) -> Icons công cụ (Canva, CapCut).
+     - Mục 02 (HẬU TỐT NGHIỆP 2026): Xóa thẻ span badge 'KÌ CÔNG' / 'ELABORATE' nằm giữa STT '02' và Title. Cấu trúc hiển thị trở về dạng tinh giản chuẩn: STT (02) -> Tiêu đề (HẬU TỐT NGHIỆP 2026) -> Icons công cụ (Canva, Edits, ibisPaint).
+  2. Giữ nguyên:
+     - Vị trí top 1 của dự án 20/10/2026 (Mục 01).
+     - Logo CapCut trong Thông tin cơ bản và trong tool icons của dự án 20/10/2026.
+     - Quy chuẩn thiết kế Boulevard1st (rounded-none, typography Archivo).
+  3. Kiểm tra chất lượng:
+     - TypeScript linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet thành công).
