@@ -43,6 +43,7 @@ export interface LanyardProps {
   lanyardRepeat?: [number, number];
   lanyardColor?: string;
   withWhiteHeader?: boolean;
+  matte?: boolean;
   className?: string;
   enableZoom?: boolean;
   minZoomZ?: number;
@@ -72,6 +73,7 @@ export default function Lanyard({
   lanyardRepeat,
   lanyardColor = 'white',
   withWhiteHeader = false,
+  matte = false,
   className = '',
   enableZoom = true,
   minZoomZ = 9,
@@ -153,6 +155,7 @@ export default function Lanyard({
               lanyardRepeat={lanyardRepeat}
               lanyardColor={lanyardColor}
               withWhiteHeader={withWhiteHeader}
+              matte={matte}
             />
           </Physics>
           <Environment blur={0.75}>
@@ -245,6 +248,7 @@ interface BandProps {
   lanyardRepeat?: [number, number];
   lanyardColor?: string;
   withWhiteHeader?: boolean;
+  matte?: boolean;
 }
 
 function Band({
@@ -262,7 +266,27 @@ function Band({
   lanyardRepeat,
   lanyardColor = 'white',
   withWhiteHeader = false,
+  matte = false,
 }: BandProps) {
+  const cardMaterialProps = useMemo(() => {
+    if (matte) {
+      return {
+        roughness: 0.88,
+        metalness: 0.0,
+        clearcoat: 0.04,
+        clearcoatRoughness: 0.85,
+        reflectivity: 0.2,
+      };
+    }
+    return {
+      roughness: 0.9,
+      metalness: 0.8,
+      clearcoat: isMobile ? 0 : 1,
+      clearcoatRoughness: 0.15,
+      reflectivity: 0.5,
+    };
+  }, [matte, isMobile]);
+
   const band = useRef<any>(null),
     fixed = useRef<any>(null),
     j1 = useRef<any>(null),
@@ -298,15 +322,19 @@ function Band({
 
   // Tỷ lệ khung trắng ở cạnh trên thẻ ngang & thẻ dọc để ô/lỗ xỏ và kẹp kim loại không đục vào ảnh thẻ
   const LANDSCAPE_WHITE_RATIO = 0.14;
-  const PORTRAIT_WHITE_RATIO = 0.14;
+  // Chiều rộng khung trắng của thẻ dọc đồng bộ tuyệt đối kích thước với thẻ ngang (whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO = 71.68px)
+  // Trên chiều cao rh = 773.12px, tỷ lệ tương ứng là 71.68 / 773.12 ≈ 0.092715
+  const PORTRAIT_WHITE_RATIO = 0.092715;
 
   const cardScaleX = useMemo(() => {
     if (isLandscape) return 1;
     if (targetAspect) {
-      return targetAspect / BASE_PORTRAIT_ASPECT;
+      // Điều chỉnh nhẹ tỷ lệ ngang (+7%) để thẻ dọc có dáng vẻ cân đối, đĩnh đạc, hoàn toàn không bị ép hẹp dọc
+      const balanceBoost = withWhiteHeader ? 1.07 : 1;
+      return (targetAspect / BASE_PORTRAIT_ASPECT) * balanceBoost;
     }
     return 1;
-  }, [targetAspect, isLandscape]);
+  }, [targetAspect, isLandscape, withWhiteHeader]);
 
   const cardScaleLandscape = useMemo(() => {
     if (!isLandscape) return 1;
@@ -329,24 +357,16 @@ function Band({
     return 1.0229 - 0.3582 * cardHeightScaleLandscape;
   }, [isLandscape, cardHeightScaleLandscape]);
 
-  // Tăng chiều cao phôi thẻ dọc khi có khung trắng để phần ảnh bên dưới giữ nguyên 100% size và tỷ lệ gốc không bị ép
-  const cardHeightScalePortrait = useMemo(() => {
-    if (isLandscape || !withWhiteHeader) return 1;
-    return 1 / (1 - PORTRAIT_WHITE_RATIO); // ~1.1628
-  }, [isLandscape, withWhiteHeader]);
+  // Giữ vị trí thẻ dọc ở vị trí chuẩn y = 0, kẹp dây móc đúng tâm lỗ xỏ
+  const cardHeightScalePortrait = 1;
+  const cardPosYPortrait = 0;
 
-  // Giữ vị trí lỗ xỏ ở Y = 0.94187 để kẹp dây móc đúng tâm lỗ
-  const cardPosYPortrait = useMemo(() => {
-    if (isLandscape || !withWhiteHeader) return 0;
-    return 0.94187 * (1 - cardHeightScalePortrait);
-  }, [isLandscape, withWhiteHeader, cardHeightScalePortrait]);
-
-  // Trám lỗ dọc cũ của thẻ ở chế độ ngang một cách phẳng mịn 100%:
-  // Giữ nguyên 100% hình học gốc nodes.card.geometry (không di dời/vo đỉnh làm biến dạng ảnh),
-  // và đặt 2 mặt phẳng che lỗ (Patch Plane) với ánh xạ UV khớp chính xác từng pixel lên vị trí lỗ cũ.
+  // Trám lỗ của nodes.card.geometry phẳng mịn 100% cho cả thẻ ngang và thẻ dọc:
+  // Sử dụng patch plane kích thước 0.07x0.07 che kín lỗ tròn gốc 0.046x0.057 của model card.glb,
+  // hiển thị hoàn hảo bề mặt trắng và ô lỗ xỏ dẹp mới từ cardMap mà không để lộ lỗ tròn bên dưới.
   const frontHolePatch = useMemo(() => {
-    const w = 0.039;
-    const h = 0.039;
+    const w = 0.07;
+    const h = 0.07;
     const centerY = 0.94187;
     const geom = new THREE.PlaneGeometry(w, h, 1, 1);
     const pos = geom.attributes.position;
@@ -364,8 +384,8 @@ function Band({
   }, []);
 
   const backHolePatch = useMemo(() => {
-    const w = 0.039;
-    const h = 0.039;
+    const w = 0.07;
+    const h = 0.07;
     const centerY = 0.94187;
     const geom = new THREE.PlaneGeometry(w, h, 1, 1);
     geom.rotateY(Math.PI);
@@ -472,8 +492,11 @@ function Band({
       }
 
       if (withWhiteHeader) {
-        // Khung đệm màu trắng ở cạnh trên thẻ dọc đồng bộ với thẻ ngang để lỗ xỏ và kẹp kim loại không đè lên ảnh
-        const whiteHeaderH = rh * PORTRAIT_WHITE_RATIO;
+        // Khung đệm màu trắng ở cạnh trên thẻ dọc
+        // Ô lỗ xỏ dẹp mới có tâm chuẩn xác tại y = 66.58px (khớp chuẩn 100% tâm clamp và lỗ mesh 3D)
+        // Mép trên thẻ tại y ≈ 4.3px -> lề trên từ mép card tới đỉnh lỗ là ~49.3px
+        // Để ô lỗ xỏ mới nằm CHÍNH GIỮA chiều rộng khung trắng: lề dưới = lề trên = ~49.3px -> whiteHeaderH = 126px
+        const whiteHeaderH = 126;
         const contentH = rh - whiteHeaderH;
 
         ctx.save();
@@ -489,13 +512,13 @@ function Band({
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(rx, ry, rw, whiteHeaderH);
 
-        // 3. Vẽ ô / lỗ xỏ thẻ dạng dài ngang bo tròn hai đầu (elongated slot punch) như thẻ ngang
-        // Nằm chính giữa chiều rộng khung đệm màu trắng:
-        const holeW = rw * 0.20;
-        const holeH = whiteHeaderH * 0.38;
-        const holeX = rx + (rw - holeW) / 2; // Chính giữa chiều rộng khung đệm màu trắng
-        const holeY = ry + (whiteHeaderH - holeH) / 2; // Chính giữa chiều cao khung đệm màu trắng
-        const holeRadius = holeH / 2;
+        // 3. Vẽ ô / lỗ xỏ thẻ dạng dài ngang bo tròn hai đầu (elongated slot punch) đồng bộ kích thước chuẩn xác với thẻ ngang
+        const holeW = rh * 0.082; // ~63.4px (chuẩn xác như thẻ ngang)
+        const holeH = 26; // ~26px (chuẩn xác dẹp bo tròn như thẻ ngang)
+        const holeX = rx + (rw - holeW) / 2; // Chính giữa chiều ngang thẻ (256 - 31.7 = 224.3px)
+        const holeCenterY = ry + 66.58; // Khớp chuẩn xác tâm lỗ xỏ của mesh 3D và móc kẹp kim loại clamp
+        const holeY = holeCenterY - holeH / 2; // ~53.58px
+        const holeRadius = holeH / 2; // 13px
 
         ctx.save();
         ctx.beginPath();
@@ -520,7 +543,7 @@ function Band({
         ctx.stroke();
         ctx.restore();
 
-        // 4. Ở dưới khung trắng đó là phần ảnh thẻ bình thường trọn vẹn 100%
+        // 4. Ở dưới khung trắng đó là phần ảnh thẻ sinh viên trọn vẹn 100%
         ctx.drawImage(img, rx, ry + whiteHeaderH, rw, contentH);
 
         ctx.restore();
@@ -735,7 +758,7 @@ function Band({
               args={[1.28 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 0.81 * cardHeightScaleLandscape, 0.01]} 
             />
           ) : (
-            <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
+            <CuboidCollider args={[0.8 * cardScaleX, 1.125 * cardHeightScalePortrait, 0.01]} />
           )}
           <group
             ref={cardGroupRef}
@@ -813,8 +836,8 @@ function Band({
             }}
           >
             {/* Invisible expanded hit area for easy touch targeting on mobile */}
-            <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, 0, 0]}>
-              <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4]} />
+            <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, cardPosYPortrait, 0]}>
+              <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4 * cardHeightScalePortrait]} />
               <meshBasicMaterial transparent opacity={0} />
             </mesh>
             <mesh 
@@ -824,26 +847,20 @@ function Band({
               position={isLandscape ? [-0.5229 * cardScaleLandscape, cardPosY, 0] : [0, cardPosYPortrait, 0]}
             >
               <meshPhysicalMaterial
+                {...cardMaterialProps}
                 map={cardMap}
                 map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
               />
-              {isLandscape && (
+              {(isLandscape || withWhiteHeader) && (
                 <>
                   <mesh
                     geometry={frontHolePatch}
                     position={[0, 0.94187, 0.00542]}
                   >
                     <meshPhysicalMaterial
+                      {...cardMaterialProps}
                       map={cardMap}
                       map-anisotropy={16}
-                      clearcoat={isMobile ? 0 : 1}
-                      clearcoatRoughness={0.15}
-                      roughness={0.9}
-                      metalness={0.8}
                       polygonOffset
                       polygonOffsetFactor={-1}
                       polygonOffsetUnits={-1}
@@ -854,12 +871,9 @@ function Band({
                     position={[0, 0.94187, 0.00135]}
                   >
                     <meshPhysicalMaterial
+                      {...cardMaterialProps}
                       map={cardMap}
                       map-anisotropy={16}
-                      clearcoat={isMobile ? 0 : 1}
-                      clearcoatRoughness={0.15}
-                      roughness={0.9}
-                      metalness={0.8}
                       polygonOffset
                       polygonOffsetFactor={-1}
                       polygonOffsetUnits={-1}

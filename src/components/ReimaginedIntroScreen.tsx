@@ -177,9 +177,9 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
                   <span className="text-red-500 font-semibold">{isEn ? '(UNOFFICIAL)' : '(KHÔNG CHÍNH THỨC)'}</span>
                 </div>
                 <img
-                  src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
-                  alt="Canva"
-                  title="Canva"
+                  src="https://i.ibb.co/pBXrq6cf/affinity.jpg"
+                  alt="Affinity"
+                  title="Affinity"
                   className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 object-contain rounded-none select-none pointer-events-none shrink-0"
                   referrerPolicy="no-referrer"
                 />

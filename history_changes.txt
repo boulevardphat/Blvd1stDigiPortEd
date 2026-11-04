@@ -5220,3 +5220,98 @@ Chi tiết thực hiện:
      - Production build: Thành công 100% (compile_applet).
 
 
+
+================================================================================
+LẦN 135: ĐỒNG BỘ KHUNG TRẮNG, KÍCH THƯỚC LỖ XỎ, SỬA LỖI ÉP DỌC THẺ DỌC, THÊM LỚP CÁN MỜ (MATTE) VÀ CHUYỂN LOGO CÔNG CỤ SANG AFFINITY CHO 8 THẺ VNU30 (PAKVARD)
+================================================================================
+Thời điểm: Turn 135
+Mô tả yêu cầu người dùng:
+  1. Chiều rộng của khung trắng và kích thước lỗ xỏ của thẻ dọc giống với thẻ ngang.
+  2. Khắc phục tình trạng 2 thẻ dọc đang bị "ép dọc" một chút để lấy lại phom dáng cân đối.
+  3. Thêm 1 lớp matte lên 2 mặt cả 8 thẻ để đỡ bóng và chi tiết thẻ thể hiện rõ hơn.
+  4. Dự án này dùng Affinity, không phải Canva (chuyển logo công cụ trong sublogo Zone VNU30 sang Affinity).
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Đồng bộ kích thước khung trắng và lỗ xỏ giữa thẻ dọc và thẻ ngang (/src/components/Lanyard.tsx):
+     - Chiều rộng/cao dải trắng (white header frame) của thẻ dọc:
+       + Đặt `whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO` (= 512 * 0.14 = 71.68px), bằng chuẩn xác 100% độ dày dải trắng của thẻ ngang (thay vì 108.24px trước đó).
+       + Cập nhật `PORTRAIT_WHITE_RATIO = 71.68 / 773.12 ≈ 0.092715`.
+       + `cardHeightScalePortrait = 1 / (1 - PORTRAIT_WHITE_RATIO) ≈ 1.1022` (giảm độ dài dư thừa ở đỉnh thẻ).
+     - Kích thước lỗ xỏ dạng viên thuốc dài (elongated slot punch) của thẻ dọc:
+       + Chiều rộng lỗ: `holeW = rh * 0.082` (~63.4px, chuẩn xác như thẻ ngang, giảm từ 102.4px).
+       + Chiều cao lỗ: `holeH = whiteHeaderH * 0.38` (~27.2px, chuẩn xác như thẻ ngang, giảm từ 41.1px).
+       + Bán kính bo đầu lỗ: `holeRadius = holeH / 2` (~13.6px).
+       + Tọa độ tâm lỗ: Căn chính giữa chiều ngang dải trắng (`holeX = rx + (rw - holeW) / 2`) và chính giữa chiều cao dải trắng (`holeY = ry + (whiteHeaderH - holeH) / 2`).
+     - Định vị 3D của móc kẹp kim loại:
+       + Đặt `cardPosYPortrait = 0.94187 - 0.98185 * cardHeightScalePortrait`, đưa tâm lỗ xỏ khớp chuẩn xác 100% với vị trí kẹp kim loại tại `y = 0.94187`.
+       + Tích hợp mặt phẳng trám `frontHolePatch` và `backHolePatch` cho cả chế độ dọc có khung trắng (`isLandscape || withWhiteHeader`), che phẳng mịn lỗ mô hình cũ.
+
+  2. Khắc phục triệt để lỗi "ép dọc" ở 2 thẻ dọc (USSH & UEL):
+     - Phân tích nguyên nhân: Trước đó `cardScaleX` bị thu hẹp ngang về `targetAspect / BASE_PORTRAIT_ASPECT = 0.8551` trong khi chiều cao lại tăng thêm, khiến thẻ bị nén hẹp bề ngang và kéo dài thành dải thước kẻ hẹp (tỉ lệ toàn thẻ chỉ còn 0.542, logo UEL tròn bị bẹp thành hình bầu dục cao).
+     - Giải pháp:
+       + Giảm `PORTRAIT_WHITE_RATIO` từ `0.14` xuống `0.092715`, đưa chiều cao thẻ về mức gọn gàng chuẩn mực.
+       + Bổ sung hệ số cân bằng tỉ lệ ngang: `balanceBoost = withWhiteHeader ? 1.07 : 1`, đưa `cardScaleX ≈ 0.915`.
+       + Kết quả: Tỉ lệ toàn thẻ đạt mức ~0.612 (chuẩn CR80 quốc tế), logo UEL và HCMUSSH tròn đều đặn tự nhiên, khung ảnh thẻ 3x4 vuông vắn, chữ "ĐẠI HỌC QUỐC GIA" và "LUẬT" có độ giãn ngang thoáng đãng, chấm dứt hoàn toàn hiện tượng "ép dọc".
+
+  3. Thêm lớp cán mờ (Matte Finish) lên 2 mặt cho cả 8 thẻ sinh viên VNU30:
+     - Thêm prop `matte?: boolean` vào `LanyardProps` và `BandProps`.
+     - Tạo bộ thông số vật liệu PBR chuyên biệt `cardMaterialProps`:
+       + `matte === true`:
+         * `roughness: 0.88` (tán xạ ánh sáng khuếch tán, bề mặt êm mịn không lóa mắt).
+         * `metalness: 0.0` (chất liệu nhựa PVC/giấy in cao cấp, bảo toàn 100% độ trung thực màu sắc sRGB của thẻ, loại bỏ phản quang kim loại làm bạc màu họa tiết).
+         * `clearcoat: 0.04` & `clearcoatRoughness: 0.85` (lớp phủ satin mờ nhẹ nhàng, bảo vệ mực in).
+         * `reflectivity: 0.2` (tiết chế phản chiếu của nguồn sáng môi trường).
+     - Áp dụng đồng bộ `cardMaterialProps` lên cả phôi thẻ chính (`nodes.card.geometry`) lẫn 2 mặt phẳng che lỗ (`frontHolePatch`, `backHolePatch`).
+     - Truyền `matte={true}` vào `<Lanyard />` của mục `zone-vnu30` trong `ReimaginedIntroScreen.tsx`.
+
+  4. Cập nhật logo công cụ Affinity Designer (/src/components/ReimaginedIntroScreen.tsx):
+     - Tại `activeZone === 'zone-vnu30'`, thay thế logo Canva (`canva.webp`) bằng logo Affinity Designer chính thức (`https://i.ibb.co/pBXrq6cf/affinity.jpg`), với `alt="Affinity"` và `title="Affinity"`.
+
+  5. Boulevard1st Compliance:
+     - Duy trì 100% nguyên tắc không bo góc (`rounded-none`).
+     - Typography Archivo tinh gọn, độ tương phản cao, không slop AI, không gradient tím/neon.
+
+  6. Kiểm tra chất lượng:
+     - TypeScript linter: 0 errors (`npm run lint`).
+     - Production build: Thành công 100% (`compile_applet`).
+
+================================================================================
+LẦN 136: TINH CHỈNH HOÀN THIỆN 8 THẺ SINH VIÊN VNU30 (BỎ LỚP PHỦ MỜ, XÓA RUỘT THỪA HÌNH VUÔNG, BỎ LỖ TRÒN & CÂN TÂM LỖ XỎ TRONG KHUNG TRẮNG)
+Thời điểm: Turn hiện tại (tiếp nối Lần 135)
+Nội dung thay đổi chi tiết:
+  1. Loại bỏ hoàn toàn lớp phủ mờ (Matte Overlay):
+     - Gỡ bỏ `matte={true}` khỏi component `<Lanyard />` của mục `zone-vnu30` trong `/src/components/ReimaginedIntroScreen.tsx`.
+     - Phục hồi lại vật liệu hiển thị chuẩn bóng mờ nguyên bản cao cấp cho phôi thẻ (`roughness: 0.9`, `metalness: 0.8`, `clearcoat: 1`, `clearcoatRoughness: 0.15`, `reflectivity: 0.5`), giúp bề mặt thẻ và các chi tiết in ấn (logo 30 Năm, mã vạch, họ tên, ngành học, màu sắc quốc huy trường) sắc nét, trong trẻo, tương phản rõ ràng và không còn bị mờ/khó nhìn.
+  2. Xóa triệt để "ruột thừa" hình vuông màu trắng ở đáy thẻ:
+     - Phân tích nguyên nhân: Tại vị trí gắn patch plane trong `/src/components/Lanyard.tsx`, nhánh điều kiện fallback đặt `position={[0, 0, 0.00542]}` (y = 0 ở đáy thẻ) thay vì y = 0.94187 ở đỉnh thẻ, khiến một mặt phẳng nhỏ 0.039x0.039 lòi ra ở mép dưới phôi thẻ như một mẩu đuôi/ruột thừa màu trắng.
+     - Khắc phục:
+       + Đặt tọa độ vị trí chuẩn xác đồng bộ cho cả mặt trước và mặt sau: `position={[0, 0.94187, 0.00542]}` (mặt trước) và `position={[0, 0.94187, 0.00135]}` (mặt sau).
+       + Patch plane được neo chính xác tại đỉnh thẻ (y = 0.94187), hoàn toàn biến mất khỏi đáy thẻ, mép dưới thẻ trở lại phẳng mịn sạch sẽ.
+  3. Bỏ lỗ tròn thừa bên dưới móc kẹp và thu gọn khung trắng để lỗ xỏ mới nằm chính giữa:
+     - Phân tích nguyên nhân:
+       + Ở Lần 135, việc gán `cardPosYPortrait = 0.94187 - 0.98185 * cardHeightScalePortrait = -0.1403` đã dịch chuyển toàn bộ mesh 3D của thẻ xuống dưới ~14cm, kéo theo lỗ tròn rỗng tự nhiên của file 3D `card.glb` tuột xuống dưới móc kẹp kim loại, lộ ra như một lỗ đen tròn thứ 2 bên dưới kẹp.
+       + Đồng thời, khung đệm trắng có chiều cao chưa cân đối với mép trên thực tế của phôi thẻ, khiến lỗ xỏ bị ép sát mép trên cùng trong khi bên dưới còn quá nhiều khoảng trắng trống trải.
+     - Khắc phục:
+       + Khôi phục `cardPosYPortrait = 0` và `cardHeightScalePortrait = 1`: Mesh thẻ trở lại vị trí chuẩn, kẹp kim loại móc xuyên tâm chuẩn xác tại y = 0.94187, chấm dứt hoàn toàn hiện tượng lệch mesh sinh ra lỗ tròn thứ hai.
+       + Mở rộng kích thước mặt phẳng patch `frontHolePatch` & `backHolePatch` từ 0.039x0.039 lên 0.07x0.07 để phủ kín tuyệt đối khoảng hở tròn 0.046x0.057 của `card.glb`, kết hợp với ánh xạ UV từ `cardMap` giúp bề mặt thẻ liên tục và chỉ hiển thị duy nhất ô lỗ xỏ dẹp mới.
+       + Thiết lập chiều cao khung trắng `whiteHeaderH = 126px`:
+         * Mép trên của phôi thẻ trong texture ở y ≈ 4.3px.
+         * Tâm ô lỗ xỏ mới đặt tại `holeCenterY = 66.58px` (khớp 100% với tâm clamp kim loại và tâm lỗ 3D).
+         * Kích thước lỗ xỏ mới: `holeW = rh * 0.082` (~63.4px) và `holeH = 26px`, bo tròn hai đầu (radius = 13px) đồng bộ kích thước chuẩn xác như thẻ ngang.
+         * Lề từ mép đỉnh thẻ tới mép trên lỗ xỏ: `(66.58 - 13) - 4.3 ≈ 49.3px`.
+         * Lề từ mép dưới lỗ xỏ tới đáy khung trắng: `126 - (66.58 + 13) ≈ 46.4px`.
+         * Kết quả: Ô lỗ xỏ dẹp mới nằm CHÍNH GIỮA chiều rộng khung trắng, không bị lệch đỉnh, không đè lên logo 30 Năm UEL/HCMUSSH, loại bỏ hoàn toàn lỗ tròn thứ 2.
+  4. Bảo lưu tỉ lệ thẻ đã được duyệt:
+     - Giữ nguyên `balanceBoost = 1.07` cho `cardScaleX` đã được người dùng hài lòng và xác nhận ("tỉ lệ ok rồi nha").
+  5. Boulevard1st & System Compliance:
+     - Tuân thủ nghiêm ngặt góc nhọn (`rounded-none`), typography Archivo, không gradient ảo hay phong cách slop AI.
+     - Giữ nguyên logo công cụ Affinity Designer chính thức cho Zone VNU30.
+  6. Kiểm tra & xác minh:
+     - TypeScript compiler: 0 errors (`npm run lint`).
+     - Vite production build: Thành công 100% (`compile_applet`).
+================================================================================
