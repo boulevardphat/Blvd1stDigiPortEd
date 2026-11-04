@@ -14,7 +14,7 @@ import { SPOTIFLYER_PAGES } from './components/SpotiflyerVerticalZFold';
 import { ReimaginedIntroScreen } from './components/ReimaginedIntroScreen';
 import { OthersIntroScreen } from './components/OthersIntroScreen';
 import { HvkFlipbookScreen } from './components/HvkFlipbookScreen';
-import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS } from './data/chvBadges';
+import { CHV_BADGES_ALL_URLS, REIMAGINED_PROJECTS, VNU30_CARD_ALL_URLS } from './data/chvBadges';
 import { AppLanguage, SceneState } from './types';
 
 const TOC_DIGIT_DATA: Record<number, { viewBox: string; d: string }> = {
@@ -701,6 +701,7 @@ export default function App() {
 
     const reimaginedAssets = [
       ...CHV_BADGES_ALL_URLS,
+      ...VNU30_CARD_ALL_URLS,
       REIMAGINED_PROJECTS.hcmusshLetter.frontUrl,
       REIMAGINED_PROJECTS.hcmusshLetter.backUrl,
       'https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp',

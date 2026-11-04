@@ -41,6 +41,8 @@ export interface LanyardProps {
   lanyardImage?: string | null;
   lanyardWidth?: number;
   lanyardRepeat?: [number, number];
+  lanyardColor?: string;
+  withWhiteHeader?: boolean;
   className?: string;
   enableZoom?: boolean;
   minZoomZ?: number;
@@ -68,6 +70,8 @@ export default function Lanyard({
   lanyardImage = null,
   lanyardWidth = 1,
   lanyardRepeat,
+  lanyardColor = 'white',
+  withWhiteHeader = false,
   className = '',
   enableZoom = true,
   minZoomZ = 9,
@@ -147,6 +151,8 @@ export default function Lanyard({
               lanyardImage={lanyardImage}
               lanyardWidth={lanyardWidth}
               lanyardRepeat={lanyardRepeat}
+              lanyardColor={lanyardColor}
+              withWhiteHeader={withWhiteHeader}
             />
           </Physics>
           <Environment blur={0.75}>
@@ -237,6 +243,8 @@ interface BandProps {
   lanyardImage?: string | null;
   lanyardWidth?: number;
   lanyardRepeat?: [number, number];
+  lanyardColor?: string;
+  withWhiteHeader?: boolean;
 }
 
 function Band({
@@ -252,6 +260,8 @@ function Band({
   lanyardImage = null,
   lanyardWidth = 1,
   lanyardRepeat,
+  lanyardColor = 'white',
+  withWhiteHeader = false,
 }: BandProps) {
   const band = useRef<any>(null),
     fixed = useRef<any>(null),
@@ -286,6 +296,10 @@ function Band({
     return isLandscape ? DEFAULT_LANDSCAPE_ASPECT : null;
   }, [aspectRatio, frontTex?.image, isLandscape]);
 
+  // Tỷ lệ khung trắng ở cạnh trên thẻ ngang & thẻ dọc để ô/lỗ xỏ và kẹp kim loại không đục vào ảnh thẻ
+  const LANDSCAPE_WHITE_RATIO = 0.14;
+  const PORTRAIT_WHITE_RATIO = 0.14;
+
   const cardScaleX = useMemo(() => {
     if (isLandscape) return 1;
     if (targetAspect) {
@@ -302,9 +316,6 @@ function Band({
     return DEFAULT_LANDSCAPE_ASPECT / BASE_LANDSCAPE_ASPECT;
   }, [targetAspect, isLandscape]);
 
-  // Tỷ lệ khung trắng ở cạnh trên thẻ ngang để ô/lỗ xỏ và kẹp kim loại không đục vào ảnh thẻ
-  const LANDSCAPE_WHITE_RATIO = 0.14;
-
   // Bắt buộc thay đổi kích thước phôi thẻ về chiều rộng (chiều cao thẻ ngang)
   // Tăng kích thước phôi thẻ theo đúng tỷ lệ khung trắng để ảnh bình thường bên dưới giữ nguyên 100% tỷ lệ gốc không bị méo/bẹp
   const cardHeightScaleLandscape = useMemo(() => {
@@ -317,6 +328,18 @@ function Band({
     if (!isLandscape) return 0;
     return 1.0229 - 0.3582 * cardHeightScaleLandscape;
   }, [isLandscape, cardHeightScaleLandscape]);
+
+  // Tăng chiều cao phôi thẻ dọc khi có khung trắng để phần ảnh bên dưới giữ nguyên 100% size và tỷ lệ gốc không bị ép
+  const cardHeightScalePortrait = useMemo(() => {
+    if (isLandscape || !withWhiteHeader) return 1;
+    return 1 / (1 - PORTRAIT_WHITE_RATIO); // ~1.1628
+  }, [isLandscape, withWhiteHeader]);
+
+  // Giữ vị trí lỗ xỏ ở Y = 0.94187 để kẹp dây móc đúng tâm lỗ
+  const cardPosYPortrait = useMemo(() => {
+    if (isLandscape || !withWhiteHeader) return 0;
+    return 0.94187 * (1 - cardHeightScalePortrait);
+  }, [isLandscape, withWhiteHeader, cardHeightScalePortrait]);
 
   // Trám lỗ dọc cũ của thẻ ở chế độ ngang một cách phẳng mịn 100%:
   // Giữ nguyên 100% hình học gốc nodes.card.geometry (không di dời/vo đỉnh làm biến dạng ảnh),
@@ -448,6 +471,62 @@ function Band({
         return;
       }
 
+      if (withWhiteHeader) {
+        // Khung đệm màu trắng ở cạnh trên thẻ dọc đồng bộ với thẻ ngang để lỗ xỏ và kẹp kim loại không đè lên ảnh
+        const whiteHeaderH = rh * PORTRAIT_WHITE_RATIO;
+        const contentH = rh - whiteHeaderH;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+
+        // 1. Phủ toàn bộ thẻ bằng màu trắng phôi thẻ cao cấp
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(rx, ry, rw, rh);
+
+        // 2. Vẽ dải trắng khung trên (white header frame)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(rx, ry, rw, whiteHeaderH);
+
+        // 3. Vẽ ô / lỗ xỏ thẻ dạng dài ngang bo tròn hai đầu (elongated slot punch) như thẻ ngang
+        // Nằm chính giữa chiều rộng khung đệm màu trắng:
+        const holeW = rw * 0.20;
+        const holeH = whiteHeaderH * 0.38;
+        const holeX = rx + (rw - holeW) / 2; // Chính giữa chiều rộng khung đệm màu trắng
+        const holeY = ry + (whiteHeaderH - holeH) / 2; // Chính giữa chiều cao khung đệm màu trắng
+        const holeRadius = holeH / 2;
+
+        ctx.save();
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(holeX, holeY, holeW, holeH, holeRadius);
+        } else {
+          ctx.moveTo(holeX + holeRadius, holeY);
+          ctx.lineTo(holeX + holeW - holeRadius, holeY);
+          ctx.quadraticCurveTo(holeX + holeW, holeY, holeX + holeW, holeY + holeRadius);
+          ctx.lineTo(holeX + holeW, holeY + holeH - holeRadius);
+          ctx.quadraticCurveTo(holeX + holeW, holeY + holeH, holeX + holeW - holeRadius, holeY + holeH);
+          ctx.lineTo(holeX + holeRadius, holeY + holeH);
+          ctx.quadraticCurveTo(holeX, holeY + holeH, holeX, holeY + holeH - holeRadius);
+          ctx.lineTo(holeX, holeY + holeRadius);
+          ctx.quadraticCurveTo(holeX, holeY, holeX + holeRadius, holeY);
+          ctx.closePath();
+        }
+        ctx.fillStyle = '#111317';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        // 4. Ở dưới khung trắng đó là phần ảnh thẻ bình thường trọn vẹn 100%
+        ctx.drawImage(img, rx, ry + whiteHeaderH, rw, contentH);
+
+        ctx.restore();
+        return;
+      }
+
       if (targetAspect) {
         // When the 3D card mesh is scaled in X by (targetAspect / BASE_PORTRAIT_ASPECT),
         // mapping the entire image to the UV rect produces a 100% distortion-free, isotropic 1:1 render in 3D world space.
@@ -483,7 +562,7 @@ function Band({
     composite.anisotropy = 16;
     composite.needsUpdate = true;
     return composite;
-  }, [frontImage, backImage, imageFit, targetAspect, isLandscape, frontTex, backTex, materials?.base?.map]);
+  }, [frontImage, backImage, imageFit, targetAspect, isLandscape, withWhiteHeader, frontTex, backTex, materials?.base?.map]);
 
   const [curve] = useState(
     () =>
@@ -544,6 +623,34 @@ function Band({
     };
   }, [dragged]);
 
+  // Target orientation: false = front (0), true = back (Math.PI)
+  const isBackRef = useRef(false);
+  const tempQuatRef = useRef(new THREE.Quaternion());
+  const tempEulerRef = useRef(new THREE.Euler(0, 0, 0, 'YXZ'));
+
+  useEffect(() => {
+    isBackRef.current = false;
+  }, [frontImage]);
+
+  useEffect(() => {
+    const handleFlip = () => {
+      isBackRef.current = !isBackRef.current;
+      const isNowBack = isBackRef.current;
+      const flipDir = isNowBack ? 1 : -1;
+      [card, j1, j2, j3].forEach((r) => r.current?.wakeUp());
+      // Xoay đúng 1 lượt 180 độ (half-turn) êm ái
+      card.current?.setAngvel({
+        x: 0,
+        y: flipDir * 5.2,
+        z: 0,
+      }, true);
+      window.dispatchEvent(new CustomEvent('blvd-card-flipped-state', { detail: { isBack: isNowBack } }));
+    };
+
+    window.addEventListener('blvd-flip-card', handleFlip);
+    return () => window.removeEventListener('blvd-flip-card', handleFlip);
+  }, []);
+
   useFrame((state, delta) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
@@ -584,8 +691,15 @@ function Band({
       curve.points[3].copy(fixed.current.translation());
       band.current?.geometry?.setPoints(curve.getPoints(isMobile ? 16 : 32));
       ang.copy(card.current.angvel());
-      rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      
+      const q = card.current.rotation();
+      tempQuatRef.current.set(q.x, q.y, q.z, q.w);
+      tempEulerRef.current.setFromQuaternion(tempQuatRef.current, 'YXZ');
+      const currentYaw = tempEulerRef.current.y;
+      
+      const targetYaw = isBackRef.current ? Math.PI : 0;
+      const angleDiff = THREE.MathUtils.euclideanModulo(currentYaw - targetYaw + Math.PI, Math.PI * 2) - Math.PI;
+      card.current.setAngvel({ x: ang.x, y: ang.y - angleDiff * 0.42, z: ang.z });
     }
   });
 
@@ -705,9 +819,9 @@ function Band({
             </mesh>
             <mesh 
               geometry={nodes.card.geometry} 
-              scale={isLandscape ? [cardHeightScaleLandscape, cardScaleLandscape, 1] : [cardScaleX, 1, 1]}
+              scale={isLandscape ? [cardHeightScaleLandscape, cardScaleLandscape, 1] : [cardScaleX, cardHeightScalePortrait, 1]}
               rotation={isLandscape ? [0, 0, -Math.PI / 2] : [0, 0, 0]}
-              position={isLandscape ? [-0.5229 * cardScaleLandscape, cardPosY, 0] : [0, 0, 0]}
+              position={isLandscape ? [-0.5229 * cardScaleLandscape, cardPosY, 0] : [0, cardPosYPortrait, 0]}
             >
               <meshPhysicalMaterial
                 map={cardMap}
@@ -764,7 +878,7 @@ function Band({
         <meshLineGeometry />
         {/* @ts-ignore */}
         <meshLineMaterial
-          color="white"
+          color={lanyardColor || 'white'}
           depthTest={false}
           resolution={isMobile ? [1000, 2000] : [1000, 1000]}
           useMap

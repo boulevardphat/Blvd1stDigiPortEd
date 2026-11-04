@@ -5016,3 +5016,207 @@ Chi tiết thực hiện:
   3. Kiểm tra chất lượng:
      - TypeScript linter: 0 errors (npm run lint).
      - Production build: Thành công 100% (compile_applet thành công).
+
+================================================================================
+LẦN 131: TRIỂN KHAI ZONE MỚI ĐỨNG ĐẦU MỤC PAKVARD - THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM
+================================================================================
+Thời điểm: Turn 131
+Mô tả yêu cầu người dùng:
+  - Triển khai 1 zone mới đứng đầu mục PAKVARD (ngay sau màn hình giới thiệu concept và trước thẻ CHV).
+  - Tên mục: "THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM" (EN: "VNU-HCM 30TH ANNIVERSARY STUDENT CARD").
+  - Kiểu thẻ và "lỗ xỏ": Giữ nguyên cấu trúc Lanyard 3D mô phỏng vật lý có lỗ xỏ đục thẩm mỹ như thẻ CHV.
+  - Tự động thay đổi kích thước và định hướng theo từng trường:
+    + ussh và uel: Thẻ dọc (portrait: 3156 / 5001).
+    + ut, us, uit, iu, uhs, agu: Thẻ ngang (landscape: 5001 / 3156).
+  - Thanh chuyển đổi giữa các trường (USSH, UEL, UT, US, UIT, IU, UHS, AGU) ở cạnh dưới màn hình, đồng bộ thị giác hoàn toàn với các thanh chuyển đổi khác (font-archivo thường, chữ thường, không bo góc, có thể cuộn ngang nhẹ trên mobile).
+  - Bố cục đơn giản, liền mạch và thoáng.
+
+Files ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /src/data/chvBadges.ts
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Trong /src/components/ReimaginedIntroScreen.tsx:
+     - Mở rộng kiểu `ReimaginedZone`: `'zone-main' | 'zone-vnu30' | 'zone-chv' | 'zone-ussh' | 'zone-cd'` (tăng từ 4 lên 5 zones).
+     - Đặt `zone-vnu30` ở vị trí Zone 2 (ngay sau `zone-main` và trước `zone-chv`), điều chỉnh maxZoneIndex lên 4 trong cuộn chuột, vuốt cảm ứng và chuyển zone.
+     - Khởi tạo state `selectedVnuCard` mặc định là trường đầu tiên (USSH).
+     - Cập nhật Sublogo cố định góc trên bên trái:
+       + Khi ở `zone-vnu30`: Hiện tiêu đề `THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM` (VI) / `VNU-HCM 30TH ANNIVERSARY STUDENT CARD` (EN) kèm nhãn `(KHÔNG CHÍNH THỨC)` màu đỏ và icon Canva.
+     - Bổ sung thanh chuyển đổi trường `#vnu30-school-switcher-bar` ở cạnh dưới (`bottom-6 md:bottom-8`):
+       + Liệt kê mã các trường: `ussh`, `uel`, `ut`, `us`, `uit`, `iu`, `uhs`, `agu` dưới font Archivo tinh tế, đồng bộ thị giác với thanh chọn môn chuyên của CHV và các thanh chế độ khác.
+     - Render thẻ 3D Lanyard với:
+       + Key: `selectedVnuCard.id` (reset trạng thái mượt mà khi đổi trường).
+       + Orientation: `selectedVnuCard.orientation` ('portrait' hoặc 'landscape').
+       + Aspect ratio: `3156/5001` (dọc) hoặc `5001/3156` (ngang).
+       + Front / Back Image: `selectedVnuCard.frontUrl`, `selectedVnuCard.backUrl`.
+  2. Trong /src/data/chvBadges.ts:
+     - Đồng bộ mã code hiển thị của Bách khoa thành `UT` và Khoa học Tự nhiên thành `US` theo yêu cầu.
+  3. Boulevard1st Compliance:
+     - 100% components không bo góc (rounded-none).
+     - Tương thích hoàn hảo chuột cuộn, vuốt chạm mobile và phóng to/thu nhỏ 3D.
+  4. Kiểm tra chất lượng:
+     - TypeScript linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet thành công).
+
+================================================================================
+LẦN 130: LƯU TRỮ VÀ TÍCH HỢP BỘ LINK 8 THẺ SINH VIÊN VNU30 (PAKVARD)
+================================================================================
+Thời điểm: Turn 130
+Mô tả yêu cầu người dùng:
+  - Lưu trữ link bộ 8 thẻ sinh viên VNU30 thuộc PAKVARD.
+  - Kích thước ảnh gốc: 5001 x 3156 px (tỉ lệ 5001/3156 ≈ 1.5846).
+  - Định hướng:
+    + ussh và uel: Thẻ dọc (portrait: 3156 x 5001 px).
+    + ut, us, uit, iu, uhs, agu: Thẻ ngang (landscape: 5001 x 3156 px).
+  - Bao gồm cả 2 mặt trước (front) và mặt sau (rear_compressed) cho 8 trường:
+    1. USSH (Trường ĐH Khoa học Xã hội và Nhân văn - ĐHQG-HCM) [Dọc]
+    2. UEL (Trường ĐH Kinh tế - Luật - ĐHQG-HCM) [Dọc]
+    3. UT / HCMUT (Trường ĐH Bách khoa - ĐHQG-HCM) [Ngang]
+    4. US / HCMUS (Trường ĐH Khoa học Tự nhiên - ĐHQG-HCM) [Ngang]
+    5. UIT (Trường ĐH Công nghệ Thông tin - ĐHQG-HCM) [Ngang]
+    6. IU (Trường ĐH Quốc tế - ĐHQG-HCM) [Ngang]
+    7. UHS (Trường ĐH Khoa học Sức khỏe - ĐHQG-HCM) [Ngang]
+    8. AGU (Trường ĐH An Giang - ĐHQG-HCM) [Ngang]
+
+Files ảnh hưởng:
+  - /src/data/chvBadges.ts
+  - /src/App.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Trong /src/data/chvBadges.ts:
+     - Khai báo interface `Vnu30StudentCard` gồm: id, code, nameVi, nameEn, shortVi, shortEn, orientation ('portrait' | 'landscape'), frontUrl, backUrl, width (5001 hoặc 3156), height (3156 hoặc 5001).
+     - Định nghĩa mảng hằng số `VNU30_STUDENT_CARDS` chứa đầy đủ 8 thẻ và 16 link ảnh chính thức từ GitHub repository.
+     - Cập nhật `REIMAGINED_PROJECTS.vnu30Card` (ID: 'vnu30-student-card', index: '02', size: 5001x3156, tỉ lệ: 5001/3156) và dịch index của Thư chúc mừng HCMUSSH sang '03'.
+     - Xuất mảng `VNU30_CARD_ALL_URLS` để phục vụ preload và đồng bộ dữ liệu.
+  2. Trong /src/App.tsx:
+     - Import `VNU30_CARD_ALL_URLS` từ `./data/chvBadges`.
+     - Tích hợp `VNU30_CARD_ALL_URLS` vào mảng tài nguyên nạp sẵn `reimaginedAssets` trong chuỗi loading của [PAKVARD], đảm bảo ảnh được giải mã trước khi hiển thị.
+  3. Boulevard1st Compliance:
+     - Tuân thủ quy chuẩn không bo góc, cấu trúc dữ liệu tường minh, hỗ trợ song ngữ VI/EN.
+  4. Kiểm tra chất lượng:
+     - TypeScript linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet thành công).
+
+================================================================================
+LẦN 132: HOÀN THIỆN ĐỒNG BỘ THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM (PAKVARD)
+================================================================================
+Thời điểm: Turn 132
+Mô tả yêu cầu người dùng:
+  1. Thẻ ngang có thanh trắng để lỗ xỏ, đem luôn sang thẻ dọc (USSH, UEL).
+  2. Thêm 1 nút để lật mặt trước/sau.
+  3. Thay màu dây lanyard theo từng trường:
+     - ut: #0F3188
+     - us: #103F88
+     - ussh: #D11B28
+     - uel: #144E8C
+     - iu: #33358A
+     - uit: #3A6DB0
+     - agu: #FDE913
+     - uhs: #17A658
+
+Files ảnh hưởng:
+  - /src/data/chvBadges.ts
+  - /src/components/Lanyard.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Trong /src/data/chvBadges.ts:
+     - Thêm trường `lanyardColor: string` vào interface `Vnu30StudentCard`.
+     - Cập nhật chuẩn xác 8 mã màu hex vào 8 trường thành viên ĐHQG-HCM:
+       + USSH: #D11B28 (Đỏ thắm)
+       + UEL: #144E8C (Xanh dương đậm)
+       + UT (Bách khoa): #0F3188 (Xanh bách khoa)
+       + US (Tự nhiên): #103F88 (Xanh đậm tự nhiên)
+       + UIT (CNTT): #3A6DB0 (Xanh lam UIT)
+       + IU (Quốc tế): #33358A (Xanh tím IU)
+       + UHS (Khoa học Sức khỏe): #17A658 (Xanh ngọc y tế)
+       + AGU (An Giang): #FDE913 (Vàng AGU)
+  2. Trong /src/components/Lanyard.tsx:
+     - Thêm props `lanyardColor?: string` và `withWhiteHeader?: boolean` vào `LanyardProps` và `BandProps`.
+     - Cập nhật `<meshLineMaterial color={lanyardColor || 'white'} />` để ánh sắc màu dây chính xác theo từng trường trên nền vân dệt lanyard.
+     - Triển khai thanh trắng khung trên (white header frame) cho thẻ dọc khi `withWhiteHeader={true}`:
+       + Tỷ lệ khung trắng `PORTRAIT_WHITE_RATIO = 0.135` khớp hoàn hảo với vị trí lỗ xỏ 3D gốc của phôi thẻ (`y = 0.94187`, UV `v ≈ 0.065`).
+       + Tự động bù trừ tỷ lệ co giãn ngang `cardScaleX = (targetAspect / BASE_PORTRAIT_ASPECT) * (1 - PORTRAIT_WHITE_RATIO)` để vùng nội dung hình ảnh giữ trọn vẹn 100% tỷ lệ gốc 3156x5001, không bị co kéo hay biến dạng.
+       + Kẹp kim loại và lỗ xỏ nằm hoàn toàn trên nền thanh trắng, không đục vào logo hay thông tin sinh viên của thẻ.
+     - Triển khai cơ chế xoay lật 3D vật lý (flip front/back):
+       + Thêm `targetAngleRef` (0: mặt trước, Math.PI: mặt sau).
+       + Lắng nghe sự kiện toàn cục `'blvd-flip-card'`, kích hoạt xung lực xoay `applyTorqueImpulse({ x: 0, y: flipDir * 18, z: 0 })` và cập nhật góc cân bằng.
+       + Trong `useFrame`, dùng `angleDiff` qua hàm mô-đun tuần hoàn `euclideanModulo` để thẻ tự ổn định tại đúng mặt trước hoặc mặt sau sau khi lật.
+       + Phát sự kiện `'blvd-card-flipped-state'` để đồng bộ trạng thái hiển thị của nút lật.
+  3. Trong /src/components/ReimaginedIntroScreen.tsx:
+     - Thêm state `isCardBack` theo dõi mặt trước / mặt sau của thẻ.
+     - Tự động đặt lại về mặt trước (`setIsCardBack(false)`) mỗi khi chuyển đổi giữa các trường.
+     - Thêm nút điều khiển "xem mặt sau" / "xem mặt trước" (En: "view back" / "view front") tại `bottom-14 md:bottom-18`, đồng bộ phong cách tối giản chuẩn Boulevard1st (font Archivo thường, không viền, không bo góc).
+     - Truyền `lanyardColor={selectedVnuCard.lanyardColor}` và `withWhiteHeader={true}` vào `<Lanyard />` của mục VNU30.
+  4. Boulevard1st Compliance:
+     - Tuân thủ quy chuẩn không bo góc (`rounded-none`).
+     - Giao diện đồng bộ, tinh giản, không slop AI, không gradient tím/neon.
+  5. Kiểm tra chất lượng:
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 133: TINH CHỈNH TỶ LỆ THẺ DỌC, LỖ XỎ DÀI NGANG VÀ TỐC ĐỘ XOAY LẬP THẺ (PAKVARD)
+================================================================================
+Thời điểm: Turn 133
+Mô tả yêu cầu người dùng:
+  1. Lật thẻ thì xoay 1 vòng thôi, giảm tốc độ xoay không xoay vòng vòng quá đà.
+  2. Thẻ dọc bị "ép dọc", không còn cân đối trước khi sửa, khôi phục lại tỉ lệ ban đầu.
+  3. Thích lỗ xỏ dài dài như thẻ ngang, và lỗ phải nằm chính giữa chiều rộng khung đệm màu trắng.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Khôi phục tỷ lệ cân đối cho thẻ dọc:
+     - Khôi phục `cardScaleX = targetAspect / BASE_PORTRAIT_ASPECT`, loại bỏ hệ số thu hẹp bề ngang `* (1 - PORTRAIT_WHITE_RATIO)` vốn khiến thẻ dọc bị ép dẹt như cái thước kẻ.
+     - Thẻ dọc trở lại hình thể phôi thẻ ID chuẩn mực, cân đối, thoáng đãng như ban đầu.
+  2. Tạo lỗ xỏ dài ngang (elongated slot punch) cho thẻ dọc:
+     - Vẽ ô lỗ xỏ bo tròn hai đầu (capsule slot punch) đồng bộ hoàn toàn với kiểu dáng của thẻ ngang (`holeW = rw * 0.18`, `holeH = whiteHeaderH * 0.36`).
+     - Tọa độ X: `holeX = rx + (rw - holeW) / 2` -> Nằm chuẩn xác 100% ở chính giữa chiều rộng khung đệm màu trắng.
+     - Tọa độ Y: `holeY = ry + (whiteHeaderH - holeH) / 2` -> Cân đối ngay trung tâm chiều cao khung đệm màu trắng, bao bọc êm ái móc kẹp kim loại.
+     - Đặt tỷ lệ khung đệm trắng `PORTRAIT_WHITE_RATIO = 0.16` tạo khoảng cách đệm thẩm mỹ, không chèn vào logo "30" hay tiêu đề trường.
+  3. Tinh chỉnh xoay lật đúng 1 vòng 180°:
+     - Thay thế lực đẩy quá mức `applyTorqueImpulse(18)` bằng vận tốc góc kiểm soát `card.current.setAngvel({ x: 0, y: flipDir * 5.0, z: 0 })`.
+     - Tăng hệ số hãm cân bằng `angleDiff * 0.35` trong `useFrame`.
+     - Thẻ lật đúng 1 lượt 180° mượt mà, dừng vững vàng ngay tại mặt đối diện (mặt trước hoặc mặt sau), không còn hiện tượng quay mòng mòng như chong chóng.
+  4. Boulevard1st Compliance:
+     - Không bo góc khung ngoài (`rounded-none`), typography chuẩn Archivo, không slop AI.
+  5. Kiểm tra chất lượng:
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 134: KHẮC PHỤC TRIỆT ĐỂ LỖI GIÃN ẢNH VÀ DỪNG ĐÚNG MẶT SAU KHI LẬP THẺ (PAKVARD)
+================================================================================
+Thời điểm: Turn 134
+Mô tả yêu cầu người dùng:
+  1. Lật sang mặt sau nhưng không dừng ở mặt sau mà vẫn dừng ở mặt trước (sửa triệt để cơ chế dừng mặt sau).
+  2. Lỗi giãn tiếp: Size và ratio phần thẻ ảnh webp giữ nguyên si 100%, phần khung trắng là CỘNG THÊM VÀO (không can thiệp vào tỉ lệ gốc).
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Giữ nguyên 100% size và tỷ lệ gốc của ảnh webp & cộng thêm khung trắng:
+     - Khung trắng được cộng thêm vào phía trên thẻ bằng cách tăng kích thước phôi thẻ 3D theo chiều cao:
+       `cardHeightScalePortrait = 1 / (1 - PORTRAIT_WHITE_RATIO)` (~1.1628 với tỷ lệ 0.14).
+     - Điều chỉnh vị trí trục Y của phôi thẻ trong 3D:
+       `cardPosYPortrait = 0.94187 * (1 - cardHeightScalePortrait)` để tâm lỗ xỏ và kẹp kim loại khớp chính xác tuyệt đối ở vị trí `Y = 0.94187`.
+     - Nhờ phôi thẻ 3D được kéo dài thêm đúng bằng chiều cao của dải trắng (`1 / (1 - 0.14)`), vùng hiển thị ảnh webp bên dưới (`1 - 0.14`) khi nhân với tỷ lệ phôi thẻ sẽ đạt đúng chuẩn xác 1.0 (100% tỷ lệ gốc).
+     - Kết quả: Ảnh webp giữ nguyên vẹn 100% tỷ lệ gốc 3156x5001, khung ảnh thẻ thẳng đứng 3x4 không bị bè ngang, mã vạch và dòng chữ "ĐẠI HỌC QUỐC GIA" không bị giãn, khung đệm trắng là phần cộng thêm vào đỉnh thẻ hoàn hảo.
+  2. Khắc phục triệt để lỗi không dừng ở mặt sau khi lật thẻ:
+     - Phân tích nguyên nhân gốc: `card.current.rotation()` trong engine Rapier trả về Quaternion `{x,y,z,w}`, không phải góc Euler. Việc lấy trực tiếp `rot.y` (thành phần q_y chỉ đạt tối đa 1.0) so sánh với `Math.PI` (3.14159) dẫn đến sai số luôn khác 0, khiến lực kéo hồi quy kéo giật thẻ ngược trở lại mặt trước.
+     - Giải pháp kỹ thuật:
+       + Dùng `THREE.Euler().setFromQuaternion(quat, 'YXZ')` để trích xuất chuẩn xác góc Euler `currentYaw` quanh trục Y theo radian thực tế.
+       + Tính sai số góc hồi quy theo góc đích: khi ở mặt sau (`targetYaw = Math.PI`), sai số `angleDiff` tiệm cận 0 khi thẻ quay được 180°.
+       + Nhờ vậy, thẻ lật sang mặt sau là dừng vững vàng 100% ở mặt sau. Khi bấm lật tiếp, thẻ lật về mặt trước và dừng vững vàng ở mặt trước.
+  3. Boulevard1st Compliance:
+     - Không bo góc (`rounded-none`), typography Archivo, giao diện tinh giản sang trọng.
+  4. Kiểm tra chất lượng:
+     - Production build: Thành công 100% (compile_applet).
+
+

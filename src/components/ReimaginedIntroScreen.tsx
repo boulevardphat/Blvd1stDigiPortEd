@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AppLanguage } from '../types';
 import Lanyard from './Lanyard';
-import { CHV_MAJOR_BADGES, ChvMajorBadge, REIMAGINED_PROJECTS } from '../data/chvBadges';
+import { CHV_MAJOR_BADGES, ChvMajorBadge, REIMAGINED_PROJECTS, VNU30_STUDENT_CARDS, Vnu30StudentCard } from '../data/chvBadges';
 import { UsshDocumentViewer, UsshFoldState } from './UsshDocumentViewer';
 import { CDJewelCaseViewer } from './CDJewelCaseViewer';
 
@@ -10,7 +10,7 @@ interface ReimaginedIntroScreenProps {
   language?: AppLanguage;
 }
 
-export type ReimaginedZone = 'zone-main' | 'zone-chv' | 'zone-ussh' | 'zone-cd';
+export type ReimaginedZone = 'zone-main' | 'zone-vnu30' | 'zone-chv' | 'zone-ussh' | 'zone-cd';
 
 export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
   onBack,
@@ -18,19 +18,33 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
 }) => {
   const isEn = language === 'en';
   const [activeZoneIndex, setActiveZoneIndex] = useState<number>(0);
+  const [selectedVnuCard, setSelectedVnuCard] = useState<Vnu30StudentCard>(VNU30_STUDENT_CARDS[0]);
   const [selectedMajor, setSelectedMajor] = useState<ChvMajorBadge>(CHV_MAJOR_BADGES[0]);
   const [usshMode, setUsshMode] = useState<'3d' | 'flat'>('3d');
   const [usshFoldState, setUsshFoldState] = useState<UsshFoldState>('half');
   const [cdCaseOpen, setCdCaseOpen] = useState(false);
+  const [isCardBack, setIsCardBack] = useState(false);
 
-  const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-chv', 'zone-ussh', 'zone-cd'];
+  useEffect(() => {
+    const onCardFlipped = (e: any) => {
+      setIsCardBack(!!e.detail?.isBack);
+    };
+    window.addEventListener('blvd-card-flipped-state', onCardFlipped);
+    return () => window.removeEventListener('blvd-card-flipped-state', onCardFlipped);
+  }, []);
+
+  useEffect(() => {
+    setIsCardBack(false);
+  }, [selectedVnuCard]);
+
+  const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-vnu30', 'zone-chv', 'zone-ussh', 'zone-cd'];
   const activeZone = REIMAGINED_ZONES[activeZoneIndex];
 
   const isTransitioningRef = useRef(false);
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const goToZone = useCallback((targetIndex: number) => {
-    const nextIdx = Math.max(0, Math.min(3, targetIndex));
+    const nextIdx = Math.max(0, Math.min(4, targetIndex));
     setActiveZoneIndex(nextIdx);
     isTransitioningRef.current = true;
     if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
@@ -60,7 +74,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
 
       if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
         if (e.deltaY > 0) {
-          if (activeZoneIndex < 3) {
+          if (activeZoneIndex < 4) {
             e.preventDefault();
             goToZone(activeZoneIndex + 1);
           }
@@ -111,7 +125,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
 
       if ((isIntentionalSwipe || isQuickFlick) && Math.abs(diffY) > Math.abs(diffX) * 1.1) {
         if (diffY > 0) {
-          if (activeZoneIndex < 3) {
+          if (activeZoneIndex < 4) {
             goToZone(activeZoneIndex + 1);
           }
         } else {
@@ -136,7 +150,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
       id="scene-reimagined-pure-black"
       className="absolute inset-0 bg-black z-50 select-none overflow-hidden overscroll-none text-white"
     >
-      {/* Nút back và Sublogo ở góc trên bên trái: Zone 1 chỉ có nút back, các zone 2, 3, 4 có Sublogo như #BLVD kèm nút back bên dưới */}
+      {/* Nút back và Sublogo ở góc trên bên trái: Zone 1 chỉ có nút back, các zone 2, 3, 4, 5 có Sublogo như #BLVD kèm nút back bên dưới */}
       {activeZone === 'zone-main' ? (
         <button
           type="button"
@@ -156,6 +170,21 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           className="fixed top-6 left-6 md:top-8 md:left-8 z-50 select-none flex flex-col items-start justify-start gap-1.5 pointer-events-auto"
         >
           <div className="flex items-center justify-start min-h-[28px] sm:min-h-[36px] gap-2.5 sm:gap-3 flex-wrap">
+            {activeZone === 'zone-vnu30' && (
+              <>
+                <div className="font-archivo font-normal text-white/90 text-sm sm:text-lg md:text-xl lg:text-2xl leading-none tracking-normal uppercase transition-all duration-300 flex items-center gap-1.5 sm:gap-2">
+                  <span>{isEn ? 'VNU-HCM 30TH ANNIVERSARY STUDENT CARD' : 'THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM'}</span>
+                  <span className="text-red-500 font-semibold">{isEn ? '(UNOFFICIAL)' : '(KHÔNG CHÍNH THỨC)'}</span>
+                </div>
+                <img
+                  src="https://raw.githubusercontent.com/boulevardphat/Kho-multimedia-c-a-Blvd/main/blvdarchive/Boulevard1st/iconpack/canva.webp"
+                  alt="Canva"
+                  title="Canva"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-5.5 md:h-5.5 object-contain rounded-none select-none pointer-events-none shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+              </>
+            )}
             {activeZone === 'zone-chv' && (
               <>
                 <div className="font-archivo font-normal text-white/90 text-sm sm:text-lg md:text-xl lg:text-2xl leading-none tracking-normal uppercase transition-all duration-300 flex items-center gap-1.5 sm:gap-2">
@@ -231,11 +260,56 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           className="fixed bottom-6 md:bottom-8 right-6 md:right-8 z-[60] hidden md:flex items-center font-archivo font-normal normal-case text-xs sm:text-sm md:text-base tracking-normal text-white/40 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none pointer-events-auto"
           title={isEn ? 'Reset zoom' : 'Đặt lại thu phóng'}
         >
-          {isEn ? 'reset zoom' : 'đặt lại thu phóng'}
         </button>
       )}
 
-      {/* Thanh chuyển đổi môn chuyên của Thẻ học sinh CHV (đồng bộ hoàn hảo với thanh trạng thái Thư chúc mừng HCMUSSH) */}
+      {/* Nút lật mặt trước / mặt sau của THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM */}
+      {activeZone === 'zone-vnu30' && (
+        <div
+          id="vnu30-flip-card-controls"
+          className="fixed bottom-14 md:bottom-18 inset-x-0 z-50 flex items-center justify-center select-none pointer-events-auto"
+        >
+          <button
+            type="button"
+            id="btn-vnu30-flip-card"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('blvd-flip-card'));
+            }}
+            className="font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/50 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none"
+            title={isEn ? 'Flip card front/back' : 'Lật mặt trước/sau'}
+          >
+            {isEn ? (isCardBack ? 'view front' : 'view back') : (isCardBack ? 'xem mặt trước' : 'xem mặt sau')}
+          </button>
+        </div>
+      )}
+
+      {/* Thanh chuyển đổi giữa các trường của THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM (đồng bộ thị giác tuyệt đối) */}
+      {activeZone === 'zone-vnu30' && (
+        <div
+          id="vnu30-school-switcher-bar"
+          className="fixed bottom-6 md:bottom-8 inset-x-0 z-50 flex items-center justify-start md:justify-center gap-4 sm:gap-6 md:gap-8 px-6 md:px-8 overflow-x-auto no-scrollbar select-none pointer-events-auto"
+        >
+          {VNU30_STUDENT_CARDS.map((card) => {
+            const isSelected = card.id === selectedVnuCard.id;
+            return (
+              <button
+                key={card.id}
+                type="button"
+                id={`btn-vnu30-${card.id}`}
+                onClick={() => setSelectedVnuCard(card)}
+                className={`font-archivo font-normal normal-case text-xs md:text-sm tracking-normal transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none shrink-0 ${
+                  isSelected ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
+                }`}
+                title={isEn ? card.nameEn : card.nameVi}
+              >
+                {card.code.toLowerCase()}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Thanh chuyển đổi môn chuyên của Thẻ học sinh CHV (đồng bộ hoàn hảo với các thanh khác) */}
       {activeZone === 'zone-chv' && (
         <div
           id="chv-subject-switcher-bar"
@@ -285,7 +359,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               usshFoldState === 'half' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
             }`}
           >
-            {isEn ? 'half-open' : 'giữa giữa'}
+            {isEn ? 'half' : 'giữa giữa'}
           </button>
           <button
             type="button"
@@ -295,7 +369,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               usshFoldState === 'open' ? 'text-white font-medium' : 'text-white/40 hover:text-white/80'
             }`}
           >
-            {isEn ? 'open' : 'mở ra'}
+            {isEn ? 'opened' : 'mở ra'}
           </button>
         </div>
       )}
@@ -327,7 +401,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </div>
       )}
 
-      {/* Thanh điều khiển hộp đĩa CD (mở nắp / đóng nắp) ở Zone 4 */}
+      {/* Thanh điều khiển hộp đĩa CD (mở nắp / đóng nắp) ở Zone CD */}
       {activeZone === 'zone-cd' && (
         <div 
           id="reimagined-cd-controls-bar"
@@ -346,7 +420,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </div>
       )}
 
-      {/* CONTAINER TRƯỢT 4 ZONE DỌC TỪNG ZONE MỘT (chuẩn #blvd) */}
+      {/* CONTAINER TRƯỢT 5 ZONE DỌC TỪNG ZONE MỘT (chuẩn #blvd) */}
       <div 
         id="reimagined-zones-slider"
         className="w-full h-full will-change-transform transition-transform duration-650 ease-[cubic-bezier(0.2,0.9,0.3,1)] flex flex-col"
@@ -386,7 +460,38 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </section>
 
         {/* ========================================================================= */}
-        {/* ZONE 2: CHV - Mô hình 3D Lanyard xoay ngang đặt ở CHÍNH GIỮA MÀN HÌNH     */}
+        {/* ZONE 2 (ĐỨNG ĐẦU MỤC): THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM (VNU30)      */}
+        {/* ========================================================================= */}
+        <section 
+          id="reimagined-zone-vnu30"
+          className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex flex-col items-center justify-center overflow-hidden"
+        >
+          {/* Model 3D Lanyard: Lỗ xỏ & tỷ lệ chuẩn kích thước 5001x3156, tự động nhận diện dọc / ngang */}
+          <div 
+            id="vnu30-3d-lanyard-container"
+            className="w-full h-full flex items-center justify-center relative select-none"
+          >
+            <Lanyard
+              key={selectedVnuCard.id}
+              position={[0, 0, 18]}
+              gravity={[0, -40, 0]}
+              fov={20}
+              orientation={selectedVnuCard.orientation}
+              aspectRatio={selectedVnuCard.orientation === 'portrait' ? (3156 / 5001) : (5001 / 3156)}
+              frontImage={selectedVnuCard.frontUrl}
+              backImage={selectedVnuCard.backUrl}
+              lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"
+              lanyardColor={selectedVnuCard.lanyardColor}
+              withWhiteHeader={true}
+              imageFit="cover"
+              transparent={true}
+              className="w-full h-[74vh] sm:h-[78vh] md:h-[82vh] lg:h-[86vh]"
+            />
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* ZONE 3: CHV - Mô hình 3D Lanyard xoay ngang đặt ở CHÍNH GIỮA MÀN HÌNH     */}
         {/* ========================================================================= */}
         <section 
           id="reimagined-zone-chv"
@@ -415,7 +520,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </section>
 
         {/* ========================================================================= */}
-        {/* ZONE 3: USSH - Mô hình 3D & Dạng Dàn Phẳng Thư Chúc Mừng (chuẩn #BLVD)   */}
+        {/* ZONE 4: USSH - Mô hình 3D & Dạng Dàn Phẳng Thư Chúc Mừng (chuẩn #BLVD)   */}
         {/* ========================================================================= */}
         <section 
           id="reimagined-zone-ussh"
@@ -435,7 +540,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </section>
 
         {/* ========================================================================= */}
-        {/* ZONE 4: CD JEWEL CASE - Mô hình 3D Hộp đĩa CD Jewel Case + Đĩa CD        */}
+        {/* ZONE 5: CD JEWEL CASE - Mô hình 3D Hộp đĩa CD Jewel Case + Đĩa CD        */}
         {/* ========================================================================= */}
         <section 
           id="reimagined-zone-cd"
