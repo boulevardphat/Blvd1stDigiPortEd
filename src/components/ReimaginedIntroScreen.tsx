@@ -476,8 +476,8 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               position={[0, 0, 18]}
               gravity={[0, -40, 0]}
               fov={20}
-              orientation={selectedVnuCard.orientation}
-              aspectRatio={selectedVnuCard.orientation === 'portrait' ? (3156 / 5001) : (5001 / 3156)}
+              orientation="landscape"
+              aspectRatio={selectedVnuCard.width / selectedVnuCard.height}
               frontImage={selectedVnuCard.frontUrl}
               backImage={selectedVnuCard.backUrl}
               lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"

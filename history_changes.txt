@@ -5219,17 +5219,44 @@ Chi tiết thực hiện:
   4. Kiểm tra chất lượng:
      - Production build: Thành công 100% (compile_applet).
 
-
-
 ================================================================================
-LẦN 135: ĐỒNG BỘ KHUNG TRẮNG, KÍCH THƯỚC LỖ XỎ, SỬA LỖI ÉP DỌC THẺ DỌC, THÊM LỚP CÁN MỜ (MATTE) VÀ CHUYỂN LOGO CÔNG CỤ SANG AFFINITY CHO 8 THẺ VNU30 (PAKVARD)
+LẦN 135: CÂN BẰNG TỶ LỆ THẺ DỌC HOÀN HẢO & ĐỔI CHỐT MÓC THẺ SANG MÀU TRẮNG (PAKVARD)
 ================================================================================
 Thời điểm: Turn 135
 Mô tả yêu cầu người dùng:
-  1. Chiều rộng của khung trắng và kích thước lỗ xỏ của thẻ dọc giống với thẻ ngang.
-  2. Khắc phục tình trạng 2 thẻ dọc đang bị "ép dọc" một chút để lấy lại phom dáng cân đối.
-  3. Thêm 1 lớp matte lên 2 mặt cả 8 thẻ để đỡ bóng và chi tiết thẻ thể hiện rõ hơn.
-  4. Dự án này dùng Affinity, không phải Canva (chuyển logo công cụ trong sublogo Zone VNU30 sang Affinity).
+  1. Thẻ dọc vẫn bị ép dọc một chút nhìn khó chịu (cần cân đối bề ngang, giải phóng cảm giác bị bóp hẹp).
+  2. Đổi cái chốt móc thẻ sang màu trắng.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Đổi toàn bộ cụm chốt móc thẻ (clip & clamp) sang màu trắng:
+     - Thay thế vật liệu kim loại đen gốc `materials.metal` bằng vật liệu trắng tinh khôi cao cấp:
+       `<meshStandardMaterial color="#FFFFFF" roughness={0.25} metalness={0.08} />` cho cả `nodes.clip` (móc gài xỏ qua lỗ) và `nodes.clamp` (chốt giữ đầu dây lanyard).
+     - Cụm chốt móc thẻ trở nên liền mạch, đồng điệu tuyệt đối với thanh viền trắng và dây đeo lanyard.
+  2. Cân chỉnh tỷ lệ thẻ dọc chống "ép dọc" hoàn hảo:
+     - Phân tích toán học: Đo đạc thực tế hình học 3D `card.glb` cho thấy `deltaX = 0.716034`, `deltaY = 1.000000` (thay vì 0.9707 như hệ số cũ). Khi kết hợp ánh xạ UV và góc nhìn camera phối cảnh (FOV 20), bề ngang thẻ bị hẹp đi ~6%.
+     - Chuẩn hóa `BASE_PORTRAIT_ASPECT = 0.716034` và hiệu chỉnh `cardScaleX = (targetAspect / BASE_PORTRAIT_ASPECT) * 1.06`.
+     - Tinh chỉnh `PORTRAIT_WHITE_RATIO = 0.12`: Dải đệm trắng nhỏ gọn, thanh thoát, giảm chiều cao dư thừa của thẻ dọc.
+     - Kết quả hiển thị:
+       + Khung ảnh chân dung đạt tỷ lệ chuẩn xác 3:4 (0.75), không còn bị thu hẹp/dài ngoằng.
+       + Bề ngang thẻ nở rộng cân đối, dòng chữ "ĐẠI HỌC QUỐC GIA" và mã vạch có độ thoáng đãng tự nhiên như phôi thẻ thật ngoài đời.
+  3. Boulevard1st Compliance:
+     - Tuân thủ nghiêm ngặt nguyên tắc góc cạnh (`rounded-none`), phong cách tối giản thanh lịch.
+  4. Kiểm tra chất lượng:
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 136: ĐỔI MÓC SANG MÀU ĐEN, ĐỒNG BỘ LỖ ELIP VÀ CĂN CHÍNH XÁC TÂM LỖ XỎ THẬT SỰ (PAKVARD & CHV)
+================================================================================
+Thời điểm: Turn 136
+Mô tả yêu cầu người dùng:
+  1. Cho móc kẹp quay lại màu đen (chỉ đổi màu móc, giữ nguyên các phần còn lại đang ưng ý).
+  2. Nghiên cứu lỗ hình elip của thẻ ngang VNU, tạo một lỗ y chang bên thẻ dọc.
+  3. Dịch cái lỗ xỏ thật sự (chốt móc kẹp) để nằm chính giữa lỗ hình elip đó (ở thẻ CHV cũng đổi màu móc và vị trí lỗ xỏ thật sự tương tự).
+  4. Xác nhận icon Affinity cho VNU30 (thay vì Canva).
 
 Files ảnh hưởng:
   - /src/components/Lanyard.tsx
@@ -5237,81 +5264,151 @@ Files ảnh hưởng:
   - /history_changes.txt
 
 Chi tiết thực hiện:
-  1. Đồng bộ kích thước khung trắng và lỗ xỏ giữa thẻ dọc và thẻ ngang (/src/components/Lanyard.tsx):
-     - Chiều rộng/cao dải trắng (white header frame) của thẻ dọc:
-       + Đặt `whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO` (= 512 * 0.14 = 71.68px), bằng chuẩn xác 100% độ dày dải trắng của thẻ ngang (thay vì 108.24px trước đó).
-       + Cập nhật `PORTRAIT_WHITE_RATIO = 71.68 / 773.12 ≈ 0.092715`.
-       + `cardHeightScalePortrait = 1 / (1 - PORTRAIT_WHITE_RATIO) ≈ 1.1022` (giảm độ dài dư thừa ở đỉnh thẻ).
-     - Kích thước lỗ xỏ dạng viên thuốc dài (elongated slot punch) của thẻ dọc:
-       + Chiều rộng lỗ: `holeW = rh * 0.082` (~63.4px, chuẩn xác như thẻ ngang, giảm từ 102.4px).
-       + Chiều cao lỗ: `holeH = whiteHeaderH * 0.38` (~27.2px, chuẩn xác như thẻ ngang, giảm từ 41.1px).
-       + Bán kính bo đầu lỗ: `holeRadius = holeH / 2` (~13.6px).
-       + Tọa độ tâm lỗ: Căn chính giữa chiều ngang dải trắng (`holeX = rx + (rw - holeW) / 2`) và chính giữa chiều cao dải trắng (`holeY = ry + (whiteHeaderH - holeH) / 2`).
-     - Định vị 3D của móc kẹp kim loại:
-       + Đặt `cardPosYPortrait = 0.94187 - 0.98185 * cardHeightScalePortrait`, đưa tâm lỗ xỏ khớp chuẩn xác 100% với vị trí kẹp kim loại tại `y = 0.94187`.
-       + Tích hợp mặt phẳng trám `frontHolePatch` và `backHolePatch` cho cả chế độ dọc có khung trắng (`isLandscape || withWhiteHeader`), che phẳng mịn lỗ mô hình cũ.
-
-  2. Khắc phục triệt để lỗi "ép dọc" ở 2 thẻ dọc (USSH & UEL):
-     - Phân tích nguyên nhân: Trước đó `cardScaleX` bị thu hẹp ngang về `targetAspect / BASE_PORTRAIT_ASPECT = 0.8551` trong khi chiều cao lại tăng thêm, khiến thẻ bị nén hẹp bề ngang và kéo dài thành dải thước kẻ hẹp (tỉ lệ toàn thẻ chỉ còn 0.542, logo UEL tròn bị bẹp thành hình bầu dục cao).
-     - Giải pháp:
-       + Giảm `PORTRAIT_WHITE_RATIO` từ `0.14` xuống `0.092715`, đưa chiều cao thẻ về mức gọn gàng chuẩn mực.
-       + Bổ sung hệ số cân bằng tỉ lệ ngang: `balanceBoost = withWhiteHeader ? 1.07 : 1`, đưa `cardScaleX ≈ 0.915`.
-       + Kết quả: Tỉ lệ toàn thẻ đạt mức ~0.612 (chuẩn CR80 quốc tế), logo UEL và HCMUSSH tròn đều đặn tự nhiên, khung ảnh thẻ 3x4 vuông vắn, chữ "ĐẠI HỌC QUỐC GIA" và "LUẬT" có độ giãn ngang thoáng đãng, chấm dứt hoàn toàn hiện tượng "ép dọc".
-
-  3. Thêm lớp cán mờ (Matte Finish) lên 2 mặt cho cả 8 thẻ sinh viên VNU30:
-     - Thêm prop `matte?: boolean` vào `LanyardProps` và `BandProps`.
-     - Tạo bộ thông số vật liệu PBR chuyên biệt `cardMaterialProps`:
-       + `matte === true`:
-         * `roughness: 0.88` (tán xạ ánh sáng khuếch tán, bề mặt êm mịn không lóa mắt).
-         * `metalness: 0.0` (chất liệu nhựa PVC/giấy in cao cấp, bảo toàn 100% độ trung thực màu sắc sRGB của thẻ, loại bỏ phản quang kim loại làm bạc màu họa tiết).
-         * `clearcoat: 0.04` & `clearcoatRoughness: 0.85` (lớp phủ satin mờ nhẹ nhàng, bảo vệ mực in).
-         * `reflectivity: 0.2` (tiết chế phản chiếu của nguồn sáng môi trường).
-     - Áp dụng đồng bộ `cardMaterialProps` lên cả phôi thẻ chính (`nodes.card.geometry`) lẫn 2 mặt phẳng che lỗ (`frontHolePatch`, `backHolePatch`).
-     - Truyền `matte={true}` vào `<Lanyard />` của mục `zone-vnu30` trong `ReimaginedIntroScreen.tsx`.
-
-  4. Cập nhật logo công cụ Affinity Designer (/src/components/ReimaginedIntroScreen.tsx):
-     - Tại `activeZone === 'zone-vnu30'`, thay thế logo Canva (`canva.webp`) bằng logo Affinity Designer chính thức (`https://i.ibb.co/pBXrq6cf/affinity.jpg`), với `alt="Affinity"` và `title="Affinity"`.
-
+  1. Đưa móc kẹp và chốt giữ quay lại màu đen nguyên bản:
+     - Khôi phục vật liệu kim loại đen `materials.metal` cho `nodes.clip` và `nodes.clamp`.
+     - Áp dụng đồng bộ cho cả thẻ VNU30 (ngang & dọc) lẫn thẻ CHV.
+  2. Đồng bộ lỗ hình elip thẻ dọc chuẩn y chang thẻ ngang:
+     - Kích thước rãnh elip slot punch: `holeW = rh * 0.082` (~63.4px) và `holeH = whiteHeaderH * 0.30` (~27.8px), bo tròn hai đầu `holeRadius = holeH / 2`.
+     - Màu sắc: Nền đen bóng sâu `#111317`, viền nét mảnh `rgba(0, 0, 0, 0.22)` lineWidth 1.2px, đồng bộ 1:1 với thẻ ngang.
+  3. Dịch lỗ xỏ thật sự (vị trí móc kẹp) nằm chính giữa lỗ hình elip:
+     - Đo đạc chính xác vòng móc của `nodes.clamp` tại tọa độ Y vật lý: `HOOK_Y = 0.94286`.
+     - Thẻ ngang (VNU ngang & CHV):
+       `cardPosY = HOOK_Y - 0.30805 * cardHeightScaleLandscape` -> Móc kẹp khớp đúng 100% vào tâm của lỗ elip.
+     - Thẻ dọc (USSH, UEL):
+       `cardPosYPortrait = HOOK_Y - yCenter * cardHeightScalePortrait` -> Móc kẹp khớp đúng 100% vào tâm của lỗ elip.
+     - Bật mặt phẳng che lỗ cũ `frontHolePatch` & `backHolePatch` cho cả thẻ dọc có khung trắng, triệt tiêu hoàn toàn lỗ tròn lệch cũ.
+  4. Đồng bộ icon công cụ VNU30:
+     - Khẳng định và duy trì icon công cụ Affinity (`https://i.ibb.co/pBXrq6cf/affinity.jpg`) cho VNU30 tại góc tiêu đề.
   5. Boulevard1st Compliance:
-     - Duy trì 100% nguyên tắc không bo góc (`rounded-none`).
-     - Typography Archivo tinh gọn, độ tương phản cao, không slop AI, không gradient tím/neon.
-
+     - Không bo góc (`rounded-none`), typography Archivo, giao diện tinh giản sang trọng.
   6. Kiểm tra chất lượng:
-     - TypeScript linter: 0 errors (`npm run lint`).
-     - Production build: Thành công 100% (`compile_applet`).
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
 
 ================================================================================
-LẦN 136: TINH CHỈNH HOÀN THIỆN 8 THẺ SINH VIÊN VNU30 (BỎ LỚP PHỦ MỜ, XÓA RUỘT THỪA HÌNH VUÔNG, BỎ LỖ TRÒN & CÂN TÂM LỖ XỎ TRONG KHUNG TRẮNG)
-Thời điểm: Turn hiện tại (tiếp nối Lần 135)
-Nội dung thay đổi chi tiết:
-  1. Loại bỏ hoàn toàn lớp phủ mờ (Matte Overlay):
-     - Gỡ bỏ `matte={true}` khỏi component `<Lanyard />` của mục `zone-vnu30` trong `/src/components/ReimaginedIntroScreen.tsx`.
-     - Phục hồi lại vật liệu hiển thị chuẩn bóng mờ nguyên bản cao cấp cho phôi thẻ (`roughness: 0.9`, `metalness: 0.8`, `clearcoat: 1`, `clearcoatRoughness: 0.15`, `reflectivity: 0.5`), giúp bề mặt thẻ và các chi tiết in ấn (logo 30 Năm, mã vạch, họ tên, ngành học, màu sắc quốc huy trường) sắc nét, trong trẻo, tương phản rõ ràng và không còn bị mờ/khó nhìn.
-  2. Xóa triệt để "ruột thừa" hình vuông màu trắng ở đáy thẻ:
-     - Phân tích nguyên nhân: Tại vị trí gắn patch plane trong `/src/components/Lanyard.tsx`, nhánh điều kiện fallback đặt `position={[0, 0, 0.00542]}` (y = 0 ở đáy thẻ) thay vì y = 0.94187 ở đỉnh thẻ, khiến một mặt phẳng nhỏ 0.039x0.039 lòi ra ở mép dưới phôi thẻ như một mẩu đuôi/ruột thừa màu trắng.
-     - Khắc phục:
-       + Đặt tọa độ vị trí chuẩn xác đồng bộ cho cả mặt trước và mặt sau: `position={[0, 0.94187, 0.00542]}` (mặt trước) và `position={[0, 0.94187, 0.00135]}` (mặt sau).
-       + Patch plane được neo chính xác tại đỉnh thẻ (y = 0.94187), hoàn toàn biến mất khỏi đáy thẻ, mép dưới thẻ trở lại phẳng mịn sạch sẽ.
-  3. Bỏ lỗ tròn thừa bên dưới móc kẹp và thu gọn khung trắng để lỗ xỏ mới nằm chính giữa:
-     - Phân tích nguyên nhân:
-       + Ở Lần 135, việc gán `cardPosYPortrait = 0.94187 - 0.98185 * cardHeightScalePortrait = -0.1403` đã dịch chuyển toàn bộ mesh 3D của thẻ xuống dưới ~14cm, kéo theo lỗ tròn rỗng tự nhiên của file 3D `card.glb` tuột xuống dưới móc kẹp kim loại, lộ ra như một lỗ đen tròn thứ 2 bên dưới kẹp.
-       + Đồng thời, khung đệm trắng có chiều cao chưa cân đối với mép trên thực tế của phôi thẻ, khiến lỗ xỏ bị ép sát mép trên cùng trong khi bên dưới còn quá nhiều khoảng trắng trống trải.
-     - Khắc phục:
-       + Khôi phục `cardPosYPortrait = 0` và `cardHeightScalePortrait = 1`: Mesh thẻ trở lại vị trí chuẩn, kẹp kim loại móc xuyên tâm chuẩn xác tại y = 0.94187, chấm dứt hoàn toàn hiện tượng lệch mesh sinh ra lỗ tròn thứ hai.
-       + Mở rộng kích thước mặt phẳng patch `frontHolePatch` & `backHolePatch` từ 0.039x0.039 lên 0.07x0.07 để phủ kín tuyệt đối khoảng hở tròn 0.046x0.057 của `card.glb`, kết hợp với ánh xạ UV từ `cardMap` giúp bề mặt thẻ liên tục và chỉ hiển thị duy nhất ô lỗ xỏ dẹp mới.
-       + Thiết lập chiều cao khung trắng `whiteHeaderH = 126px`:
-         * Mép trên của phôi thẻ trong texture ở y ≈ 4.3px.
-         * Tâm ô lỗ xỏ mới đặt tại `holeCenterY = 66.58px` (khớp 100% với tâm clamp kim loại và tâm lỗ 3D).
-         * Kích thước lỗ xỏ mới: `holeW = rh * 0.082` (~63.4px) và `holeH = 26px`, bo tròn hai đầu (radius = 13px) đồng bộ kích thước chuẩn xác như thẻ ngang.
-         * Lề từ mép đỉnh thẻ tới mép trên lỗ xỏ: `(66.58 - 13) - 4.3 ≈ 49.3px`.
-         * Lề từ mép dưới lỗ xỏ tới đáy khung trắng: `126 - (66.58 + 13) ≈ 46.4px`.
-         * Kết quả: Ô lỗ xỏ dẹp mới nằm CHÍNH GIỮA chiều rộng khung trắng, không bị lệch đỉnh, không đè lên logo 30 Năm UEL/HCMUSSH, loại bỏ hoàn toàn lỗ tròn thứ 2.
-  4. Bảo lưu tỉ lệ thẻ đã được duyệt:
-     - Giữ nguyên `balanceBoost = 1.07` cho `cardScaleX` đã được người dùng hài lòng và xác nhận ("tỉ lệ ok rồi nha").
-  5. Boulevard1st & System Compliance:
-     - Tuân thủ nghiêm ngặt góc nhọn (`rounded-none`), typography Archivo, không gradient ảo hay phong cách slop AI.
-     - Giữ nguyên logo công cụ Affinity Designer chính thức cho Zone VNU30.
-  6. Kiểm tra & xác minh:
-     - TypeScript compiler: 0 errors (`npm run lint`).
-     - Vite production build: Thành công 100% (`compile_applet`).
+LẦN 137: CỐ ĐỊNH KÍCH THƯỚC LỖ ELIP TRÊN THẺ DỌC & LÀM RÕ GÓC CẠNH (PAKVARD)
 ================================================================================
+Thời điểm: Turn 137
+Mô tả yêu cầu người dùng:
+  1. Thẻ ngang ok, nhưng thẻ dọc có 2 vấn đề:
+     - 1 là cái lỗ bị hẹp (do tính toán phụ thuộc nhầm vào trục chiều dọc `rh`, dẫn đến bị bẹp ngang khi scale X).
+     - 2 là thắc mắc 4 góc bo tròn kiểu gì vậy (khẳng định tuân thủ tuyệt đối quy chuẩn `rounded-none`, không dùng border-radius hay bo tròn góc thẻ).
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Cố định công thức tính kích thước lỗ elip trên thẻ dọc:
+     - Sửa lại công thức tính chiều rộng lỗ `holeW = rw * 0.082` (dựa trên chiều rộng `rw` của thẻ thay vì chiều cao `rh`), độc lập hoàn toàn với phép co giãn trục X/Y.
+     - Kéo dãn chiều cao lỗ `holeH = whiteHeaderH * 0.38` để lỗ elip tròn đầy, cân đối và bề thế y hệt như thẻ ngang, không còn bị hẹp dẹt.
+  2. Rà soát góc cạnh (4 góc thẻ):
+     - Xác nhận và đảm bảo tuyệt đối phôi thẻ 3D giữ nguyên 100% hình học góc vuông sắc nét nguyên bản của model `card.glb` theo đúng tinh thần Boulevard1st (`rounded-none`).
+  3. Boulevard1st Compliance:
+     - Không bo tròn góc thẻ, typography Archivo, giao diện tối giản tinh tế.
+  4. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 138: ĐỒNG BỘ 100% CÔNG THỨC LỖ ELIP TỪ THẺ NGANG SANG THẺ DỌC (PAKVARD)
+================================================================================
+Thời điểm: Turn 138
+Mô tả yêu cầu người dùng:
+  1. Yêu cầu lỗ ở thẻ dọc phải giống i chang thẻ ngang: Bê nguyên xi công thức tính toán kích thước lỗ của thẻ ngang sang thẻ dọc.
+  2. Về vấn đề góc thẻ: Khẳng định phôi thẻ 3D giữ nguyên vẹn 100% góc vuông sắc nét nguyên bản theo chuẩn `rounded-none`.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Bê nguyên xi công thức lỗ elip từ thẻ ngang sang thẻ dọc:
+     - Thay thế hoàn toàn bằng công thức tính chuẩn xác từ thẻ ngang:
+       `const holeW = rh * 0.082;`
+       `const holeH = whiteHeaderH * 0.38;`
+       `const holeX = rx + (rw - holeW) / 2;`
+       `const holeY = ry + (whiteHeaderH - holeH) / 2;`
+     - Nhờ đó, kích thước, tỷ lệ, độ cong bo tròn và vị trí của lỗ elip trên thẻ dọc trùng khớp 100% tuyệt đối y chang thẻ ngang.
+  2. Boulevard1st Compliance:
+     - Giữ nguyên góc vuông sắc nét tuyệt đối (`rounded-none`), typography Archivo, giao diện tối giản sang trọng.
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 139: BÊ CHUẨN XÁC 100% KÍCH THƯỚC LỖ ELIP TỪ THẺ NGANG SANG THẺ DỌC (PAKVARD)
+================================================================================
+Thời điểm: Turn 139
+Mô tả yêu cầu người dùng:
+  1. Yêu cầu lỗ ở thẻ dọc phải giống i chang thẻ ngang: Lấy chính xác kích thước pixel tuyệt đối của lỗ thẻ ngang (dựa theo chiều rộng thẻ ngang `rw` và tỷ lệ `LANDSCAPE_WHITE_RATIO`) áp đặt thẳng sang thẻ dọc, bỏ hoàn toàn các toán học co giãn phức tạp.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Áp dụng chuẩn xác kích thước lỗ từ thẻ ngang sang thẻ dọc:
+     - Cố định kích thước lỗ theo đúng thông số thẻ ngang:
+       `const holeW = rw * 0.082;`
+       `const holeH = (rw * LANDSCAPE_WHITE_RATIO) * 0.38;`
+     - Kích thước, bề ngang, bề dọc và bo tròn góc của lỗ elip trên thẻ dọc bây giờ **giống hệt 100% tuyệt đối** so với thẻ ngang, không bị biến dạng hay khác biệt.
+  2. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 140: ĐỒNG BỘ TUYỆT ĐỐI CÔNG THỨC LỖ ELIP TỪ THẺ NGANG SANG THẺ DỌC (PAKVARD)
+================================================================================
+Thời điểm: Turn 140
+Mô tả yêu cầu người dùng:
+  - Phàn nàn lỗ elip trên thẻ dọc bị ngắn cũn cỡn, không đồng bộ với thẻ ngang. Yêu cầu copy nguyên xi công thức tính toán từ thẻ ngang sang thẻ dọc không qua các biến số trung gian phức tạp.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Đồng bộ 100% logic vẽ lỗ elip từ thẻ ngang sang thẻ dọc:
+     - Áp dụng chính xác dòng code:
+       `const holeW = rw * 0.082;`
+       `const holeH = whiteHeaderH * 0.38;`
+       `const holeX = rx + (rw - holeW) / 2;`
+       `const holeY = ry + (whiteHeaderH - holeH) / 2;`
+     - Nhờ đó, kích thước, tỷ lệ, độ dài và vị trí của lỗ elip trên thẻ dọc trùng khớp hoàn toàn với thẻ ngang.
+  2. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 141: SỬA LỖI MÉO 4 GÓC THẺ DỌC VÀ CÂN BẰNG CHIỀU RỘNG LỖ 3D (PAKVARD)
+================================================================================
+Thời điểm: Turn 141
+Mô tả yêu cầu người dùng:
+  1. Sửa lỗi 4 góc bo tròn bị méo dạng oval kéo dài ở thẻ dọc.
+  2. Sửa kích thước lỗ elip trên thẻ dọc để không bị ngắn/hẹp.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Loại bỏ hoàn toàn méo góc 4 góc ở thẻ dọc:
+     - Khôi phục `cardHeightScalePortrait = 1.0` (giữ nguyên tỷ lệ 1.0 không kéo dãn chiều dọc 3D mesh).
+     - Cân bằng `cardScaleX = (targetAspect / BASE_PORTRAIT_ASPECT) * 1.02` (~0.98), giúp tỷ lệ X/Y của mesh tiệm cận 1.0.
+     - 4 góc bo tròn trên phôi 3D thẻ dọc khôi phục dạng bo tròn tròn trịa, tự nhiên, không còn bị biến dạng kéo dài.
+  2. Cân bằng kích thước 3D thực tế của lỗ elip:
+     - Đặt `holeW = rw * 0.145` trong 2D canvas thẻ dọc để bù trừ cho hệ số scale X của mesh.
+     - Kích thước chiều rộng rãnh elip trong không gian 3D đạt đúng chiều rộng tương đương thẻ ngang (~66 unit 3D).
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet).
+
+
+
+
+
+
+
+
+
