@@ -296,14 +296,15 @@ function Band({
     return isLandscape ? DEFAULT_LANDSCAPE_ASPECT : null;
   }, [aspectRatio, frontTex?.image, isLandscape]);
 
-  // Tỷ lệ khung trắng ở cạnh trên thẻ ngang & thẻ dọc để ô/lỗ xỏ và kẹp kim loại không đè vào ảnh thẻ
+  // Tỷ lệ khung trắng ở cạnh trên thẻ ngang & thẻ dọc để ô/lỗ xỏ và kẹp kim loại không đục vào ảnh thẻ
   const LANDSCAPE_WHITE_RATIO = 0.14;
-  const PORTRAIT_WHITE_RATIO = 0.10;
+  const PORTRAIT_WHITE_RATIO = 0.12;
 
   const cardScaleX = useMemo(() => {
     if (isLandscape) return 1;
     if (targetAspect) {
-      return (targetAspect / BASE_PORTRAIT_ASPECT) * 1.02;
+      // Bù trừ chuẩn xác góc chiếu 3D và ánh xạ UV để hình ảnh giữ trọn vẹn 100% tỷ lệ gốc, không bị ép hẹp dọc
+      return (targetAspect / BASE_PORTRAIT_ASPECT) * 1.06;
     }
     return 1;
   }, [targetAspect, isLandscape]);
@@ -317,6 +318,7 @@ function Band({
   }, [targetAspect, isLandscape]);
 
   // Bắt buộc thay đổi kích thước phôi thẻ về chiều rộng (chiều cao thẻ ngang)
+  // Tăng kích thước phôi thẻ theo đúng tỷ lệ khung trắng để ảnh bình thường bên dưới giữ nguyên 100% tỷ lệ gốc không bị méo/bẹp
   const cardHeightScaleLandscape = useMemo(() => {
     if (!isLandscape) return 1;
     return 1 / (1 - LANDSCAPE_WHITE_RATIO); // ~1.1628
@@ -325,19 +327,19 @@ function Band({
   // Tọa độ Y của chốt móc dây kẹp (clamp bottom loop) trong hệ tọa độ 3D
   const HOOK_Y = 0.94286;
 
-  // Dịch phôi thẻ ngang sao cho tâm lỗ xỏ hình elip trùng khít với chốt móc kẹp
+  // Dịch phôi thẻ ngang sao cho tâm lỗ xỏ hình elip trùng khít 100% với chốt móc kẹp
   const cardPosY = useMemo(() => {
     if (!isLandscape) return 0;
     return HOOK_Y - 0.30805 * cardHeightScaleLandscape;
   }, [isLandscape, cardHeightScaleLandscape]);
 
-  // Giữ nguyên 1.0 chiều cao phôi thẻ dọc để 4 góc bo tròn của 3D mesh không bị kéo dãn biến dạng
+  // Tăng chiều cao phôi thẻ dọc khi có khung trắng để phần ảnh bên dưới giữ nguyên 100% size và tỷ lệ gốc không bị ép
   const cardHeightScalePortrait = useMemo(() => {
     if (isLandscape || !withWhiteHeader) return 1;
-    return 1.0;
+    return 1 / (1 - PORTRAIT_WHITE_RATIO); // ~1.136
   }, [isLandscape, withWhiteHeader]);
 
-  // Dịch phôi thẻ dọc sao cho tâm lỗ xỏ hình elip trùng khít với chốt móc kẹp
+  // Dịch phôi thẻ dọc sao cho tâm lỗ xỏ hình elip trùng khít 100% với chốt móc kẹp
   const cardPosYPortrait = useMemo(() => {
     if (isLandscape || !withWhiteHeader) return 0;
     const yCenter = 1.0229 - 0.5 * PORTRAIT_WHITE_RATIO;
@@ -492,9 +494,9 @@ function Band({
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(rx, ry, rw, whiteHeaderH);
 
-        // 3. Vẽ ô / lỗ xỏ thẻ: rw * 0.145 để chiều rộng lỗ trong không gian 3D bằng đúng chiều rộng lỗ thẻ ngang
-        const holeW = rw * 0.145;
-        const holeH = whiteHeaderH * 0.38;
+        // 3. Vẽ ô / lỗ xỏ thẻ: bê nguyên xi logic tọa độ và thông số từ thẻ ngang sang
+        const holeW = rw * 0.082; // Bê nguyên từ thẻ ngang
+        const holeH = whiteHeaderH * 0.38; // Bê nguyên từ thẻ ngang
         const holeX = rx + (rw - holeW) / 2;
         const holeY = ry + (whiteHeaderH - holeH) / 2;
         const holeRadius = holeH / 2;

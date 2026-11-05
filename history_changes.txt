@@ -5380,31 +5380,6 @@ Chi tiết thực hiện:
      - Linter: 0 errors (npm run lint).
      - Production build: Thành công 100% (compile_applet).
 
-================================================================================
-LẦN 141: SỬA LỖI MÉO 4 GÓC THẺ DỌC VÀ CÂN BẰNG CHIỀU RỘNG LỖ 3D (PAKVARD)
-================================================================================
-Thời điểm: Turn 141
-Mô tả yêu cầu người dùng:
-  1. Sửa lỗi 4 góc bo tròn bị méo dạng oval kéo dài ở thẻ dọc.
-  2. Sửa kích thước lỗ elip trên thẻ dọc để không bị ngắn/hẹp.
-
-Files ảnh hưởng:
-  - /src/components/Lanyard.tsx
-  - /history_changes.txt
-
-Chi tiết thực hiện:
-  1. Loại bỏ hoàn toàn méo góc 4 góc ở thẻ dọc:
-     - Khôi phục `cardHeightScalePortrait = 1.0` (giữ nguyên tỷ lệ 1.0 không kéo dãn chiều dọc 3D mesh).
-     - Cân bằng `cardScaleX = (targetAspect / BASE_PORTRAIT_ASPECT) * 1.02` (~0.98), giúp tỷ lệ X/Y của mesh tiệm cận 1.0.
-     - 4 góc bo tròn trên phôi 3D thẻ dọc khôi phục dạng bo tròn tròn trịa, tự nhiên, không còn bị biến dạng kéo dài.
-  2. Cân bằng kích thước 3D thực tế của lỗ elip:
-     - Đặt `holeW = rw * 0.145` trong 2D canvas thẻ dọc để bù trừ cho hệ số scale X của mesh.
-     - Kích thước chiều rộng rãnh elip trong không gian 3D đạt đúng chiều rộng tương đương thẻ ngang (~66 unit 3D).
-  3. Kiểm tra chất lượng:
-     - Linter: 0 errors (npm run lint).
-     - Production build: Thành công (compile_applet).
-
-
 
 
 
