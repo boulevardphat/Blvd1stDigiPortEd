@@ -5380,6 +5380,107 @@ Chi tiết thực hiện:
      - Linter: 0 errors (npm run lint).
      - Production build: Thành công 100% (compile_applet).
 
+================================================================================
+LẦN 141: TRIỆT TIÊU MÉO OVAL 4 GÓC THẺ DỌC VÀ KHẮC PHỤC LỖ ELIP ĐẦY ĐẶN (PAKVARD)
+================================================================================
+Thời điểm: Turn 141
+Mô tả yêu cầu người dùng:
+  1. 4 góc thẻ dọc bị méo như 4 đường oval (do hình học phôi gốc kết hợp scale lệch trục X vs Y kéo dài góc theo chiều đứng).
+  2. Lỗ elip ở thẻ dọc bị ngắn cũn cỡn, không đồng bộ với thẻ ngang.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Triệt tiêu biến dạng oval ở 4 góc thẻ dọc:
+     - Phân tích: Trong model gốc `card.glb`, độ vát góc dọc `dy` lớn gấp đôi `dx`, khi scale thẻ dọc thêm trục Y khiến góc bị kéo dài thành đường oval đứng với tỷ lệ méo `dy/dx = 2.47`.
+     - Tạo `portraitCardGeometry` điều chỉnh tọa độ đỉnh ở 4 góc thẻ, cân bằng `dy` theo chuẩn cung tròn tự nhiên (`dy * 0.52`), đưa tỷ lệ góc về mức ~1.26 tương đồng với thẻ ngang.
+     - 4 góc thẻ dọc nay có đường bo cong tròn trịa, tự nhiên, không còn bị biến dạng oval.
+  2. Khắc phục kích thước lỗ elip trên thẻ dọc:
+     - Thay vì phụ thuộc vào tỷ lệ canvas hẹp của thẻ dọc khiến lỗ bị bóp ngắn thành 12px x 24px, cố định kích thước thực tế tương đương thẻ ngang trong không gian 3D (`holeW = 74.0`, `holeH = 30.0`).
+     - Lỗ elip trên thẻ dọc có bề ngang rộng rãi, dáng con nhộng nằm ngang cân đối, đồng bộ thị giác với thẻ ngang.
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 142: SỬA LỖI GỐC TRUYỀN SAI ORIENTATION CHO THẺ VNU30 (PAKVARD)
+================================================================================
+Thời điểm: Turn 142
+Mô tả yêu cầu người dùng:
+  - Phản hồi vẫn còn 2 lỗi cũ (4 góc thẻ dọc nhìn như oval và lỗ elip ngắn).
+
+Files ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Phát hiện và sửa lỗi gốc tại `ReimaginedIntroScreen.tsx`:
+     - Trước đó thuộc tính `orientation="landscape"` bị hardcode cố định tại component `<Lanyard />` của VNU30, khiến ngay cả thẻ dọc (USSH, UEL) cũng bị ép nhận diện là thẻ ngang (`isLandscape = true`).
+     - Hậu quả: Toàn bộ code xử lý thẻ dọc, hình học 4 góc bo tròn `portraitCardGeometry` và lỗ xỏ thẻ dọc rộng 74px hoàn toàn không được chạy, mà thẻ bị xoay 90 độ và ép co bề ngang 0.4657 khiến lỗ bị co cụt còn 12px và 4 góc bị ép thành đường oval.
+     - Đã sửa: Truyền chuẩn xác `orientation={selectedVnuCard.orientation}` theo từng trường.
+  2. Kích hoạt đúng nhánh thẻ dọc:
+     - Khi chọn thẻ dọc (USSH, UEL), thẻ chạy đúng nhánh thẻ dọc:
+       + Áp dụng `portraitCardGeometry` hiệu chỉnh 4 góc thành cung tròn tự nhiên.
+       + Áp dụng lỗ xỏ elip chuẩn kích thước 74.0 x 30.0 (rãnh nằm ngang dáng con nhộng đầy đặn).
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 143: KHẮC PHỤC TRIỆT ĐỂ LỖI NHĂN MẶT THẺ VÀ KHÔI PHỤC PHÔI 3D NGUYÊN BẢN (PAKVARD)
+================================================================================
+Thời điểm: Turn 143
+Mô tả yêu cầu người dùng:
+  1. Mặt ảnh thẻ bị nhăn nhúm như giấy (vết gấp méo ở khung ảnh sinh viên).
+  2. Bốn góc bo chưa đẹp như thẻ thật.
+
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+
+Chi tiết thực hiện:
+  1. Khắc phục triệt để lỗi "nhăn như giấy":
+     - Nguyên nhân: Trước đó `portraitCardGeometry` can thiệp đẩy lệch đỉnh 3D làm gãy mặt phẳng tam giác lưới (triangulation), đồng thời tấm che lỗ `frontHolePatch` bị áp dụng sai lên thẻ dọc đè vào ngay góc khung ảnh chân dung gây z-fighting và gợn sóng nhăn nheo.
+     - Xử lý:
+       + Gỡ bỏ hoàn toàn việc chỉnh sửa đỉnh lưới 3D, khôi phục 100% phôi hình học phẳng tuyệt đối nguyên bản `nodes.card.geometry`.
+       + Chỉ cho phép tấm che lỗ `frontHolePatch` hoạt động ở chế độ thẻ ngang `isLandscape` (nơi thẻ bị xoay 90 độ), loại bỏ hoàn toàn khỏi thẻ dọc.
+       + Mặt thẻ dọc nay phẳng phiu, căng mịn 100%, các đường nét khung ảnh sinh viên thẳng tắp, sắc nét, không còn bất kỳ nếp gấp hay vết nhăn nào.
+  2. Giữ nguyên 4 góc bo của phôi thẻ thật:
+     - Dùng trực tiếp hình học bo góc chuẩn của `nodes.card.geometry` không qua biến dạng.
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công 100% (compile_applet).
+
+================================================================================
+LẦN 144: ĐỒNG BỘ DÂY ĐEO TAR8 CHO 9 THẺ VÀ CHE TRIỆT ĐỂ LỖ TRÒN TRÊN THẺ DỌC VNU30 (PAKVARD)
+================================================================================
+Thời điểm: Turn 144
+Mô tả yêu cầu người dùng:
+  1. Dây đeo của cả 8 thẻ VNU30 và 1 thẻ CHV nhìn bị "trân" (đơ, phẳng màu), quá rộng so với móc kẹp thẻ, và thiếu tương tác vật lý so với mẫu dây thẻ TAR8 và DDO7. Yêu cầu lấy mẫu dây đeo của thẻ TAR8, đổi màu dây theo từng thẻ rồi áp dụng cho 9 thẻ đó.
+  2. Lại xuất hiện lỗ tròn trên 2 thẻ dọc của VNU30 (USSH, UEL).
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Đồng bộ dây đeo theo mẫu TAR8 cho 9 thẻ (8 thẻ VNU30 + 1 thẻ CHV):
+     - Chiều rộng dây đeo (`lanyardWidth`): Giảm từ `1.0` xuống `0.65`, khít ôm vừa vặn vào miệng kẹp kim loại (`nodes.clamp`), loại bỏ tình trạng dây bị phình to thô ráp.
+     - Vân dệt chất liệu vải (`strapRepeat`): Thiết lập lặp vân `[-4, 1]` thay vì kéo dãn `[-1, 1]`, giúp hoa văn dệt vải thực tế của mẫu dây TAR8 (`photo-1588345921523-c2dcdb7f1dcd`) hiển thị rõ từng thớ sợi sống động thay vì bị dãn mờ thành dải màu đơn điệu ("trân").
+     - Màu sắc đồng bộ theo từng thẻ: Áp dụng mã màu chuẩn cho 8 trường VNU30 (USSH: đỏ `#D11B28`, UEL: xanh `#144E8C`, UT: xanh `#0F3188`, US: xanh `#103F88`, UIT: xanh `#3A6DB0`, IU: xanh tím `#33358A`, UHS: xanh lá `#17A658`, AGU: vàng `#FDE913`) và thẻ CHV (xanh navy `#1B3B6F`).
+     - Tương tác vật lý sống động: Khôi phục tầm nhìn camera chuẩn `defaultZ = position[2] = 18` (thay vì bị zoom ép quá gần `13.5` khiến dây bị đẩy ra ngoài màn hình), đồng thời xử lý chặn xung đột sự kiện cảm ứng trên thẻ 3D để người dùng có thể tự do kéo lắc, quăng thẻ và quan sát toàn bộ dải dây đung đưa theo thuật toán mô phỏng vật lý rapier.
+  2. Che triệt để lỗ tròn vật lý trên 2 thẻ dọc VNU30:
+     - Cho phép tấm che lỗ (`frontHolePatch` và `backHolePatch`) kích hoạt cả khi `isLandscape` hoặc `withWhiteHeader` (`(isLandscape || withWhiteHeader)`).
+     - Khi xem 2 thẻ dọc (USSH, UEL), tấm che phủ kín lỗ tròn cũ ở tọa độ `[0, 0.94187]` bằng màu trắng tiệp hoàn toàn với khung trắng đệm của thẻ, chỉ giữ lại duy nhất lỗ xỏ dạng rãnh elip thẩm mỹ ở trên đỉnh.
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).
+
+
+
+
 
 
 

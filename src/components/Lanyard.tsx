@@ -68,23 +68,23 @@ export default function Lanyard({
   aspectRatio,
   orientation = 'portrait',
   lanyardImage = null,
-  lanyardWidth = 1,
+  lanyardWidth = 0.65,
   lanyardRepeat,
   lanyardColor = 'white',
   withWhiteHeader = false,
   className = '',
   enableZoom = true,
   minZoomZ = 9,
-  maxZoomZ = 20,
+  maxZoomZ = 24,
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const defaultZ = useMemo(() => {
-    return isMobile ? 16.5 : 13.5;
-  }, [isMobile]);
+    return isMobile ? Math.max(16.5, position[2]) : position[2];
+  }, [isMobile, position]);
 
   const [targetZ, setTargetZ] = useState(() => {
     const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    return mobile ? 16.5 : 13.5;
+    return mobile ? Math.max(16.5, position[2]) : position[2];
   });
   const hasUserZoomedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -95,12 +95,12 @@ export default function Lanyard({
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       if (!hasUserZoomedRef.current) {
-        setTargetZ(mobile ? 16.5 : 13.5);
+        setTargetZ(mobile ? Math.max(16.5, position[2]) : position[2]);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [position]);
 
   // Native wheel listener for smooth zooming on canvas on desktop
   useEffect(() => {
@@ -258,7 +258,7 @@ function Band({
   aspectRatio,
   orientation = 'portrait',
   lanyardImage = null,
-  lanyardWidth = 1,
+  lanyardWidth = 0.65,
   lanyardRepeat,
   lanyardColor = 'white',
   withWhiteHeader = false,
@@ -494,9 +494,9 @@ function Band({
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(rx, ry, rw, whiteHeaderH);
 
-        // 3. Vẽ ô / lỗ xỏ thẻ: bê nguyên xi logic tọa độ và thông số từ thẻ ngang sang
-        const holeW = rw * 0.082; // Bê nguyên từ thẻ ngang
-        const holeH = whiteHeaderH * 0.38; // Bê nguyên từ thẻ ngang
+        // 3. Vẽ ô / lỗ xỏ thẻ: Kích thước 3D thực tế tương đương 100% thẻ ngang (0.096 x 0.044 world units)
+        const holeW = 74.0; // Đồng bộ tuyệt đối chiều rộng rãnh elip trong không gian 3D với thẻ ngang
+        const holeH = 30.0; // Đồng bộ tuyệt đối chiều cao rãnh elip trong không gian 3D với thẻ ngang
         const holeX = rx + (rw - holeW) / 2;
         const holeY = ry + (whiteHeaderH - holeH) / 2;
         const holeRadius = holeH / 2;
@@ -715,7 +715,7 @@ function Band({
 
   const strapRepeat = useMemo(() => {
     if (lanyardRepeat) return lanyardRepeat;
-    if (lanyardImage) return [-1, 1];
+    if (lanyardImage) return [-4, 1];
     return [-4, 1];
   }, [lanyardRepeat, lanyardImage]);
 
@@ -817,7 +817,7 @@ function Band({
             }}
           >
             {/* Invisible expanded hit area for easy touch targeting on mobile */}
-            <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, 0, 0]}>
+            <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, cardPosYPortrait, 0]}>
               <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4]} />
               <meshBasicMaterial transparent opacity={0} />
             </mesh>

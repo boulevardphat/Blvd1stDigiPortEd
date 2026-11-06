@@ -58,12 +58,18 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
     const container = document.getElementById('scene-reimagined-pure-black');
     if (!container) return;
 
+    const isLanyardOrCanvas = (target: EventTarget | null) => {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      return Boolean(el.closest('canvas') || el.closest('.lanyard-wrapper'));
+    };
+
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) return;
 
-      // Không can thiệp nếu đang thao tác zoom/scroll bên trong khung dàn phẳng
+      // Không can thiệp nếu đang thao tác zoom/scroll bên trong khung dàn phẳng hoặc 3D canvas
       const target = e.target as HTMLElement;
-      if (target.closest('#ussh-viewer-flat-carousel')) return;
+      if (target.closest('#ussh-viewer-flat-carousel') || isLanyardOrCanvas(target)) return;
 
       if (isTransitioningRef.current) {
         e.preventDefault();
@@ -101,8 +107,11 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
     let touchStartY = 0;
     let touchStartX = 0;
     let touchStartTime = 0;
+    let touchFromCanvas = false;
 
     const onTouchStart = (e: TouchEvent) => {
+      touchFromCanvas = Boolean((e.target as HTMLElement)?.closest?.('canvas') || (e.target as HTMLElement)?.closest?.('.lanyard-wrapper'));
+      if (touchFromCanvas) return;
       if (e.touches.length === 1) {
         touchStartY = e.touches[0].clientY;
         touchStartX = e.touches[0].clientX;
@@ -111,6 +120,10 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      if (touchFromCanvas) {
+        touchFromCanvas = false;
+        return;
+      }
       if (isTransitioningRef.current) return;
       if (e.changedTouches.length === 0) return;
 
@@ -476,12 +489,14 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               position={[0, 0, 18]}
               gravity={[0, -40, 0]}
               fov={20}
-              orientation="landscape"
+              orientation={selectedVnuCard.orientation}
               aspectRatio={selectedVnuCard.width / selectedVnuCard.height}
               frontImage={selectedVnuCard.frontUrl}
               backImage={selectedVnuCard.backUrl}
               lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"
               lanyardColor={selectedVnuCard.lanyardColor}
+              lanyardWidth={0.65}
+              lanyardRepeat={[-4, 1]}
               withWhiteHeader={true}
               imageFit="cover"
               transparent={true}
@@ -512,6 +527,9 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               frontImage={selectedMajor.frontUrl}
               backImage={selectedMajor.backUrl}
               lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"
+              lanyardColor="#1B3B6F"
+              lanyardWidth={0.65}
+              lanyardRepeat={[-4, 1]}
               imageFit="cover"
               transparent={true}
               className="w-full h-[74vh] sm:h-[78vh] md:h-[82vh] lg:h-[86vh]"
