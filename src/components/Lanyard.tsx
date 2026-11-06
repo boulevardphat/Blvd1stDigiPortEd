@@ -43,6 +43,7 @@ export interface LanyardProps {
   lanyardRepeat?: [number, number];
   lanyardColor?: string;
   withWhiteHeader?: boolean;
+  showStrap?: boolean;
   className?: string;
   enableZoom?: boolean;
   minZoomZ?: number;
@@ -72,6 +73,7 @@ export default function Lanyard({
   lanyardRepeat,
   lanyardColor = 'white',
   withWhiteHeader = false,
+  showStrap = true,
   className = '',
   enableZoom = true,
   minZoomZ = 9,
@@ -79,12 +81,12 @@ export default function Lanyard({
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const defaultZ = useMemo(() => {
-    return isMobile ? Math.max(16.5, position[2]) : position[2];
+    return isMobile ? Math.max(15.5, position[2]) : position[2];
   }, [isMobile, position]);
 
   const [targetZ, setTargetZ] = useState(() => {
     const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    return mobile ? Math.max(16.5, position[2]) : position[2];
+    return mobile ? Math.max(15.5, position[2]) : position[2];
   });
   const hasUserZoomedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -95,7 +97,7 @@ export default function Lanyard({
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       if (!hasUserZoomedRef.current) {
-        setTargetZ(mobile ? Math.max(16.5, position[2]) : position[2]);
+        setTargetZ(mobile ? Math.max(15.5, position[2]) : position[2]);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -139,21 +141,34 @@ export default function Lanyard({
         <ambientLight intensity={Math.PI} />
         <CameraRig targetZ={targetZ} />
         <React.Suspense fallback={null}>
-          <Physics gravity={gravity} timeStep={1 / 60}>
-            <Band
-              cardGroupRef={cardGroupRef}
-              isMobile={isMobile}
-              frontImage={frontImage}
-              backImage={backImage}
-              imageFit={imageFit}
-              aspectRatio={aspectRatio}
-              orientation={orientation}
-              lanyardImage={lanyardImage}
-              lanyardWidth={lanyardWidth}
-              lanyardRepeat={lanyardRepeat}
-              lanyardColor={lanyardColor}
-              withWhiteHeader={withWhiteHeader}
-            />
+          <Physics gravity={showStrap ? gravity : [0, -22, 0]} timeStep={1 / 60}>
+            {showStrap ? (
+              <Band
+                cardGroupRef={cardGroupRef}
+                isMobile={isMobile}
+                frontImage={frontImage}
+                backImage={backImage}
+                imageFit={imageFit}
+                aspectRatio={aspectRatio}
+                orientation={orientation}
+                lanyardImage={lanyardImage}
+                lanyardWidth={lanyardWidth}
+                lanyardRepeat={lanyardRepeat}
+                lanyardColor={lanyardColor}
+                withWhiteHeader={withWhiteHeader}
+              />
+            ) : (
+              <CardOnly
+                cardGroupRef={cardGroupRef}
+                isMobile={isMobile}
+                frontImage={frontImage}
+                backImage={backImage}
+                imageFit={imageFit}
+                aspectRatio={aspectRatio}
+                orientation={orientation}
+                withWhiteHeader={withWhiteHeader}
+              />
+            )}
           </Physics>
           <Environment blur={0.75}>
             <Lightformer
@@ -494,9 +509,9 @@ function Band({
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(rx, ry, rw, whiteHeaderH);
 
-        // 3. Vẽ ô / lỗ xỏ thẻ: Kích thước 3D thực tế tương đương 100% thẻ ngang (0.096 x 0.044 world units)
-        const holeW = 74.0; // Đồng bộ tuyệt đối chiều rộng rãnh elip trong không gian 3D với thẻ ngang
-        const holeH = 30.0; // Đồng bộ tuyệt đối chiều cao rãnh elip trong không gian 3D với thẻ ngang
+        // 3. Vẽ ô / lỗ xỏ thẻ: Tăng kích thước tổng thể lên 30% rồi thêm 15% theo yêu cầu
+        const holeW = 74.0 * 1.3 * 1.15; // ~110.63
+        const holeH = 30.0 * 1.3 * 1.15; // ~44.85
         const holeX = rx + (rw - holeW) / 2;
         const holeY = ry + (whiteHeaderH - holeH) / 2;
         const holeRadius = holeH / 2;
@@ -715,7 +730,7 @@ function Band({
 
   const strapRepeat = useMemo(() => {
     if (lanyardRepeat) return lanyardRepeat;
-    if (lanyardImage) return [-4, 1];
+    if (lanyardImage) return [-1, 1];
     return [-4, 1];
   }, [lanyardRepeat, lanyardImage]);
 
@@ -892,6 +907,553 @@ function Band({
         />
       </mesh>
     </>
+  );
+}
+
+interface CardOnlyProps {
+  cardGroupRef?: React.RefObject<THREE.Group | null>;
+  isMobile?: boolean;
+  frontImage?: string | null;
+  backImage?: string | null;
+  imageFit?: 'cover' | 'contain';
+  aspectRatio?: number;
+  orientation?: 'portrait' | 'landscape';
+  withWhiteHeader?: boolean;
+}
+
+function CardOnly({
+  cardGroupRef,
+  isMobile = false,
+  frontImage = null,
+  backImage = null,
+  imageFit = 'cover',
+  aspectRatio,
+  orientation = 'portrait',
+  withWhiteHeader = false,
+}: CardOnlyProps) {
+  const fixed = useRef<any>(null),
+    card = useRef<any>(null);
+  const vec = useRef(new THREE.Vector3()).current,
+    ang = useRef(new THREE.Vector3()).current,
+    dir = useRef(new THREE.Vector3()).current;
+  const segmentProps: any = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
+  const { nodes, materials } = useGLTF(cardGLB) as any;
+  const frontTex = useTexture(frontImage || BLANK_PIXEL) as any;
+  const backTex = useTexture(backImage || BLANK_PIXEL) as any;
+
+  const isLandscape = orientation === 'landscape';
+  const BASE_PORTRAIT_ASPECT = 0.716034;
+  const BASE_LANDSCAPE_ASPECT = 0.9707 / 0.716366;
+  const DEFAULT_LANDSCAPE_ASPECT = 3193 / 2012;
+
+  const targetAspect = useMemo(() => {
+    if (aspectRatio && aspectRatio > 0) return aspectRatio;
+    const imgW = frontTex?.image?.naturalWidth || frontTex?.image?.width;
+    const imgH = frontTex?.image?.naturalHeight || frontTex?.image?.height;
+    if (imgW && imgH) return imgW / imgH;
+    return isLandscape ? DEFAULT_LANDSCAPE_ASPECT : null;
+  }, [aspectRatio, frontTex?.image, isLandscape]);
+
+  const LANDSCAPE_WHITE_RATIO = 0.14;
+  const PORTRAIT_WHITE_RATIO = 0.12;
+
+  const cardScaleX = useMemo(() => {
+    if (isLandscape) return 1;
+    if (targetAspect) {
+      return (targetAspect / BASE_PORTRAIT_ASPECT) * 1.06;
+    }
+    return 1;
+  }, [targetAspect, isLandscape]);
+
+  const cardScaleLandscape = useMemo(() => {
+    if (!isLandscape) return 1;
+    if (targetAspect) {
+      return targetAspect / BASE_LANDSCAPE_ASPECT;
+    }
+    return DEFAULT_LANDSCAPE_ASPECT / BASE_LANDSCAPE_ASPECT;
+  }, [targetAspect, isLandscape]);
+
+  const cardHeightScaleLandscape = useMemo(() => {
+    if (!isLandscape) return 1;
+    return 1 / (1 - LANDSCAPE_WHITE_RATIO);
+  }, [isLandscape]);
+
+  const HOOK_Y = 0.94286;
+
+  const cardPosY = useMemo(() => {
+    if (!isLandscape) return 0;
+    return HOOK_Y - 0.30805 * cardHeightScaleLandscape;
+  }, [isLandscape, cardHeightScaleLandscape]);
+
+  const cardHeightScalePortrait = useMemo(() => {
+    if (isLandscape || !withWhiteHeader) return 1;
+    return 1 / (1 - PORTRAIT_WHITE_RATIO);
+  }, [isLandscape, withWhiteHeader]);
+
+  const cardPosYPortrait = useMemo(() => {
+    if (isLandscape || !withWhiteHeader) return 0;
+    const yCenter = 1.0229 - 0.5 * PORTRAIT_WHITE_RATIO;
+    return HOOK_Y - yCenter * cardHeightScalePortrait;
+  }, [isLandscape, withWhiteHeader, cardHeightScalePortrait]);
+
+  const frontHolePatch = useMemo(() => {
+    const w = 0.039;
+    const h = 0.039;
+    const centerY = 0.94187;
+    const geom = new THREE.PlaneGeometry(w, h, 1, 1);
+    const pos = geom.attributes.position;
+    const uvs = geom.attributes.uv;
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i) + centerY;
+      const u = 0.249914 + 0.695532 * x;
+      const v = 0.772265 - 0.750895 * y;
+      uvs.setXY(i, u, v);
+    }
+    uvs.needsUpdate = true;
+    return geom;
+  }, []);
+
+  const backHolePatch = useMemo(() => {
+    const w = 0.039;
+    const h = 0.039;
+    const centerY = 0.94187;
+    const geom = new THREE.PlaneGeometry(w, h, 1, 1);
+    geom.rotateY(Math.PI);
+    const pos = geom.attributes.position;
+    const uvs = geom.attributes.uv;
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i) + centerY;
+      const u = 0.750000 - 0.695532 * x;
+      const v = 0.772265 - 0.750895 * y;
+      uvs.setXY(i, u, v);
+    }
+    uvs.needsUpdate = true;
+    return geom;
+  }, []);
+
+  const cardMap = useMemo(() => {
+    const baseMap = materials.base?.map;
+    if (!baseMap) return null;
+    if (!frontImage && !backImage) return baseMap;
+
+    const baseImg = baseMap.image;
+    if (!baseImg) return baseMap;
+    const W = baseImg.width || 1024;
+    const H = baseImg.height || 1024;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return baseMap;
+    ctx.drawImage(baseImg, 0, 0, W, H);
+
+    const drawFitted = (img: HTMLImageElement, rect: { x: number; y: number; w: number; h: number }, isBack: boolean = false) => {
+      if (!img || !img.width || !img.height) return;
+      const rx = rect.x * W;
+      const ry = rect.y * H;
+      const rw = rect.w * W;
+      const rh = rect.h * H;
+
+      if (isLandscape) {
+        const rotationAngle = isBack ? Math.PI / 2 : -Math.PI / 2;
+        const whiteHeaderH = rw * LANDSCAPE_WHITE_RATIO;
+        const contentH = rw - whiteHeaderH;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+        ctx.translate(rx + rw / 2, ry + rh / 2);
+        ctx.rotate(rotationAngle);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(-rh / 2, -rw / 2, rh, rw);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(-rh / 2, -rw / 2, rh, whiteHeaderH);
+
+        const holeW = rh * 0.082;
+        const holeH = whiteHeaderH * 0.38;
+        const holeX = -holeW / 2;
+        const holeY = -rw / 2 + (whiteHeaderH - holeH) / 2;
+        const holeRadius = holeH / 2;
+
+        ctx.save();
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(holeX, holeY, holeW, holeH, holeRadius);
+        } else {
+          ctx.moveTo(holeX + holeRadius, holeY);
+          ctx.lineTo(holeX + holeW - holeRadius, holeY);
+          ctx.quadraticCurveTo(holeX + holeW, holeY, holeX + holeW, holeY + holeRadius);
+          ctx.lineTo(holeX + holeW, holeY + holeH - holeRadius);
+          ctx.quadraticCurveTo(holeX + holeW, holeY + holeH, holeX + holeW - holeRadius, holeY + holeH);
+          ctx.lineTo(holeX + holeRadius, holeY + holeH);
+          ctx.quadraticCurveTo(holeX, holeY + holeH, holeX, holeY + holeH - holeRadius);
+          ctx.lineTo(holeX, holeY + holeRadius);
+          ctx.quadraticCurveTo(holeX, holeY, holeX + holeRadius, holeY);
+          ctx.closePath();
+        }
+        ctx.fillStyle = '#111317';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.drawImage(img, -rh / 2, -rw / 2 + whiteHeaderH, rh, contentH);
+        ctx.restore();
+        return;
+      }
+
+      if (withWhiteHeader) {
+        const whiteHeaderH = rh * PORTRAIT_WHITE_RATIO;
+        const contentH = rh - whiteHeaderH;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(rx, ry, rw, rh);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(rx, ry, rw, whiteHeaderH);
+
+        // Kích thước lỗ elip tăng 30% rồi thêm 15% (tổng cộng x1.495)
+        const holeW = 74.0 * 1.3 * 1.15; // ~110.63
+        const holeH = 30.0 * 1.3 * 1.15; // ~44.85
+        const holeX = rx + (rw - holeW) / 2;
+        const holeY = ry + (whiteHeaderH - holeH) / 2;
+        const holeRadius = holeH / 2;
+
+        ctx.save();
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(holeX, holeY, holeW, holeH, holeRadius);
+        } else {
+          ctx.moveTo(holeX + holeRadius, holeY);
+          ctx.lineTo(holeX + holeW - holeRadius, holeY);
+          ctx.quadraticCurveTo(holeX + holeW, holeY, holeX + holeW, holeY + holeRadius);
+          ctx.lineTo(holeX + holeW, holeY + holeH - holeRadius);
+          ctx.quadraticCurveTo(holeX + holeW, holeY + holeH, holeX + holeW - holeRadius, holeY + holeH);
+          ctx.lineTo(holeX + holeRadius, holeY + holeH);
+          ctx.quadraticCurveTo(holeX, holeY + holeH, holeX, holeY + holeH - holeRadius);
+          ctx.lineTo(holeX, holeY + holeRadius);
+          ctx.quadraticCurveTo(holeX, holeY, holeX + holeRadius, holeY);
+          ctx.closePath();
+        }
+        ctx.fillStyle = '#111317';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.drawImage(img, rx, ry + whiteHeaderH, rw, contentH);
+        ctx.restore();
+        return;
+      }
+
+      if (targetAspect) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+        ctx.drawImage(img, rx, ry, rw, rh);
+        ctx.restore();
+        return;
+      }
+
+      const pick = imageFit === 'contain' ? Math.min : Math.max;
+      const scale = pick(rw / img.width, rh / img.height);
+      const dw = img.width * scale;
+      const dh = img.height * scale;
+      const dx = rx + (rw - dw) / 2;
+      const dy = ry + (rh - dh) / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(rx, ry, rw, rh);
+      ctx.clip();
+      ctx.drawImage(img, dx, dy, dw, dh);
+      ctx.restore();
+    };
+
+    if (frontImage && frontTex?.image) drawFitted(frontTex.image, FRONT_UV_RECT, false);
+    if (backImage && backTex?.image) drawFitted(backTex.image, BACK_UV_RECT, true);
+
+    const composite = new THREE.CanvasTexture(canvas);
+    composite.colorSpace = THREE.SRGBColorSpace;
+    composite.flipY = baseMap.flipY;
+    composite.anisotropy = 16;
+    composite.needsUpdate = true;
+    return composite;
+  }, [frontImage, backImage, imageFit, targetAspect, isLandscape, withWhiteHeader, frontTex, backTex, materials?.base?.map]);
+
+  const [dragged, drag] = useState<any>(false);
+  const [hovered, hover] = useState(false);
+
+  const lastKinematicPos = useRef(new THREE.Vector3());
+  const dragVelocity = useRef(new THREE.Vector3());
+  const pointerDownTime = useRef(0);
+  const pointerDownPos = useRef({ x: 0, y: 0 });
+
+  // Direct spherical joint to the top pivot at [0, 1.5, 0] — starts in static equilibrium at [0, 0, 0]!
+  useSphericalJoint(fixed, card, [
+    [0, 0, 0],
+    [0, 1.5, 0],
+  ]);
+
+  useEffect(() => {
+    if (hovered) {
+      document.body.style.cursor = dragged ? 'grabbing' : 'grab';
+      return () => void (document.body.style.cursor = 'auto');
+    }
+  }, [hovered, dragged]);
+
+  useEffect(() => {
+    if (!dragged) return;
+    const handleRelease = () => {
+      drag(false);
+      if (card.current) {
+        card.current.wakeUp();
+        const speed = dragVelocity.current.length();
+        if (speed > 1.2) {
+          const maxSpeed = 35;
+          const vx = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.x));
+          const vy = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.y));
+          const vz = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.z));
+          card.current.setLinvel({ x: vx, y: vy, z: vz }, true);
+          card.current.applyTorqueImpulse({
+            x: (Math.random() - 0.5) * 3,
+            y: -vx * 0.2,
+            z: -vx * 0.1,
+          }, true);
+        }
+      }
+    };
+    window.addEventListener('pointerup', handleRelease);
+    window.addEventListener('pointercancel', handleRelease);
+    return () => {
+      window.removeEventListener('pointerup', handleRelease);
+      window.removeEventListener('pointercancel', handleRelease);
+    };
+  }, [dragged]);
+
+  const isBackRef = useRef(false);
+  const tempQuatRef = useRef(new THREE.Quaternion());
+  const tempEulerRef = useRef(new THREE.Euler(0, 0, 0, 'YXZ'));
+
+  useEffect(() => {
+    isBackRef.current = false;
+  }, [frontImage]);
+
+  useEffect(() => {
+    const handleFlip = () => {
+      isBackRef.current = !isBackRef.current;
+      const isNowBack = isBackRef.current;
+      const flipDir = isNowBack ? 1 : -1;
+      card.current?.wakeUp();
+      card.current?.setAngvel({
+        x: 0,
+        y: flipDir * 6.0,
+        z: 0,
+      }, true);
+      window.dispatchEvent(new CustomEvent('blvd-card-flipped-state', { detail: { isBack: isNowBack } }));
+    };
+
+    window.addEventListener('blvd-flip-card', handleFlip);
+    return () => window.removeEventListener('blvd-flip-card', handleFlip);
+  }, []);
+
+  useFrame((state, delta) => {
+    if (dragged) {
+      vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
+      dir.copy(vec).sub(state.camera.position).normalize();
+      vec.add(dir.multiplyScalar(state.camera.position.length()));
+      
+      const targetX = vec.x - dragged.x;
+      const targetY = vec.y - dragged.y;
+      const targetZ = vec.z - dragged.z;
+
+      if (delta > 0) {
+        const vx = (targetX - lastKinematicPos.current.x) / delta;
+        const vy = (targetY - lastKinematicPos.current.y) / delta;
+        const vz = (targetZ - lastKinematicPos.current.z) / delta;
+        dragVelocity.current.lerp(new THREE.Vector3(vx, vy, vz), 0.7);
+      }
+      lastKinematicPos.current.set(targetX, targetY, targetZ);
+
+      card.current?.wakeUp();
+      fixed.current?.wakeUp();
+      card.current?.setNextKinematicTranslation({
+        x: targetX,
+        y: targetY,
+        z: targetZ,
+      });
+    }
+    if (fixed.current && card.current) {
+      ang.copy(card.current.angvel());
+      
+      const q = card.current.rotation();
+      tempQuatRef.current.set(q.x, q.y, q.z, q.w);
+      tempEulerRef.current.setFromQuaternion(tempQuatRef.current, 'YXZ');
+      const currentYaw = tempEulerRef.current.y;
+      
+      const targetYaw = isBackRef.current ? Math.PI : 0;
+      const angleDiff = THREE.MathUtils.euclideanModulo(currentYaw - targetYaw + Math.PI, Math.PI * 2) - Math.PI;
+      card.current.setAngvel({ x: ang.x, y: ang.y - angleDiff * 0.42, z: ang.z });
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      <RigidBody ref={fixed} position={[0, 1.5, 0]} colliders={false} type="fixed" />
+      <RigidBody position={[0, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
+        {isLandscape ? (
+          <CuboidCollider 
+            position={[0, 0.3 * cardHeightScaleLandscape, 0]} 
+            args={[1.28 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 0.81 * cardHeightScaleLandscape, 0.01]} 
+          />
+        ) : (
+          <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
+        )}
+        <group
+          ref={cardGroupRef}
+          scale={2.25}
+          position={[0, -1.2, -0.05]}
+          onPointerOver={() => hover(true)}
+          onPointerOut={() => hover(false)}
+          onPointerUp={(e) => {
+            try {
+              (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
+            } catch (err) {}
+            const wasDragged = Boolean(dragged);
+            drag(false);
+
+            const dt = performance.now() - pointerDownTime.current;
+            const dist = Math.hypot(e.clientX - pointerDownPos.current.x, e.clientY - pointerDownPos.current.y);
+
+            if (card.current) {
+              card.current.wakeUp();
+
+              if (dt < 300 && dist < 15) {
+                const clickOffsetX = e.point.x - card.current.translation().x;
+                const swingDir = clickOffsetX > 0 ? -1 : 1;
+                const impulseX = swingDir * (14 + Math.random() * 6);
+                const impulseY = 4 + Math.random() * 3;
+                const impulseZ = (Math.random() - 0.5) * 8;
+
+                card.current.applyImpulse({ x: impulseX, y: impulseY, z: impulseZ }, true);
+                card.current.applyTorqueImpulse({
+                  x: (Math.random() - 0.5) * 4,
+                  y: -swingDir * (7 + Math.random() * 4),
+                  z: swingDir * 2,
+                }, true);
+                return;
+              }
+
+              if (wasDragged) {
+                const speed = dragVelocity.current.length();
+                if (speed > 1.2) {
+                  const maxSpeed = 35;
+                  const vx = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.x));
+                  const vy = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.y));
+                  const vz = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.z));
+
+                  card.current.setLinvel({ x: vx, y: vy, z: vz }, true);
+                  card.current.applyTorqueImpulse({
+                    x: (Math.random() - 0.5) * 3,
+                    y: -vx * 0.2,
+                    z: -vx * 0.1,
+                  }, true);
+                }
+              }
+            }
+          }}
+          onPointerCancel={() => {
+            drag(false);
+            card.current?.wakeUp();
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            try {
+              (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
+            } catch (err) {}
+            pointerDownTime.current = performance.now();
+            pointerDownPos.current = { x: e.clientX, y: e.clientY };
+            dragVelocity.current.set(0, 0, 0);
+
+            const cardTrans = card.current.translation();
+            lastKinematicPos.current.copy(cardTrans);
+            drag(new THREE.Vector3().copy(e.point).sub(vec.copy(cardTrans)));
+          }}
+        >
+          <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, cardPosYPortrait, 0]}>
+            <planeGeometry args={isLandscape ? [2.6 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 1.7 * cardHeightScaleLandscape] : [1.6 * cardScaleX, 2.4]} />
+            <meshBasicMaterial transparent opacity={0} />
+          </mesh>
+          <mesh 
+            geometry={nodes.card.geometry} 
+            scale={isLandscape ? [cardHeightScaleLandscape, cardScaleLandscape, 1] : [cardScaleX, cardHeightScalePortrait, 1]}
+            rotation={isLandscape ? [0, 0, -Math.PI / 2] : [0, 0, 0]}
+            position={isLandscape ? [-0.5229 * cardScaleLandscape, cardPosY, 0] : [0, cardPosYPortrait, 0]}
+          >
+            <meshPhysicalMaterial
+              map={cardMap}
+              map-anisotropy={16}
+              clearcoat={isMobile ? 0 : 1}
+              clearcoatRoughness={0.15}
+              roughness={0.9}
+              metalness={0.8}
+            />
+            {(isLandscape || withWhiteHeader) && (
+              <>
+                <mesh
+                  geometry={frontHolePatch}
+                  position={[0, 0.94187, 0.00542]}
+                >
+                  <meshPhysicalMaterial
+                    map={cardMap}
+                    map-anisotropy={16}
+                    clearcoat={isMobile ? 0 : 1}
+                    clearcoatRoughness={0.15}
+                    roughness={0.9}
+                    metalness={0.8}
+                    polygonOffset
+                    polygonOffsetFactor={-1}
+                    polygonOffsetUnits={-1}
+                  />
+                </mesh>
+                <mesh
+                  geometry={backHolePatch}
+                  position={[0, 0.94187, 0.00135]}
+                >
+                  <meshPhysicalMaterial
+                    map={cardMap}
+                    map-anisotropy={16}
+                    clearcoat={isMobile ? 0 : 1}
+                    clearcoatRoughness={0.15}
+                    roughness={0.9}
+                    metalness={0.8}
+                    polygonOffset
+                    polygonOffsetFactor={-1}
+                    polygonOffsetUnits={-1}
+                  />
+                </mesh>
+              </>
+            )}
+          </mesh>
+          <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+          <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+        </group>
+      </RigidBody>
+    </group>
   );
 }
 

@@ -486,17 +486,14 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           >
             <Lanyard
               key={selectedVnuCard.id}
-              position={[0, 0, 18]}
+              position={[0, 0, 15]}
               gravity={[0, -40, 0]}
               fov={20}
+              showStrap={false}
               orientation={selectedVnuCard.orientation}
               aspectRatio={selectedVnuCard.width / selectedVnuCard.height}
               frontImage={selectedVnuCard.frontUrl}
               backImage={selectedVnuCard.backUrl}
-              lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"
-              lanyardColor={selectedVnuCard.lanyardColor}
-              lanyardWidth={0.65}
-              lanyardRepeat={[-4, 1]}
               withWhiteHeader={true}
               imageFit="cover"
               transparent={true}
@@ -527,9 +524,8 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               frontImage={selectedMajor.frontUrl}
               backImage={selectedMajor.backUrl}
               lanyardImage="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&w=1200&q=80"
-              lanyardColor="#1B3B6F"
+              lanyardColor="white"
               lanyardWidth={0.65}
-              lanyardRepeat={[-4, 1]}
               imageFit="cover"
               transparent={true}
               className="w-full h-[74vh] sm:h-[78vh] md:h-[82vh] lg:h-[86vh]"

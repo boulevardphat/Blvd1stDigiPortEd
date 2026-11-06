@@ -5478,6 +5478,47 @@ Chi tiết thực hiện:
      - Linter: 0 errors (npm run lint).
      - Production build: Thành công (compile_applet & lint_applet).
 
+================================================================================
+LẦN 145: ĐỔI MÀU DÂY THẺ CHV VỀ TRẮNG, DÙNG VÂN SẴN CHO 9 THẺ VÀ TĂNG ZOOM VNU30 (PAKVARD)
+================================================================================
+Thời điểm: Turn 145
+Mô tả yêu cầu người dùng:
+  1. Dây thẻ CHV cho về màu trắng.
+  2. Ở cả 9 thẻ: không ép lặp vân dệt, sử dụng vân sẵn (`[-1, 1]`) như ban đầu.
+  3. VNU30: Tăng độ zoom mặc định để tập trung vào phôi thẻ.
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Dây thẻ CHV về màu trắng:
+     - Cập nhật `lanyardColor="white"` cho thẻ CHV trong `ReimaginedIntroScreen.tsx`.
+  2. Sử dụng vân sẵn cho cả 9 thẻ:
+     - Khôi phục `strapRepeat` mặc định `[-1, 1]` trong `Lanyard.tsx` khi có `lanyardImage`.
+     - Loại bỏ thuộc tính `lanyardRepeat={[-4, 1]}` ở cả 8 thẻ VNU30 và 1 thẻ CHV trong `ReimaginedIntroScreen.tsx`, giữ vân texture nguyên bản.
+  3. Tăng độ zoom mặc định cho VNU30:
+     - Cập nhật `position={[0, 0, 15]}` cho thẻ VNU30 (thay vì 18), đưa camera lại gần hơn để phôi thẻ hiển thị lớn, chi tiết và sắc nét ở trung tâm khung hình.
+     - Cập nhật sàn zoom di động `defaultZ` trong `Lanyard.tsx` từ 16.5 xuống 15.5 để tỷ lệ zoom phôi thẻ trên thiết bị di động đồng đều và tập trung vào phôi thẻ.
+  4. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).
+
+================================================================================
+LẦN 146: TĂNG KÍCH THƯỚC LỖ ELIP TRÊN 2 THẺ DỌC VNU30 LÊN 30% (PAKVARD)
+================================================================================
+Thời điểm: Turn 146
+Mô tả yêu cầu người dùng:
+  - Lỗ elip của 2 thẻ dọc còn bé, tăng kích thước tổng thể lên 30%.
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Tăng kích thước rãnh lỗ elip trên thẻ dọc:
+     - Cập nhật `holeW = 74.0 * 1.3` (~96.2) và `holeH = 30.0 * 1.3` (~39.0) trong `Lanyard.tsx`.
+     - Lỗ elip trên 2 thẻ dọc (USSH, UEL) giờ đây lớn hơn 30%, cân đối và hài hòa với tỉ lệ tổng thể của thẻ dọc.
+  2. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).
 
 
 
@@ -5488,3 +5529,36 @@ Chi tiết thực hiện:
 
 
 
+
+
+================================================================================
+LẦN 147: BỎ DÂY ĐEO CHO VNU30, GIỮ LẠI MÓC, BỎ HOẠT ẢNH RƠI VÀ TĂNG LỖ ELIP THẺ DỌC THÊM 15% (PAKVARD)
+================================================================================
+Thời điểm: Turn 147
+Mô tả yêu cầu người dùng:
+  1. Thẻ VNU30 có lật thẻ nên bỏ luôn dây đeo thẻ, chừa lại cái "móc" thôi.
+  2. Lúc render thì bỏ luôn hoạt ảnh rơi từ trên xuống, render xong là hiện thẻ và móc ở giữa luôn.
+  3. Tăng kích thước lỗ elip của 2 thẻ dọc lên thêm 15%.
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Loại bỏ dây đeo, giữ lại cụm móc kim loại cho 8 thẻ VNU30:
+     - Thêm thuộc tính `showStrap?: boolean` (mặc định `true`) trong `Lanyard.tsx`.
+     - Với `showStrap={false}`, sử dụng component chuyên biệt `CardOnly`:
+       + Giữ nguyên đầy đủ cụm móc kẹp kim loại gồm `nodes.clip` và `nodes.clamp`.
+       + Loại bỏ mesh dây đeo `band` và các khớp nối dây `j1, j2, j3`.
+     - Thiết lập `showStrap={false}` cho thẻ VNU30 trong `ReimaginedIntroScreen.tsx`.
+  2. Bỏ hoàn toàn hoạt ảnh rơi từ trên xuống:
+     - Đặt neo cố định `fixed` ở `[0, 1.5, 0]` và phôi thẻ `card` ở vị trí cân bằng tĩnh `[0, 0, 0]` với khoảng cách joint bằng 0.
+     - Khi render, thẻ cùng móc xuất hiện ngay chính giữa màn hình mà không bị thả rơi 4 đơn vị từ trên cao xuống.
+     - Giữ nguyên toàn bộ tương tác vật lý: kéo rê (drag), quăng thả (flick), chạm xung lực (tap impulse) và lật 180° xem mặt trước / mặt sau.
+  3. Tăng kích thước lỗ elip trên 2 thẻ dọc thêm 15%:
+     - Tăng thêm 15% trên nền kích thước đã tăng 30%:
+       `holeW = 74.0 * 1.3 * 1.15 ≈ 110.63`
+       `holeH = 30.0 * 1.3 * 1.15 ≈ 44.85`
+     - Áp dụng đồng bộ cho cả `Band` và `CardOnly`.
+  4. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).
