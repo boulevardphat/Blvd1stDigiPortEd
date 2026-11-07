@@ -5562,3 +5562,53 @@ Chi tiết thực hiện:
   4. Kiểm tra chất lượng:
      - Linter: 0 errors (npm run lint).
      - Production build: Thành công (compile_applet & lint_applet).
+================================================================================
+LẦN 148: KHẮC PHỤC LỖI LỘN MẶT THẺ CHV VÀ CHUYỂN TƯƠNG TÁC VNU30 SANG CHẠM BẬT NẢY (PAKVARD)
+================================================================================
+Thời điểm: Turn 148
+Mô tả yêu cầu người dùng:
+  1. Thẻ CHV bị lộn mặt trước mặt sau, yêu cầu fix lại.
+  2. Cả 8 thẻ VNU30: Bỏ các cơ chế tương tác liên quan đến kéo rê, chỉ giữ lại thao tác chạm (tap/click) để thẻ bật lại.
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Khắc phục triệt để lỗi lộn mặt thẻ CHV:
+     - Phân định sự kiện lật thẻ theo từng zone (`zone="zone-vnu30"` và `zone="zone-chv"`), ngăn chặn sự kiện lật toàn cục khiến thẻ CHV bị lật sang mặt sau ngoài ý muốn khi người dùng lật thẻ VNU30 ở Zone 2.
+     - Cập nhật vị trí thả rơi ban đầu của dây đeo thẻ CHV trong `Band` theo phương thẳng đứng (`fixed: [0, 4, 0]`, `j1: [0, -0.6, 0]`, `j2: [0, -1.2, 0]`, `j3: [0, -1.8, 0]`, `card: [0, -3.3, 0]`), triệt tiêu hiện tượng văng xoắn 180 độ quanh trục Y khi rơi tự do.
+     - Tự động đặt lại mặt trước (`isBack = false`) mỗi khi chuyển đổi qua lại giữa các zone hoặc giữa các môn chuyên.
+     - Mở rộng nút lật mặt trước/mặt sau hỗ trợ cho cả Zone 2 (VNU30) và Zone 3 (CHV).
+  2. Chuyển đổi tương tác thẻ VNU30 (8 thẻ) sang tương tác chạm bật nảy (tap-to-bounce):
+     - Loại bỏ hoàn toàn cơ chế kéo rê (drag) chuột/ngón tay, bỏ các listener drag trên window, đặt phôi thẻ cố định ở chế độ dynamic tự nhiên.
+     - Thêm xử lý chạm (tap/click) vào thẻ: tính toán tọa độ click trên bề mặt thẻ để áp dụng lực đẩy `applyImpulse` và mô-men xoắn `applyTorqueImpulse` theo hướng tự nhiên (văng nhẹ theo phương bấm, giật lùi vào không gian 3D và đung đưa đàn hồi bật lại vị trí cân bằng).
+     - Đổi con trỏ chuột sang `pointer` thay vì `grab/grabbing`.
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).
+
+================================================================================
+LẦN 149: ĐIỀU CHỈNH XUNG LỰC VẬT LÝ VÀ DAMPING CHO THAO TÁC CHẠM THẺ VNU30 (PAKVARD)
+================================================================================
+Thời điểm: Turn 149
+Mô tả yêu cầu người dùng:
+  - Thẻ VNU30 khi chạm hoặc click vô bị bay tán loạn, yêu cầu điều chỉnh lại.
+Files ảnh hưởng:
+  - /src/components/Lanyard.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Giảm mạnh biên độ xung lực bật nảy về mức tự nhiên, êm dịu:
+     - Trước đó các chỉ số impulse (12-18) và torque impulse (6-8) quá lớn so với khối lượng nhẹ của phôi thẻ trong Rapier (~0.07kg), dẫn tới vận tốc tức thời quá cao khiến thẻ quay vòng tròn tốc độ cao.
+     - Điều chỉnh lại các chỉ số xung lực:
+       + `impulseX`: giảm từ 12-18 xuống `0.85` (văng nhẹ sang trái/phải theo vị trí click).
+       + `impulseY`: giảm xuống `0.15` (nảy nhẹ theo phương đứng).
+       + `impulseZ`: giảm từ -12 xuống `-1.35` (đẩy lùi vừa đủ vào chiều sâu 3D).
+       + `torqueImpulse`: giảm x10 lần (`torque.y` còn `0.45`, `torque.z` còn `0.18`, `torque.x` còn `0.25`).
+  2. Bổ sung cơ chế giảm chấn (damping) và giới hạn vận tốc an toàn:
+     - Tăng `linearDamping` và `angularDamping` từ 4 lên 6 trong `segmentProps`.
+     - Đặt khối lượng quy chuẩn `mass={0.5}` trên `CuboidCollider`.
+     - Trong `useFrame`: Giới hạn góc quay trục X/Z (`clampedX`, `clampedZ` tối đa 4.0 rad/s kèm hệ số tiêu tán 0.95), đồng thời khống chế trần vận tốc dài tối đa 5.0 đơn vị/giây để thẻ tuyệt đối không thể văng tán loạn hay mất kiểm soát.
+     - Thêm khoảng nghỉ chống spam click liên tục (`lastTapTime` 250ms).
+  3. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).

@@ -25,20 +25,23 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
   const [cdCaseOpen, setCdCaseOpen] = useState(false);
   const [isCardBack, setIsCardBack] = useState(false);
 
+  const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-vnu30', 'zone-chv', 'zone-ussh', 'zone-cd'];
+  const activeZone = REIMAGINED_ZONES[activeZoneIndex];
+
   useEffect(() => {
     const onCardFlipped = (e: any) => {
-      setIsCardBack(!!e.detail?.isBack);
+      if (!e.detail?.zone || e.detail.zone === activeZone) {
+        setIsCardBack(!!e.detail?.isBack);
+      }
     };
     window.addEventListener('blvd-card-flipped-state', onCardFlipped);
     return () => window.removeEventListener('blvd-card-flipped-state', onCardFlipped);
-  }, []);
+  }, [activeZone]);
 
   useEffect(() => {
     setIsCardBack(false);
-  }, [selectedVnuCard]);
-
-  const REIMAGINED_ZONES: ReimaginedZone[] = ['zone-main', 'zone-vnu30', 'zone-chv', 'zone-ussh', 'zone-cd'];
-  const activeZone = REIMAGINED_ZONES[activeZoneIndex];
+    window.dispatchEvent(new CustomEvent('blvd-reset-card-face'));
+  }, [selectedVnuCard, selectedMajor, activeZone]);
 
   const isTransitioningRef = useRef(false);
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -276,17 +279,17 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </button>
       )}
 
-      {/* Nút lật mặt trước / mặt sau của THẺ SINH VIÊN ĐHQGHCM KỈ NIỆM 30 NĂM */}
-      {activeZone === 'zone-vnu30' && (
+      {/* Nút lật mặt trước / mặt sau của THẺ VNU30 & THẺ CHV */}
+      {(activeZone === 'zone-vnu30' || activeZone === 'zone-chv') && (
         <div
-          id="vnu30-flip-card-controls"
+          id="reimagined-flip-card-controls"
           className="fixed bottom-14 md:bottom-18 inset-x-0 z-50 flex items-center justify-center select-none pointer-events-auto"
         >
           <button
             type="button"
-            id="btn-vnu30-flip-card"
+            id="btn-reimagined-flip-card"
             onClick={() => {
-              window.dispatchEvent(new CustomEvent('blvd-flip-card'));
+              window.dispatchEvent(new CustomEvent('blvd-flip-card', { detail: { zone: activeZone } }));
             }}
             className="font-archivo font-normal normal-case text-xs md:text-sm tracking-normal text-white/50 hover:text-white transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none select-none rounded-none"
             title={isEn ? 'Flip card front/back' : 'Lật mặt trước/sau'}
@@ -486,6 +489,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           >
             <Lanyard
               key={selectedVnuCard.id}
+              zone="zone-vnu30"
               position={[0, 0, 15]}
               gravity={[0, -40, 0]}
               fov={20}
@@ -516,6 +520,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           >
             <Lanyard
               key={selectedMajor.id}
+              zone="zone-chv"
               position={[0, 0, 18]}
               gravity={[0, -40, 0]}
               fov={20}

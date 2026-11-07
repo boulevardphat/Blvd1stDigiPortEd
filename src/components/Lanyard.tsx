@@ -44,6 +44,7 @@ export interface LanyardProps {
   lanyardColor?: string;
   withWhiteHeader?: boolean;
   showStrap?: boolean;
+  zone?: string;
   className?: string;
   enableZoom?: boolean;
   minZoomZ?: number;
@@ -74,6 +75,7 @@ export default function Lanyard({
   lanyardColor = 'white',
   withWhiteHeader = false,
   showStrap = true,
+  zone,
   className = '',
   enableZoom = true,
   minZoomZ = 9,
@@ -156,6 +158,7 @@ export default function Lanyard({
                 lanyardRepeat={lanyardRepeat}
                 lanyardColor={lanyardColor}
                 withWhiteHeader={withWhiteHeader}
+                zone={zone}
               />
             ) : (
               <CardOnly
@@ -167,6 +170,7 @@ export default function Lanyard({
                 aspectRatio={aspectRatio}
                 orientation={orientation}
                 withWhiteHeader={withWhiteHeader}
+                zone={zone}
               />
             )}
           </Physics>
@@ -260,6 +264,7 @@ interface BandProps {
   lanyardRepeat?: [number, number];
   lanyardColor?: string;
   withWhiteHeader?: boolean;
+  zone?: string;
 }
 
 function Band({
@@ -277,6 +282,7 @@ function Band({
   lanyardRepeat,
   lanyardColor = 'white',
   withWhiteHeader = false,
+  zone,
 }: BandProps) {
   const band = useRef<any>(null),
     fixed = useRef<any>(null),
@@ -652,7 +658,17 @@ function Band({
   }, [frontImage]);
 
   useEffect(() => {
-    const handleFlip = () => {
+    const handleResetFace = (e: any) => {
+      if (!e.detail?.zone || e.detail.zone === zone) {
+        isBackRef.current = false;
+        [card, j1, j2, j3].forEach((r) => r.current?.wakeUp());
+      }
+    };
+
+    const handleFlip = (e: any) => {
+      if (zone && e.detail?.zone && e.detail.zone !== zone) {
+        return;
+      }
       isBackRef.current = !isBackRef.current;
       const isNowBack = isBackRef.current;
       const flipDir = isNowBack ? 1 : -1;
@@ -663,12 +679,16 @@ function Band({
         y: flipDir * 5.2,
         z: 0,
       }, true);
-      window.dispatchEvent(new CustomEvent('blvd-card-flipped-state', { detail: { isBack: isNowBack } }));
+      window.dispatchEvent(new CustomEvent('blvd-card-flipped-state', { detail: { isBack: isNowBack, zone } }));
     };
 
     window.addEventListener('blvd-flip-card', handleFlip);
-    return () => window.removeEventListener('blvd-flip-card', handleFlip);
-  }, []);
+    window.addEventListener('blvd-reset-card-face', handleResetFace);
+    return () => {
+      window.removeEventListener('blvd-flip-card', handleFlip);
+      window.removeEventListener('blvd-reset-card-face', handleResetFace);
+    };
+  }, [zone]);
 
   useFrame((state, delta) => {
     if (dragged) {
@@ -738,16 +758,16 @@ function Band({
     <>
       <group position={[0, 4, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
+        <RigidBody position={[0, -0.6, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
+        <RigidBody position={[0, -1.2, 0]} ref={j2} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
+        <RigidBody position={[0, -1.8, 0]} ref={j3} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
+        <RigidBody position={[0, -3.3, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
           {isLandscape ? (
             <CuboidCollider 
               position={[0, 0.3 * cardHeightScaleLandscape, 0]} 
@@ -919,6 +939,7 @@ interface CardOnlyProps {
   aspectRatio?: number;
   orientation?: 'portrait' | 'landscape';
   withWhiteHeader?: boolean;
+  zone?: string;
 }
 
 function CardOnly({
@@ -930,13 +951,13 @@ function CardOnly({
   aspectRatio,
   orientation = 'portrait',
   withWhiteHeader = false,
+  zone,
 }: CardOnlyProps) {
   const fixed = useRef<any>(null),
     card = useRef<any>(null);
-  const vec = useRef(new THREE.Vector3()).current,
-    ang = useRef(new THREE.Vector3()).current,
-    dir = useRef(new THREE.Vector3()).current;
-  const segmentProps: any = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
+  const ang = useRef(new THREE.Vector3()).current;
+  const lastTapTime = useRef(0);
+  const segmentProps: any = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 6, linearDamping: 6 };
   const { nodes, materials } = useGLTF(cardGLB) as any;
   const frontTex = useTexture(frontImage || BLANK_PIXEL) as any;
   const backTex = useTexture(backImage || BLANK_PIXEL) as any;
@@ -1195,13 +1216,7 @@ function CardOnly({
     return composite;
   }, [frontImage, backImage, imageFit, targetAspect, isLandscape, withWhiteHeader, frontTex, backTex, materials?.base?.map]);
 
-  const [dragged, drag] = useState<any>(false);
   const [hovered, hover] = useState(false);
-
-  const lastKinematicPos = useRef(new THREE.Vector3());
-  const dragVelocity = useRef(new THREE.Vector3());
-  const pointerDownTime = useRef(0);
-  const pointerDownPos = useRef({ x: 0, y: 0 });
 
   // Direct spherical joint to the top pivot at [0, 1.5, 0] — starts in static equilibrium at [0, 0, 0]!
   useSphericalJoint(fixed, card, [
@@ -1211,39 +1226,10 @@ function CardOnly({
 
   useEffect(() => {
     if (hovered) {
-      document.body.style.cursor = dragged ? 'grabbing' : 'grab';
+      document.body.style.cursor = 'pointer';
       return () => void (document.body.style.cursor = 'auto');
     }
-  }, [hovered, dragged]);
-
-  useEffect(() => {
-    if (!dragged) return;
-    const handleRelease = () => {
-      drag(false);
-      if (card.current) {
-        card.current.wakeUp();
-        const speed = dragVelocity.current.length();
-        if (speed > 1.2) {
-          const maxSpeed = 35;
-          const vx = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.x));
-          const vy = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.y));
-          const vz = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.z));
-          card.current.setLinvel({ x: vx, y: vy, z: vz }, true);
-          card.current.applyTorqueImpulse({
-            x: (Math.random() - 0.5) * 3,
-            y: -vx * 0.2,
-            z: -vx * 0.1,
-          }, true);
-        }
-      }
-    };
-    window.addEventListener('pointerup', handleRelease);
-    window.addEventListener('pointercancel', handleRelease);
-    return () => {
-      window.removeEventListener('pointerup', handleRelease);
-      window.removeEventListener('pointercancel', handleRelease);
-    };
-  }, [dragged]);
+  }, [hovered]);
 
   const isBackRef = useRef(false);
   const tempQuatRef = useRef(new THREE.Quaternion());
@@ -1254,7 +1240,17 @@ function CardOnly({
   }, [frontImage]);
 
   useEffect(() => {
-    const handleFlip = () => {
+    const handleResetFace = (e: any) => {
+      if (!e.detail?.zone || e.detail.zone === zone) {
+        isBackRef.current = false;
+        card.current?.wakeUp();
+      }
+    };
+
+    const handleFlip = (e: any) => {
+      if (zone && e.detail?.zone && e.detail.zone !== zone) {
+        return;
+      }
       isBackRef.current = !isBackRef.current;
       const isNowBack = isBackRef.current;
       const flipDir = isNowBack ? 1 : -1;
@@ -1264,42 +1260,25 @@ function CardOnly({
         y: flipDir * 6.0,
         z: 0,
       }, true);
-      window.dispatchEvent(new CustomEvent('blvd-card-flipped-state', { detail: { isBack: isNowBack } }));
+      window.dispatchEvent(new CustomEvent('blvd-card-flipped-state', { detail: { isBack: isNowBack, zone } }));
     };
 
     window.addEventListener('blvd-flip-card', handleFlip);
-    return () => window.removeEventListener('blvd-flip-card', handleFlip);
-  }, []);
+    window.addEventListener('blvd-reset-card-face', handleResetFace);
+    return () => {
+      window.removeEventListener('blvd-flip-card', handleFlip);
+      window.removeEventListener('blvd-reset-card-face', handleResetFace);
+    };
+  }, [zone]);
 
-  useFrame((state, delta) => {
-    if (dragged) {
-      vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
-      dir.copy(vec).sub(state.camera.position).normalize();
-      vec.add(dir.multiplyScalar(state.camera.position.length()));
-      
-      const targetX = vec.x - dragged.x;
-      const targetY = vec.y - dragged.y;
-      const targetZ = vec.z - dragged.z;
-
-      if (delta > 0) {
-        const vx = (targetX - lastKinematicPos.current.x) / delta;
-        const vy = (targetY - lastKinematicPos.current.y) / delta;
-        const vz = (targetZ - lastKinematicPos.current.z) / delta;
-        dragVelocity.current.lerp(new THREE.Vector3(vx, vy, vz), 0.7);
-      }
-      lastKinematicPos.current.set(targetX, targetY, targetZ);
-
-      card.current?.wakeUp();
-      fixed.current?.wakeUp();
-      card.current?.setNextKinematicTranslation({
-        x: targetX,
-        y: targetY,
-        z: targetZ,
-      });
-    }
+  useFrame(() => {
     if (fixed.current && card.current) {
       ang.copy(card.current.angvel());
       
+      const maxAng = 4.0;
+      const clampedX = Math.max(-maxAng, Math.min(maxAng, ang.x));
+      const clampedZ = Math.max(-maxAng, Math.min(maxAng, ang.z));
+
       const q = card.current.rotation();
       tempQuatRef.current.set(q.x, q.y, q.z, q.w);
       tempEulerRef.current.setFromQuaternion(tempQuatRef.current, 'YXZ');
@@ -1307,21 +1286,29 @@ function CardOnly({
       
       const targetYaw = isBackRef.current ? Math.PI : 0;
       const angleDiff = THREE.MathUtils.euclideanModulo(currentYaw - targetYaw + Math.PI, Math.PI * 2) - Math.PI;
-      card.current.setAngvel({ x: ang.x, y: ang.y - angleDiff * 0.42, z: ang.z });
+      card.current.setAngvel({ x: clampedX * 0.95, y: ang.y - angleDiff * 0.35, z: clampedZ * 0.95 });
+
+      const lv = card.current.linvel();
+      const speed = Math.hypot(lv.x, lv.y, lv.z);
+      if (speed > 5) {
+        const scale = 5 / speed;
+        card.current.setLinvel({ x: lv.x * scale, y: lv.y * scale, z: lv.z * scale }, true);
+      }
     }
   });
 
   return (
     <group position={[0, 0, 0]}>
       <RigidBody ref={fixed} position={[0, 1.5, 0]} colliders={false} type="fixed" />
-      <RigidBody position={[0, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
+      <RigidBody position={[0, 0, 0]} ref={card} {...segmentProps} type="dynamic">
         {isLandscape ? (
           <CuboidCollider 
+            mass={0.5}
             position={[0, 0.3 * cardHeightScaleLandscape, 0]} 
             args={[1.28 * (targetAspect ? targetAspect / DEFAULT_LANDSCAPE_ASPECT : 1), 0.81 * cardHeightScaleLandscape, 0.01]} 
           />
         ) : (
-          <CuboidCollider args={[0.8 * cardScaleX, 1.125, 0.01]} />
+          <CuboidCollider mass={0.5} args={[0.8 * cardScaleX, 1.125, 0.01]} />
         )}
         <group
           ref={cardGroupRef}
@@ -1329,69 +1316,32 @@ function CardOnly({
           position={[0, -1.2, -0.05]}
           onPointerOver={() => hover(true)}
           onPointerOut={() => hover(false)}
-          onPointerUp={(e) => {
-            try {
-              (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
-            } catch (err) {}
-            const wasDragged = Boolean(dragged);
-            drag(false);
-
-            const dt = performance.now() - pointerDownTime.current;
-            const dist = Math.hypot(e.clientX - pointerDownPos.current.x, e.clientY - pointerDownPos.current.y);
-
-            if (card.current) {
-              card.current.wakeUp();
-
-              if (dt < 300 && dist < 15) {
-                const clickOffsetX = e.point.x - card.current.translation().x;
-                const swingDir = clickOffsetX > 0 ? -1 : 1;
-                const impulseX = swingDir * (14 + Math.random() * 6);
-                const impulseY = 4 + Math.random() * 3;
-                const impulseZ = (Math.random() - 0.5) * 8;
-
-                card.current.applyImpulse({ x: impulseX, y: impulseY, z: impulseZ }, true);
-                card.current.applyTorqueImpulse({
-                  x: (Math.random() - 0.5) * 4,
-                  y: -swingDir * (7 + Math.random() * 4),
-                  z: swingDir * 2,
-                }, true);
-                return;
-              }
-
-              if (wasDragged) {
-                const speed = dragVelocity.current.length();
-                if (speed > 1.2) {
-                  const maxSpeed = 35;
-                  const vx = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.x));
-                  const vy = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.y));
-                  const vz = Math.max(-maxSpeed, Math.min(maxSpeed, dragVelocity.current.z));
-
-                  card.current.setLinvel({ x: vx, y: vy, z: vz }, true);
-                  card.current.applyTorqueImpulse({
-                    x: (Math.random() - 0.5) * 3,
-                    y: -vx * 0.2,
-                    z: -vx * 0.1,
-                  }, true);
-                }
-              }
-            }
-          }}
-          onPointerCancel={() => {
-            drag(false);
-            card.current?.wakeUp();
-          }}
           onPointerDown={(e) => {
             e.stopPropagation();
-            try {
-              (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
-            } catch (err) {}
-            pointerDownTime.current = performance.now();
-            pointerDownPos.current = { x: e.clientX, y: e.clientY };
-            dragVelocity.current.set(0, 0, 0);
+            if (!card.current) return;
 
-            const cardTrans = card.current.translation();
-            lastKinematicPos.current.copy(cardTrans);
-            drag(new THREE.Vector3().copy(e.point).sub(vec.copy(cardTrans)));
+            const now = performance.now();
+            if (now - lastTapTime.current < 250) return;
+            lastTapTime.current = now;
+
+            card.current.wakeUp();
+
+            const trans = card.current.translation();
+            const clickOffsetX = (e.point?.x ?? trans.x) - trans.x;
+            const clickOffsetY = (e.point?.y ?? trans.y) - trans.y;
+            const swingDir = clickOffsetX > 0 ? -1 : 1;
+
+            // Xung lực bật nảy vừa phải, tự nhiên: lùi nhẹ vào không gian 3D, nghiêng nhẹ theo điểm click
+            const impulseX = swingDir * 0.85;
+            const impulseY = 0.15;
+            const impulseZ = -1.35;
+
+            card.current.applyImpulse({ x: impulseX, y: impulseY, z: impulseZ }, true);
+            card.current.applyTorqueImpulse({
+              x: (clickOffsetY || 0.1) * 0.25,
+              y: -swingDir * 0.45,
+              z: swingDir * 0.18,
+            }, true);
           }}
         >
           <mesh visible={false} position={isLandscape ? [0, cardPosY, 0] : [0, cardPosYPortrait, 0]}>
