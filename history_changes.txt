@@ -5612,3 +5612,32 @@ Chi tiết thực hiện:
   3. Kiểm tra chất lượng:
      - Linter: 0 errors (npm run lint).
      - Production build: Thành công (compile_applet & lint_applet).
+
+================================================================================
+LẦN 150: BỔ SUNG ĐƯỜNG VIỀN MỎNG BAO QUANH 3 KHU VỰC 3D VÀ 2 MŨI TÊN CHUYỂN ZONE KHÔNG ĐÓNG KHUNG (PAKVARD)
+================================================================================
+Thời điểm: Turn 150
+Mô tả yêu cầu người dùng:
+  - Khắc phục điểm yếu khó chuyển đổi giữa các zone khi thao tác với mô hình 3D.
+  - Trừ thư chúc mừng (USSH), kẻ một đường rất mỏng bao quanh 3 model 3D còn lại (VNU30, CHV, CD Jewel case) để người dùng nhận biết rõ khu vực có thể thao tác 3D.
+  - Bổ sung 2 mũi tên lên/xuống không đóng khung để bấm chuyển zone khi cần.
+Files ảnh hưởng:
+  - /src/components/ReimaginedIntroScreen.tsx
+  - /history_changes.txt
+Chi tiết thực hiện:
+  1. Kẻ đường viền mỏng bao quanh 3 mô hình 3D (trừ Thư chúc mừng):
+     - Xác định rõ ranh giới khu vực tương tác 3D với viền mỏng tinh tế (`border border-white/15 rounded-none`), kích thước chuẩn `w-[92vw] max-w-5xl h-[74vh] sm:h-[78vh] md:h-[82vh]`:
+       + Zone 2 (VNU30 Student Card): `#vnu30-3d-lanyard-container`
+       + Zone 3 (CHV Student Badge): `#chv-3d-lanyard-container`
+       + Zone 5 (CD Jewel Case): `#cd-jewel-case-container`
+     - Zone 4 (Thư chúc mừng USSH): Giữ nguyên không kẻ viền theo đúng yêu cầu ("trừ thư chúc mừng").
+     - Nhờ giới hạn này, khu vực ngoài khung viền (lề trên/dưới/trái/phải) trở thành vùng cuộn an toàn, người dùng dễ dàng lướt chuột/vuốt cảm ứng để chuyển zone mà không bị canvas 3D chiếm quyền sự kiện.
+  2. Bổ sung 2 mũi tên trên/xuống không đóng khung:
+     - Đặt tại vị trí cố định mép phải màn hình: `#reimagined-zone-nav-arrows` (`fixed right-4 md:right-7 top-1/2 -translate-y-1/2 z-[60]`).
+     - Thiết kế chuẩn thẩm mỹ Boulevard1st: hoàn toàn không đóng khung (`bg-transparent border-none p-1.5 outline-none rounded-none`), icon `ChevronUp` và `ChevronDown` thanh mảnh (`stroke-[1.25] text-white/35 hover:text-white`).
+     - Tự động khóa / mờ nút khi ở đầu hoặc cuối danh sách zone (`activeZoneIndex === 0` khóa nút lên, `activeZoneIndex === 4` khóa nút xuống).
+  3. Bổ sung điều hướng bàn phím (ArrowUp/ArrowDown, PageUp/PageDown) chuyển đổi tức thời giữa các zone.
+  4. Kiểm tra chất lượng:
+     - Linter: 0 errors (npm run lint).
+     - Production build: Thành công (compile_applet & lint_applet).
+

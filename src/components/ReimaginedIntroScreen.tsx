@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AppLanguage } from '../types';
 import Lanyard from './Lanyard';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { CHV_MAJOR_BADGES, ChvMajorBadge, REIMAGINED_PROJECTS, VNU30_STUDENT_CARDS, Vnu30StudentCard } from '../data/chvBadges';
 import { UsshDocumentViewer, UsshFoldState } from './UsshDocumentViewer';
 import { CDJewelCaseViewer } from './CDJewelCaseViewer';
@@ -159,6 +160,26 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
       container.removeEventListener('touchstart', onTouchStart);
       container.removeEventListener('touchend', onTouchEnd);
     };
+  }, [activeZoneIndex, goToZone]);
+
+  // Phím mũi tên lên/xuống và PageUp/PageDown hỗ trợ chuyển zone tức thời
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (['ArrowDown', 'PageDown'].includes(e.key)) {
+        if (activeZoneIndex < 4) {
+          e.preventDefault();
+          goToZone(activeZoneIndex + 1);
+        }
+      } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+        if (activeZoneIndex > 0) {
+          e.preventDefault();
+          goToZone(activeZoneIndex - 1);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [activeZoneIndex, goToZone]);
 
   return (
@@ -436,6 +457,42 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
         </div>
       )}
 
+      {/* 2 mũi tên trên xuống không đóng khung (Boulevard1st rounded-none, unframed) */}
+      <div 
+        id="reimagined-zone-nav-arrows"
+        className="fixed right-4 md:right-7 top-1/2 -translate-y-1/2 z-[60] flex flex-col items-center gap-5 sm:gap-6 pointer-events-auto select-none"
+      >
+        <button
+          type="button"
+          id="btn-zone-nav-prev"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (activeZoneIndex > 0) goToZone(activeZoneIndex - 1);
+          }}
+          disabled={activeZoneIndex === 0}
+          className="group bg-transparent border-none p-1.5 outline-none rounded-none text-white/35 hover:text-white disabled:opacity-10 disabled:pointer-events-none transition-colors duration-200 cursor-pointer flex items-center justify-center"
+          aria-label={isEn ? 'Previous zone' : 'Vùng trước'}
+          title={isEn ? 'Previous zone' : 'Vùng trước'}
+        >
+          <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.25] transition-transform duration-200 group-hover:-translate-y-0.5" />
+        </button>
+
+        <button
+          type="button"
+          id="btn-zone-nav-next"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (activeZoneIndex < 4) goToZone(activeZoneIndex + 1);
+          }}
+          disabled={activeZoneIndex === 4}
+          className="group bg-transparent border-none p-1.5 outline-none rounded-none text-white/35 hover:text-white disabled:opacity-10 disabled:pointer-events-none transition-colors duration-200 cursor-pointer flex items-center justify-center"
+          aria-label={isEn ? 'Next zone' : 'Vùng kế tiếp'}
+          title={isEn ? 'Next zone' : 'Vùng kế tiếp'}
+        >
+          <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.25] transition-transform duration-200 group-hover:translate-y-0.5" />
+        </button>
+      </div>
+
       {/* CONTAINER TRƯỢT 5 ZONE DỌC TỪNG ZONE MỘT (chuẩn #blvd) */}
       <div 
         id="reimagined-zones-slider"
@@ -482,10 +539,10 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           id="reimagined-zone-vnu30"
           className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex flex-col items-center justify-center overflow-hidden"
         >
-          {/* Model 3D Lanyard: Lỗ xỏ & tỷ lệ chuẩn kích thước 5001x3156, tự động nhận diện dọc / ngang */}
+          {/* Model 3D Lanyard: Khung viền rất mỏng bao quanh khu vực thao tác 3D */}
           <div 
             id="vnu30-3d-lanyard-container"
-            className="w-full h-full flex items-center justify-center relative select-none"
+            className="w-[92vw] max-w-5xl h-[74vh] sm:h-[78vh] md:h-[82vh] border border-white/15 relative rounded-none flex items-center justify-center overflow-hidden select-none"
           >
             <Lanyard
               key={selectedVnuCard.id}
@@ -501,7 +558,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               withWhiteHeader={true}
               imageFit="cover"
               transparent={true}
-              className="w-full h-[74vh] sm:h-[78vh] md:h-[82vh] lg:h-[86vh]"
+              className="w-full h-full"
             />
           </div>
         </section>
@@ -513,10 +570,10 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           id="reimagined-zone-chv"
           className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex flex-col items-center justify-center overflow-hidden"
         >
-          {/* Model 3D Lanyard nằm ở vị trí trung tâm màn hình */}
+          {/* Model 3D Lanyard: Khung viền rất mỏng bao quanh khu vực thao tác 3D */}
           <div 
             id="chv-3d-lanyard-container"
-            className="w-full h-full flex items-center justify-center relative select-none"
+            className="w-[92vw] max-w-5xl h-[74vh] sm:h-[78vh] md:h-[82vh] border border-white/15 relative rounded-none flex items-center justify-center overflow-hidden select-none"
           >
             <Lanyard
               key={selectedMajor.id}
@@ -533,7 +590,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
               lanyardWidth={0.65}
               imageFit="cover"
               transparent={true}
-              className="w-full h-[74vh] sm:h-[78vh] md:h-[82vh] lg:h-[86vh]"
+              className="w-full h-full"
             />
           </div>
         </section>
@@ -545,7 +602,7 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           id="reimagined-zone-ussh"
           className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex flex-col items-center justify-center overflow-hidden"
         >
-          {/* Nội dung trung tâm: Mô hình 3D xoay 360 độ hoặc Dàn phẳng carousel */}
+          {/* Nội dung trung tâm: Mô hình 3D xoay 360 độ hoặc Dàn phẳng carousel (Giữ nguyên không kẻ viền) */}
           <div className="w-full h-full flex items-center justify-center relative select-none px-4">
             <UsshDocumentViewer
               id="ussh-viewer"
@@ -565,9 +622,10 @@ export const ReimaginedIntroScreen: React.FC<ReimaginedIntroScreenProps> = ({
           id="reimagined-zone-cd"
           className="relative w-full h-[calc(var(--vh,1vh)*100)] shrink-0 flex flex-col items-center justify-center overflow-hidden"
         >
+          {/* Model 3D Hộp đĩa CD: Khung viền rất mỏng bao quanh khu vực thao tác 3D */}
           <div 
             id="cd-jewel-case-container"
-            className="w-full h-full flex items-center justify-center relative select-none"
+            className="w-[92vw] max-w-5xl h-[74vh] sm:h-[78vh] md:h-[82vh] border border-white/15 relative rounded-none flex items-center justify-center overflow-hidden select-none"
           >
             <CDJewelCaseViewer
               open={cdCaseOpen}
